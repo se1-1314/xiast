@@ -4,3 +4,11 @@
 *.jar
 *.war
 *.ear
+
+# OSX+Win garbage #
+.DS_Store
+.DS_Store?
+.Spotlight-V100
+.Trashes
+Icon?
+Thumbs.db
