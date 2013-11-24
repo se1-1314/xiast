@@ -3,7 +3,19 @@
 /checkouts
 pom.xml
 pom.xml.asc
-*.jar
 *.class
 /.lein-*
 /.nrepl-port
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# OSX+Win garbage #
+.DS_Store
+.DS_Store?
+.Spotlight-V100
+.Trashes
+Icon?
+Thumbs.db
