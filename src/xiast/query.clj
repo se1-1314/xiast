@@ -1,6 +1,6 @@
 (ns xiast.query
   "This namespace provides protocols for querying information
-  accessible through Xiast.
+  accessible through Xiast information stores.
 
   Timespans are maps structured as follows:
 
@@ -8,11 +8,47 @@
    :days [1 7]
    :time [1 34]} ;; Half-hour time slots from 07:00 through 23:30
 
-  Weeks, days and time can also be a single integer instead of a range.")
+  Schedule blocks are of the form:
 
-(defprotocol CourseList
+  {:week 1
+   :day 1
+   :start-time 3
+   :end-time 6
+   :course {:title \"Course title\" :id \"Course ID\"}
+   :room \"RoomId\"}
+
+  Using the same semantics as timespans and (courses).")
+
+(defprotocol XiastQuery
   (courses
     [this]
     [this title-kw]
     "Return a list of {:title \"Course title\" :id \"Course ID\"},
-    optionally using a search keyword for the name of the course."))
+    optionally using a search keyword for the name of the course.")
+  (course-schedule
+    [this course-id]
+    [this course-id timespan]
+    "Return a list of schedule blocks for a course, optionally using a
+    timespan to limit results.")
+  (student-schedule
+    [this student-id]
+    [this student-id timespan]
+    "Return a list of schedule blocks for a student, optionally using
+    a timespan to limit results.")
+  (room-schedule
+    [this room-id]
+    [this room-id timespan]
+    "Return a list of schedule blocks for a room, optionally using a
+    timespan to limit results."))
+
+(defn- in-range? [num range]
+  (<= (first range) num (second range)))
+
+(defn schedule-block-in-timespan? [block timespan]
+  ;; FIXME ew, possibly fixable by adding some multimethods
+  (and (every? true?
+               (map in-range?
+                    (map block [:week :day])
+                    (map timespan [:weeks :days])))
+       (or (in-range? (:start-time block) (:time timespan))
+           (in-range? (:end-time block) (:time timespan)))))
