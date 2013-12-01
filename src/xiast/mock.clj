@@ -5,7 +5,7 @@
 
 (def *mock-data*
   (MockData. [{:id "1" :title "Mathematics"}
-              {:id "2" :title "Fysics"}
+              {:id "2" :title "Physics"}
               {:id "3" :title "Scheme"}]))
 
 (extend-type MockData
