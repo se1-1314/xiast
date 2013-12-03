@@ -1,7 +1,9 @@
 (ns xiast.core
   (:use compojure.core
         net.cgrand.enlive-html
-        [xiast.mock :only [*mock-data*]])
+        [xiast.mock :only [*mock-data*]]
+        [xiast.session :as session]
+        [xiast.authentication :as auth])
   (:require [compojure.route :as route]
             [compojure.handler :as handler]
             [compojure.response :as response]
@@ -36,6 +38,17 @@
   (GET "/" [] (index-page (query/courses *mock-data*) (index-page-body)))
   (GET "/about" [] (about-page (about-page-body)))
   (GET "/login" [] (login-page (login-page-body)))
+  (POST "/login" {cookies :cookies params :params}
+    (let [res (auth/login (:user params) (:pwd params))]
+      (if res
+        {:body (index-page (query/courses *mock-data*) (index-page-body))
+         :cookies (session/to-cookies res)}
+        (login-page (login-page-body)))))
+  (GET "/logout" {cookies :cookies}
+    (let [session (session/from-cookies cookies)]
+      ;; TODO: Redirect instead of directly showing index page
+      {:body (index-page (query/courses *mock-data*) (index-page-body))
+       :cookies (session/to-cookies (session/kill-session! session))}))
   (route/not-found "Not found!"))
 
 (def app
