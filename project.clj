@@ -6,7 +6,10 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [compojure "1.1.6"]
                  [ring "1.2.1"]
-                 [enlive "1.1.4"]]
+                 [enlive "1.1.4"]
+                 [com.taoensso/tower "2.0.1"]
+                 [ring-mock "0.1.5"]]
+  :dev-dependencies []
   :plugins [[lein-ring "0.8.8"]]
   :main ^:skip-aot xiast.core
   :target-path "target/%s"

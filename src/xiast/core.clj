@@ -5,8 +5,16 @@
   (:require [compojure.route :as route]
             [compojure.handler :as handler]
             [compojure.response :as response]
-            [xiast.query :as query]))
+            [xiast.query :as query]
+            [taoensso.tower :as tower
+             :refer (with-locale with-tscope t *locale*)]))
 
+(def tconfig
+  {:dev-mode? true
+   :fallback-locale :en
+   ;; TODO Write function to load dictionaries
+   :dictionary {:en (load-file "resources/dictionaries/en.clj")
+                :nl (load-file "resources/dictionaries/nl.clj")}})
 
 (defsnippet index-page-body "templates/index.html" [:#page-content] []
   identity)
