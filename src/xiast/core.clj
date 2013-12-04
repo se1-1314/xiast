@@ -3,7 +3,9 @@
         net.cgrand.enlive-html
         [xiast.mock :only [*mock-data*]]
         [xiast.session :as session]
-        [xiast.authentication :as auth])
+        [xiast.authentication :as auth]
+        [ring.middleware.file-info :only [wrap-file-info]]
+        [ring.middleware.resource :only [wrap-resource]])
   (:require [compojure.route :as route]
             [compojure.handler :as handler]
             [compojure.response :as response]
@@ -59,5 +61,8 @@
        :cookies (session/to-cookies (session/kill-session! session))}))
   (route/not-found "Not found!"))
 
+
 (def app
-  (-> (handler/site main-routes)))
+  (-> (handler/site main-routes)
+      (wrap-resource "public")
+      (wrap-file-info)))
