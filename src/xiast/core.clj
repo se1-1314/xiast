@@ -3,14 +3,13 @@
         net.cgrand.enlive-html
         [xiast.mock :only [*mock-data*]]
         [xiast.session :as session]
-        [xiast.authentication :as auth])
+        [xiast.authentication :as auth]
+        [ring.middleware.file-info :only [wrap-file-info]]
+        [ring.middleware.resource :only [wrap-resource]])
   (:require [compojure.route :as route]
             [compojure.handler :as handler]
             [compojure.response :as response]
             [xiast.query :as query]))
-(use 'ring.middleware.file-info
-     'ring.middleware.resource)
-
 
 (defsnippet index-page-body "templates/index.html" [:#page-content] []
   identity)
