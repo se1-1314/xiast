@@ -8,6 +8,8 @@
             [compojure.handler :as handler]
             [compojure.response :as response]
             [xiast.query :as query]))
+(use 'ring.middleware.file-info
+     'ring.middleware.resource)
 
 
 (defsnippet index-page-body "templates/index.html" [:#page-content] []
@@ -51,5 +53,8 @@
        :cookies (session/to-cookies (session/kill-session! session))}))
   (route/not-found "Not found!"))
 
+
 (def app
-  (-> (handler/site main-routes)))
+  (-> (handler/site main-routes)
+      (wrap-resource "public")
+      (wrap-file-info)))
