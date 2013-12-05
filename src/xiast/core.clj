@@ -30,7 +30,7 @@
   [courses index]
   [:div#page-content] (content index)
   [:ul#course-list :li] (clone-for [course courses]
-                                   (content (:title course))))
+                                   (content (:title (val course)))))
 
 (deftemplate about-page "templates/layout.html"
   [about]
