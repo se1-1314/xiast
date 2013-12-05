@@ -5,20 +5,17 @@
         [xiast.session :as session]
         [xiast.authentication :as auth]
         [ring.middleware.file-info :only [wrap-file-info]]
-        [ring.middleware.resource :only [wrap-resource]])
+        [ring.middleware.resource :only [wrap-resource]]
+        [ring.handler.dump :only [handle-dump]])
   (:require [compojure.route :as route]
             [compojure.handler :as handler]
             [compojure.response :as response]
             [xiast.query :as query]
             [taoensso.tower :as tower
-             :refer (with-locale with-tscope t *locale*)]))
+             :refer (with-locale with-tscope t *locale*)]
+            [taoensso.tower.ring :as tower.ring]
+            [xiast.translate :as translate]))
 
-(def tconfig
-  {:dev-mode? true
-   :fallback-locale :en
-   ;; TODO Write function to load dictionaries
-   :dictionary {:en (load-file "resources/dictionaries/en.clj")
-                :nl (load-file "resources/dictionaries/nl.clj")}})
 
 (defsnippet index-page-body "templates/index.html" [:#page-content] []
   identity)
@@ -64,5 +61,6 @@
 
 (def app
   (-> (handler/site main-routes)
+      (tower.ring/wrap-tower-middleware :fallback-locale :en :tconfig translate/config)
       (wrap-resource "public")
       (wrap-file-info)))
