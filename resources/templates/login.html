@@ -1,5 +1,25 @@
 <html>
-  <div id="page-content">
-    temporary login page
+  <div class="img-rounded col-md-4 col-md-offset-4" id="page-content">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title">Sign in</h3>
+      </div>
+      <div class="panel-body">
+        <form action="/login" method="post" accept-charset="UTF-8"
+              role="form">
+          <fieldset>
+            <div class="form-group">
+              <input class="form-control" id="user" name="user"
+                     placeholder="User" type="text">
+            </div>
+            <div class="form-group">
+              <input class="form-control" id="pwd" name="pwd"
+              placeholder="Password" type="password">
+            </div>
+            <input class="btn btn-lg bt-succes btn-block" type
+                   ="submit" value="Log in">
+          </fieldset>
+        </form>
+      </div>
   </div>
 </html>
