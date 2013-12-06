@@ -8,20 +8,48 @@
   or
     <... msg=\"tower/dictionary/path\"> </...>
     (Contents of tag will be replaced by message.)
-  tags in your template files.")
+  tags in your template files."
+  (:use net.cgrand.enlive-html)
+  (:require [taoensso.tower :as tower
+             :refer (with-locale with-tscope t *locale*)]))
 
-(def config
+(def tower-config
   {:dev-mode? true
    :fallback-locale :en
    ;; TODO Write function to load dictionaries
    :dictionary {:en (load-file "resources/dictionaries/en.clj")
                 :nl-BE (load-file "resources/dictionaries/nl.clj")}})
 
-(defn replace-node [& format-args]
+;;; FIXME abstract translation function
+(defn translate-by-context
+  [kw & format-args]
+  (apply t tower/*locale* tower-config kw format-args))
+
+(defn translate-node [& format-args]
   "Replaces node by translation"
   (fn [node]
-    (apply t tower/*locale* translate/config (keyword (-> node :attrs :msg))
-           format-args)))
-(defn content-node [&])
+    (apply translate-by-context (keyword (-> node :attrs :msg)) format-args)))
 
-(defn translate-snip [nodes ])
+(defn translate-node-content [& format-args]
+  "Substitute contents of node by translation"
+  (do-> (fn [node]
+          ((content (apply translate-by-context (keyword (-> node :attrs :msg)) format-args))
+           node))
+        (remove-attr :msg)))
+
+(defmacro translate-nodes
+  "Forms are like
+     [:name/space/msg args ...]"
+  [nodes & forms]
+  `(at ~nodes
+       ~@(mapcat
+          (fn [[keyw & args]]
+            [[[:xiast `(attr= :msg ~(subs (str keyw) 1))]] `(translate-node ~@args)
+             [`(attr= :msg ~(subs (str keyw) 1))]  `(translate-node-content ~@args)])
+          forms)
+       [[:xiast (attr? :msg)]] (translate-node)
+       [(attr? :msg)] (translate-node-content)))
+
+;; (binding [tower/*locale* :en]
+;;   (translate-nodes (html-snippet "<xiast msg=\"index/welcome\"></body") [:oue "aou"]))
+;; (tr)
