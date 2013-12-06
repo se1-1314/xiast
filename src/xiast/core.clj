@@ -61,6 +61,6 @@
 
 (def app
   (-> (handler/site main-routes)
-      (tower.ring/wrap-tower-middleware :fallback-locale :en :tconfig translate/config)
+      (tower.ring/wrap-tower-middleware :fallback-locale :en :tconfig translate/tower-config)
       (wrap-resource "public")
       (wrap-file-info)))
