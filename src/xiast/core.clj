@@ -24,8 +24,9 @@
 
 (defsnippet index-body "templates/index.html" [:div#page-content]
   []
-  [:select#course-list :option] (clone-for [course (query/courses *mock-data*)]
-                                   (content (:title (val course)))))
+  [:div#course-list :div] (clone-for [course (query/courses *mock-data*)]
+                                     (content (:title (val course)))
+                                     (onclick (:titlle (val course)))))
 
 (defroutes index-routes
   (GET "/" [] (base (index-body))))
