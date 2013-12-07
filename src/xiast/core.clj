@@ -23,7 +23,7 @@
 (deftemplate index-page "templates/layout.html"
   [courses index]
   [:div#page-content] (content index)
-  [:ul#course-list :li] (clone-for [course courses]
+  [:select#course-list :option] (clone-for [course courses]
                                    (content (:title (val course)))))
 
 (deftemplate about-page "templates/layout.html"
