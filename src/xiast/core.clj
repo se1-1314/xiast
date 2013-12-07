@@ -51,7 +51,7 @@
         (base (login-body)))))
   (GET "/logout" {cookies :cookies}
     (let [session (session/from-cookies cookies)]
-      (assoc (resp/redirect "/") :cookies (session/to-cookies res)))))
+      (assoc (resp/redirect "/") :cookies (session/to-cookies (session/kill-session! session))))))
 
 ;;; Read: https://github.com/weavejester/compojure/wiki
 (defroutes main-routes
