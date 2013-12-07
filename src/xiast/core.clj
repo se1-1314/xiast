@@ -51,7 +51,6 @@
         (base (login-body)))))
   (GET "/logout" {cookies :cookies}
     (let [session (session/from-cookies cookies)]
-      ;; TODO: Redirect instead of directly showing index page
       (assoc (resp/redirect "/") :cookies (session/to-cookies res)))))
 
 ;;; Read: https://github.com/weavejester/compojure/wiki
