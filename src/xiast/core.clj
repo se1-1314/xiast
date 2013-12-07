@@ -6,6 +6,7 @@
         [ring.middleware.file-info :only [wrap-file-info]]
         [ring.middleware.resource :only [wrap-resource]]
         [ring.handler.dump :only [handle-dump]]
+        [ring.util.response :as resp]
         net.cgrand.enlive-html)
   (:require [compojure.route :as route]
             [compojure.handler :as handler]
@@ -25,6 +26,7 @@
   []
   [:ul#course-list :li] (clone-for [course (query/courses *mock-data*)]
                                    (content (:title (val course)))))
+
 (defroutes index-routes
   (GET "/" [] (base (index-body))))
 
@@ -32,6 +34,7 @@
 (defsnippet about-body "templates/about.html" [:div#page-content]
   []
   identity)
+
 (defroutes about-routes
   (GET "/about" [] (base (about-body))))
 
@@ -40,19 +43,15 @@
   identity)
 
 (defroutes login-routes
-  (GET "/login" [] (login-page (login-page-body)))
+  (GET "/login" [] (base (login-body)))
   (POST "/login" {cookies :cookies params :params}
     (let [res (auth/login (:user params) (:pwd params))]
       (if res
-        {:body (index-page (query/courses *mock-data*) (index-page-body))
-         :cookies (session/to-cookies res)}
+        (assoc (resp/redirect "/") :cookies (session/to-cookies res))
         (base (login-body)))))
   (GET "/logout" {cookies :cookies}
     (let [session (session/from-cookies cookies)]
-      ;; TODO: Redirect instead of directly showing index page
-      {:body (base (index-body))
-       :cookies (session/to-cookies (session/kill-session! session))})))
-
+      (assoc (resp/redirect "/") :cookies (session/to-cookies (session/kill-session! session))))))
 
 ;;; Read: https://github.com/weavejester/compojure/wiki
 (defroutes main-routes

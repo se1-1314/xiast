@@ -7,7 +7,8 @@
                  [compojure "1.1.6"]
                  [ring "1.2.1"]
                  [enlive "1.1.4"]
-                 [com.taoensso/tower "2.0.1"]]
+                 [com.taoensso/tower "2.0.1"]
+                 [hiccup "1.0.4"]]
   :plugins [[lein-ring "0.8.8"]]
   :main ^:skip-aot xiast.core
   :target-path "target/%s"
