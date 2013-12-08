@@ -45,10 +45,9 @@
 (defroutes login-routes
   (GET "/login" [] (base (login-body)))
   (POST "/login" {cookies :cookies params :params}
-    (let [res (auth/login (:user params) (:pwd params))]
-      (if res
-        (assoc (resp/redirect "/") :cookies (session/to-cookies res))
-        (base (login-body)))))
+    (if-let [res (auth/login (:user params) (:pwd params))]
+      (assoc (resp/redirect "/") :cookies (session/to-cookies res))
+      (base (login-body))))
   (GET "/logout" {cookies :cookies}
     (let [session (session/from-cookies cookies)]
       (assoc (resp/redirect "/") :cookies (session/to-cookies (session/kill-session! session))))))
