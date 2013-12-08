@@ -17,8 +17,7 @@
   {:dev-mode? true
    :fallback-locale :en
    ;; TODO Write function to load dictionaries
-   :dictionary {:en (load-file "resources/dictionaries/en.clj")
-                :nl-BE (load-file "resources/dictionaries/nl.clj")}})
+   :dictionary "dictionaries/all.clj"})
 
 ;;; FIXME abstract translation function
 (defn translate-by-context
