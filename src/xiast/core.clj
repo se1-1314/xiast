@@ -28,22 +28,24 @@
                                    (content (:title (val course)))))
 
 (defroutes index-routes
-  (GET "/" [] (base (index-body))))
-
+  (GET "/" [] (base (-> (index-body)
+                        (translate/translate-nodes
+                         [:index/welcome "Guest"])))))
 
 (defsnippet about-body "templates/about.html" [:div#page-content]
   []
   identity)
 
 (defroutes about-routes
-  (GET "/about" [] (base (about-body))))
+  (GET "/about" [] (base (-> (about-body)
+                             (translate/translate-nodes)))))
 
 (defsnippet login-body "templates/login.html" [:div#page-content]
   []
   identity)
-
 (defroutes login-routes
-  (GET "/login" [] (base (login-body)))
+  (GET "/login" [] (base (-> (login-body)
+                             (translate/translate-nodes))))
   (POST "/login" {cookies :cookies params :params}
     (if-let [res (auth/login (:user params) (:pwd params))]
       (assoc (resp/redirect "/") :cookies (session/to-cookies res))
