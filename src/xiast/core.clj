@@ -25,8 +25,7 @@
 (defsnippet index-body "templates/index.html" [:div#page-content]
   []
   [:div#course-list :div] (clone-for [course (query/courses *mock-data*)]
-                                     (content (:title (val course)))
-                                     (onclick (:titlle (val course)))))
+                                     (content (:title (val course)))))
 
 (defroutes index-routes
   (GET "/" [] (base (-> (index-body)
@@ -61,6 +60,7 @@
        (if (= 0 (mod (- t 1) 2))
          "00"
          "30")))
+
 (defsnippet schedule-body "templates/schedule.html" [:div#page-content]
   [schedule-blocks]
   [:ul#schedule :li] (clone-for [sb schedule-blocks]
