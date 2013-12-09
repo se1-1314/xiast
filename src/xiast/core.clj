@@ -7,6 +7,14 @@
         [ring.middleware.resource :only [wrap-resource]]
         [ring.handler.dump :only [handle-dump]]
         [ring.util.response :as resp]
+        [ring.middleware.session.cookie :only [cookie-store]]
+        [ring.middleware params
+         keyword-params
+         nested-params
+         multipart-params
+         cookies
+         session
+         flash]
         net.cgrand.enlive-html)
   (:require [compojure.route :as route]
             [compojure.handler :as handler]
@@ -15,11 +23,12 @@
             [taoensso.tower :as tower
              :refer (with-locale with-tscope t *locale*)]
             [taoensso.tower.ring :as tower.ring]
-            [xiast.translate :as translate]))
+            [xiast.translate :as t]))
 
 
 (deftemplate base "templates/layout.html"
-  [body]
+  [body & {:keys [title]}]
+  [:html :> :head :> :title] (content title)
   [:div#page-content] (content body))
 
 (defsnippet index-body "templates/index.html" [:div#page-content]
@@ -28,9 +37,12 @@
                                      (content (:title (val course)))))
 
 (defroutes index-routes
-  (GET "/" [] (base (-> (index-body)
-                        (translate/translate-nodes
-                         [:index/welcome "Guest"])))))
+  (GET "/" {session :session}
+    (base (-> (index-body)
+            (t/translate-nodes
+              [:index/welcome (if-let [user (:user session)]
+                                user "Guest")]))
+          :title (t/translate :index/title))))
 
 (defsnippet about-body "templates/about.html" [:div#page-content]
   []
@@ -38,21 +50,28 @@
 
 (defroutes about-routes
   (GET "/about" [] (base (-> (about-body)
-                             (translate/translate-nodes)))))
+                             (t/translate-nodes)))))
 
 (defsnippet login-body "templates/login.html" [:div#page-content]
   []
   identity)
+
 (defroutes login-routes
-  (GET "/login" [] (base (-> (login-body)
-                             (translate/translate-nodes))))
-  (POST "/login" {cookies :cookies params :params}
+  (GET "/login" {session :session}
+    (if (:user session)
+      ;;TODO: flash message that user is already logged in
+      (resp/redirect "/")
+      ;;TODO: flash message that login was succesful
+      (base (-> (login-body)
+                (t/translate-nodes)))))
+  (POST "/login" {session :session params :params}
     (if-let [res (auth/login (:user params) (:pwd params))]
-      (assoc (resp/redirect "/") :cookies (session/to-cookies res))
-      (base (login-body))))
-  (GET "/logout" {cookies :cookies}
-    (let [session (session/from-cookies cookies)]
-      (assoc (resp/redirect "/") :cookies (session/to-cookies (session/kill-session! session))))))
+      (assoc (resp/redirect "/") :session (conj session res))
+      (base (login-body)))) ;;TODO: flash message that username/password is incorrect
+  (GET "/logout" {session :session}
+    (if (:user session)
+      (assoc (resp/redirect "/") :session {:locale (:locale session)})
+      (assoc (resp/redirect "/")))))
 
 (defn- block-time->time-str [t]
   (str (+ 7 (quot (- t 1) 2))
@@ -70,10 +89,11 @@
                                               "-" (block-time->time-str (:end-time sb))
                                               ": " (-> sb :course :title)
                                               " in " (:room sb)))))
+
 ;; FIXME, hack?
 (defn- schedule-page [schedule-blocks]
   (base (-> (schedule-body schedule-blocks)
-            (translate/translate-nodes))))
+            (t/translate-nodes))))
 (defroutes schedule-routes
   (GET "/schedule/student/:student-id" [student-id]
        (schedule-page (query/student-schedule *mock-data* student-id)))
@@ -82,17 +102,30 @@
   (GET "/schedule/course/:course-id" [course-id]
        (schedule-page (query/course-schedule *mock-data* course-id))))
 
+(defroutes language-routes
+  (GET "/lang/:locale" [locale :as {session :session}]
+    (assoc (resp/redirect "/")
+           :session (assoc session :locale locale))))
+
 ;;; Read: https://github.com/weavejester/compojure/wiki
 (defroutes main-routes
   index-routes
   about-routes
   login-routes
   schedule-routes
+  language-routes
   (route/not-found "Not found!"))
 
 
 (def app
-  (-> (handler/site main-routes)
-      (tower.ring/wrap-tower-middleware :fallback-locale :en :tconfig translate/tower-config)
+  ;; TODO: get cookie-store secret key out of a config file or something
+  (-> main-routes
+      wrap-keyword-params
+      wrap-nested-params
+      wrap-params
+      wrap-multipart-params
+      wrap-flash
+      (tower.ring/wrap-tower-middleware :fallback-locale :en :tconfig t/tower-config)
+      (wrap-session {:store (cookie-store {:key "Kn4pHR5jxnuo3Bmc"})})
       (wrap-resource "public")
       (wrap-file-info)))

@@ -20,19 +20,19 @@
    :dictionary "dictionaries/all.clj"})
 
 ;;; FIXME abstract translation function
-(defn translate-by-context
+(defn translate
   [kw & format-args]
   (apply t tower/*locale* tower-config kw format-args))
 
 (defn translate-node [& format-args]
   "Replaces node by translation"
   (fn [node]
-    (apply translate-by-context (keyword (-> node :attrs :msg)) format-args)))
+    (apply translate (keyword (-> node :attrs :msg)) format-args)))
 
 (defn translate-node-content [& format-args]
   "Substitute contents of node by translation"
   (do-> (fn [node]
-          ((content (apply translate-by-context (keyword (-> node :attrs :msg)) format-args))
+          ((content (apply translate (keyword (-> node :attrs :msg)) format-args))
            node))
         (remove-attr :msg)))
 
@@ -48,6 +48,7 @@
           forms)
        [[:xiast (attr? :msg)]] (translate-node)
        [(attr? :msg)] (translate-node-content)))
+
 
 ;; (binding [tower/*locale* :en]
 ;;   (translate-nodes (html-snippet "<xiast msg=\"index/welcome\"></body") [:oue "aou"]))
