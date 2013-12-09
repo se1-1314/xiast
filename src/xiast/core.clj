@@ -8,6 +8,13 @@
         [ring.handler.dump :only [handle-dump]]
         [ring.util.response :as resp]
         [ring.middleware.session.cookie :only [cookie-store]]
+        [ring.middleware params
+         keyword-params
+         nested-params
+         multipart-params
+         cookies
+         session
+         flash]
         net.cgrand.enlive-html)
   (:require [compojure.route :as route]
             [compojure.handler :as handler]
@@ -96,8 +103,9 @@
        (schedule-page (query/course-schedule *mock-data* course-id))))
 
 (defroutes language-routes
-  (GET "/lang/:locale" [cookies :as {session :cookies}]
-       (assoc (resp/redirect "/") {}))) ;; TODO
+  (GET "/lang/:locale" [locale :as {session :session}]
+    (assoc (resp/redirect "/")
+           :session (assoc session :locale locale))))
 
 ;;; Read: https://github.com/weavejester/compojure/wiki
 (defroutes main-routes
@@ -111,7 +119,13 @@
 
 (def app
   ;; TODO: get cookie-store secret key out of a config file or something
-  (-> (handler/site main-routes {:session {:store (cookie-store {:key "Kn4pHR5jxnuo3Bmc"})}})
+  (-> main-routes
+      wrap-keyword-params
+      wrap-nested-params
+      wrap-params
+      wrap-multipart-params
+      wrap-flash
       (tower.ring/wrap-tower-middleware :fallback-locale :en :tconfig t/tower-config)
+      (wrap-session {:store (cookie-store {:key "Kn4pHR5jxnuo3Bmc"})})
       (wrap-resource "public")
       (wrap-file-info)))
