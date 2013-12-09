@@ -7,6 +7,6 @@
 (defn login
   [netid password]
   (if (and (= netid "nvgeele") (= password "swordfish"))
-    {:token (str (java.util.UUID/randomUUID))
+    {:user "nvgeele"
      :locale "en"}
     nil))
