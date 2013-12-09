@@ -16,11 +16,13 @@
             [taoensso.tower :as tower
              :refer (with-locale with-tscope t *locale*)]
             [taoensso.tower.ring :as tower.ring]
-            [xiast.translate :as translate]))
+            [xiast.translate :as t]))
 
 
 (deftemplate base "templates/layout.html"
-  [body]
+  [body & {:keys [title]}]
+  "Render a page. body is a seq of Enlive nodes, :title is the page title string."
+  [:html :> :head :> :title] (content title)
   [:div#page-content] (content body))
 
 (defsnippet index-body "templates/index.html" [:div#page-content]
@@ -31,9 +33,10 @@
 (defroutes index-routes
   (GET "/" {session :session}
     (base (-> (index-body)
-            (translate/translate-nodes
+            (t/translate-nodes
               [:index/welcome (if-let [user (:user session)]
-                                user "Guest")])))))
+                                user "Guest")]))
+          :title (t/translate :index/title))))
 
 (defsnippet about-body "templates/about.html" [:div#page-content]
   []
@@ -41,7 +44,7 @@
 
 (defroutes about-routes
   (GET "/about" [] (base (-> (about-body)
-                             (translate/translate-nodes)))))
+                             (t/translate-nodes)))))
 
 (defsnippet login-body "templates/login.html" [:div#page-content]
   []
@@ -54,7 +57,7 @@
       (resp/redirect "/")
       ;;TODO: flash message that login was succesful
       (base (-> (login-body)
-                (translate/translate-nodes)))))
+                (t/translate-nodes)))))
   (POST "/login" {session :session params :params}
     (if-let [res (auth/login (:user params) (:pwd params))]
       (assoc (resp/redirect "/") :session (conj session res))
@@ -84,7 +87,7 @@
 ;; FIXME, hack?
 (defn- schedule-page [schedule-blocks]
   (base (-> (schedule-body schedule-blocks)
-            (translate/translate-nodes))))
+            (t/translate-nodes))))
 (defroutes schedule-routes
   (GET "/schedule/student/:student-id" [student-id]
        (schedule-page (query/student-schedule *mock-data* student-id)))
@@ -93,18 +96,23 @@
   (GET "/schedule/course/:course-id" [course-id]
        (schedule-page (query/course-schedule *mock-data* course-id))))
 
+(defroutes language-routes
+  (GET "/lang/:locale" [cookies :as {session :cookies}]
+       (assoc (resp/redirect "/") {}))) ;; TODO
+
 ;;; Read: https://github.com/weavejester/compojure/wiki
 (defroutes main-routes
   index-routes
   about-routes
   login-routes
   schedule-routes
+  language-routes
   (route/not-found "Not found!"))
 
 
 (def app
   ;; TODO: get cookie-store secret key out of a config file or something
   (-> (handler/site main-routes {:session {:store (cookie-store {:key "Kn4pHR5jxnuo3Bmc"})}})
-      (tower.ring/wrap-tower-middleware :fallback-locale :en :tconfig translate/tower-config)
+      (tower.ring/wrap-tower-middleware :fallback-locale :en :tconfig t/tower-config)
       (wrap-resource "public")
       (wrap-file-info)))
