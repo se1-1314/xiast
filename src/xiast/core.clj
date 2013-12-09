@@ -21,7 +21,6 @@
 
 (deftemplate base "templates/layout.html"
   [body & {:keys [title]}]
-  "Render a page. body is a seq of Enlive nodes, :title is the page title string."
   [:html :> :head :> :title] (content title)
   [:div#page-content] (content body))
 
