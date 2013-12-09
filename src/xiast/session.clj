@@ -8,9 +8,8 @@
   (let [locale (cookies "locale")
         token  (cookies "token")]
     {:locale (if locale locale "en")
-     :token (if token
-              (auth/netid-from-token token)
-              "")}))
+     :token token
+     :user (if token (auth/netid-from-token token) nil)}))
 
 (defn to-cookies
   [session]
