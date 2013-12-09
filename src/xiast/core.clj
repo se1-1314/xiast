@@ -7,6 +7,7 @@
         [ring.middleware.resource :only [wrap-resource]]
         [ring.handler.dump :only [handle-dump]]
         [ring.util.response :as resp]
+        [ring.middleware.session.cookie :only [cookie-store]]
         net.cgrand.enlive-html)
   (:require [compojure.route :as route]
             [compojure.handler :as handler]
@@ -28,9 +29,11 @@
                                    (content (:title (val course)))))
 
 (defroutes index-routes
-  (GET "/" [] (base (-> (index-body)
-                        (translate/translate-nodes
-                         [:index/welcome "Guest"])))))
+  (GET "/" {session :session}
+    (base (-> (index-body)
+            (translate/translate-nodes
+              [:index/welcome (if-let [user (:user session)]
+                                user "Guest")])))))
 
 (defsnippet about-body "templates/about.html" [:div#page-content]
   []
@@ -43,16 +46,23 @@
 (defsnippet login-body "templates/login.html" [:div#page-content]
   []
   identity)
+
 (defroutes login-routes
-  (GET "/login" [] (base (-> (login-body)
-                             (translate/translate-nodes))))
-  (POST "/login" {cookies :cookies params :params}
+  (GET "/login" {session :session}
+    (if (:user session)
+      ;;TODO: flash message that user is already logged in
+      (resp/redirect "/")
+      ;;TODO: flash message that login was succesful
+      (base (-> (login-body)
+                (translate/translate-nodes)))))
+  (POST "/login" {session :session params :params}
     (if-let [res (auth/login (:user params) (:pwd params))]
-      (assoc (resp/redirect "/") :cookies (session/to-cookies res))
-      (base (login-body))))
-  (GET "/logout" {cookies :cookies}
-    (let [session (session/from-cookies cookies)]
-      (assoc (resp/redirect "/") :cookies (session/to-cookies (session/kill-session! session))))))
+      (assoc (resp/redirect "/") :session (conj session res))
+      (base (login-body)))) ;;TODO: flash message that username/password is incorrect
+  (GET "/logout" {session :session}
+    (if (:user session)
+      (assoc (resp/redirect "/") :session {:locale (:locale session)})
+      (assoc (resp/redirect "/")))))
 
 (defn- block-time->time-str [t]
   (str (+ 7 (quot (- t 1) 2))
@@ -60,6 +70,7 @@
        (if (= 0 (mod (- t 1) 2))
          "00"
          "30")))
+
 (defsnippet schedule-body "templates/schedule.html" [:div#page-content]
   [schedule-blocks]
   [:ul#schedule :li] (clone-for [sb schedule-blocks]
@@ -69,6 +80,7 @@
                                               "-" (block-time->time-str (:end-time sb))
                                               ": " (-> sb :course :title)
                                               " in " (:room sb)))))
+
 ;; FIXME, hack?
 (defn- schedule-page [schedule-blocks]
   (base (-> (schedule-body schedule-blocks)
@@ -91,7 +103,8 @@
 
 
 (def app
-  (-> (handler/site main-routes)
+  ;; TODO: get cookie-store secret key out of a config file or something
+  (-> (handler/site main-routes {:session {:store (cookie-store {:key "Kn4pHR5jxnuo3Bmc"})}})
       (tower.ring/wrap-tower-middleware :fallback-locale :en :tconfig translate/tower-config)
       (wrap-resource "public")
       (wrap-file-info)))
