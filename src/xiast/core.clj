@@ -56,6 +56,7 @@
   []
   identity)
 
+
 (defroutes login-routes
   (GET "/login" {session :session}
     (if (:user session)
@@ -94,6 +95,7 @@
 (defn- schedule-page [schedule-blocks]
   (base (-> (schedule-body schedule-blocks)
             (t/translate-nodes))))
+
 (defroutes schedule-routes
   (GET "/schedule/student/:student-id" [student-id]
        (schedule-page (query/student-schedule *mock-data* student-id)))
@@ -102,6 +104,23 @@
   (GET "/schedule/course/:course-id" [course-id]
        (schedule-page (query/course-schedule *mock-data* course-id))))
 
+(defsnippet course-body "templates/courses.html" [:div#page-content]
+  []
+  [:ul#course-list :li]
+  (clone-for [course (query/courses *mock-data*)]
+             (content (:title (val course)))))
+  
+(defn- course-filtered-page [key]
+  (base (-> (course-body)
+            (t/translate-nodes))))
+  
+(defroutes course-routes
+  (GET "/courses"
+       [] (base (-> (course-body)
+                    (t/translate-nodes))))
+  (GET "/courses/:key" [key]
+       (course-filtered-page key)))
+  
 (defroutes language-routes
   (GET "/lang/:locale" [locale :as {session :session}]
     (assoc (resp/redirect "/")
@@ -114,6 +133,7 @@
   login-routes
   schedule-routes
   language-routes
+  course-routes
   (route/not-found "Not found!"))
 
 
