@@ -38,7 +38,10 @@
     ([this]
        (:courses this))
     ([this title-kw]
-       (filter #(.contains (:title (val %)) title-kw) (:courses this))))
+       (map  (fn [%]
+               {:id (key %)
+                :title (:title (val %))})
+            (filter #(.contains (:title (val %)) title-kw) (:courses this)))))
   (course-schedule
     ([this course-id]
        (schedule-blocks this course-id))
