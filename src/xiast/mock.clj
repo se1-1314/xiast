@@ -36,7 +36,7 @@
   xiast.query/XiastQuery
   (courses
     ([this]
-       (:courses this))
+       (courses this ""))
     ([this title-kw]
        (map  (fn [%]
                {:id (key %)
