@@ -26,9 +26,9 @@
             [xiast.translate :as t]))
 
 
-(def login-link "<a href=\"\\login\" msg=\"header/login\">Login</a>")
+(def login-link "<a href=\"/login\" msg=\"header/login\">Login</a>")
 (defn logged-in-link [user]
-  (str "<a href=\"\\logout\">" user "</a>"))
+  (str "<a href=\"/logout\">" user "</a>"))
 
 (deftemplate base "templates/layout.html"
   [body loginout & {:keys [title]}]
