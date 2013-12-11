@@ -26,10 +26,15 @@
             [xiast.translate :as t]))
 
 
+(def login-link "<a href=\"\\login\" msg=\"header/login\">Login</a>")
+(defn logged-in-link [user]
+  (str "<a href=\"\\logout\">" user "</a>"))
+
 (deftemplate base "templates/layout.html"
-  [body & {:keys [title]}]
+  [body loginout & {:keys [title]}]
   [:html :> :head :> :title] (content title)
-  [:div#page-content] (content body))
+  [:div#page-content] (content body)
+  [:li#login-out] (html-content loginout))
 
 (defsnippet index-body "templates/index.html" [:div#page-content]
   []
@@ -42,6 +47,8 @@
             (t/translate-nodes
               [:index/welcome (if-let [user (:user session)]
                                 user "Guest")]))
+          (if-let [user (:user session)]
+            (logged-in-link user) login-link)
           :title (t/translate :index/title))))
 
 (defsnippet about-body "templates/about.html" [:div#page-content]
@@ -49,8 +56,11 @@
   identity)
 
 (defroutes about-routes
-  (GET "/about" [] (base (-> (about-body)
-                             (t/translate-nodes)))))
+  (GET "/about" {session :session}
+       (base (-> (about-body)
+                 (t/translate-nodes))
+             (if-let [user (:user session)]
+               (logged-in-link user) login-link))))
 
 (defsnippet login-body "templates/login.html" [:div#page-content]
   []
@@ -64,11 +74,15 @@
       (resp/redirect "/")
       ;;TODO: flash message that login was succesful
       (base (-> (login-body)
-                (t/translate-nodes)))))
+                (t/translate-nodes))
+            (if-let [user (:user session)]
+              (logged-in-link user) login-link))))
   (POST "/login" {session :session params :params}
     (if-let [res (auth/login (:user params) (:pwd params))]
       (assoc (resp/redirect "/") :session (conj session res))
-      (base (login-body)))) ;;TODO: flash message that username/password is incorrect
+      (base (login-body)
+            (if-let [user (:user session)]
+              (logged-in-link user) login-link)))) ;;TODO: flash message that username/password is incorrect
   (GET "/logout" {session :session}
     (if (:user session)
       (assoc (resp/redirect "/") :session {:locale (:locale session)})
@@ -108,17 +122,19 @@
                                                      "</div>"))))
 
 ;; FIXME, hack?
-(defn- schedule-page [schedule-blocks]
+(defn- schedule-page [schedule-blocks & user]
   (base (-> (schedule-body schedule-blocks)
-            (t/translate-nodes))))
+            (t/translate-nodes))
+         (if (not (nil? user))
+           (logged-in-link user) login-link)))
 
 (defroutes schedule-routes
-  (GET "/schedule/student/:student-id" [student-id]
-       (schedule-page (query/student-schedule *mock-data* student-id)))
-  (GET "/schedule/room/:room-id" [room-id]
-       (schedule-page (query/room-schedule *mock-data* room-id)))
-  (GET "/schedule/course/:course-id" [course-id]
-       (schedule-page (query/course-schedule *mock-data* course-id))))
+  (GET "/schedule/student/:student-id" {session :session params :params}
+       (schedule-page (query/student-schedule *mock-data* (:student-id params))  (:user session)))
+  (GET "/schedule/room/:room-id" {session :session params :params}
+       (schedule-page (query/room-schedule *mock-data* (:room-id params) (:user session))))
+  (GET "/schedule/course/:course-id" {session :session params :params}
+       (schedule-page (query/course-schedule *mock-data* (:course-id params) (:user session)))))
 
 (defsnippet course-body "templates/courses.html" [:div#page-content]
   [courses]
@@ -130,11 +146,13 @@
                                 "</a>"))))
   
 (defroutes course-routes
-  (GET "/courses"
-       [key] (base (-> (course-body (if key
-                                      (query/courses *mock-data* key)
+  (GET "/courses" {session :session params :params}
+       (base (-> (course-body (if (:key params)
+                                (query/courses *mock-data* (:key params))
                                       (query/courses *mock-data*)))
-                       (t/translate-nodes)))))
+                       (t/translate-nodes))
+                   (if-let [user (:user session)]
+                     (logged-in-link user) login-link))))
   
 (defroutes language-routes
   (GET "/lang/:locale" [locale :as {session :session}]
