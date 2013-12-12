@@ -19,3 +19,5 @@ pom.xml.asc
 .Trashes
 Icon?
 Thumbs.db
+
+*.swp
