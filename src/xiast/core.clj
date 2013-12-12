@@ -31,12 +31,16 @@
   (str "<a href=\"/logout\">" user "</a>"))
 
 (deftemplate base "templates/layout.html"
-  [body & {:keys [title]}]
+  [body & {:keys [title alert-type alert-msg]
+           :or {alert-type :warning}}]
   [:html :> :head :> :title] (content title)
   [:div#page-content] (content body)
   [:li#login-out] (html-content (if-let [user (:user *session*)]
                                   (logged-in-link user)
-                                  login-link)))
+                                  login-link))
+  [:div#alert] (if alert-msg
+                 (do-> (add-class (str "alert-" (name alert-type)))
+                       (content alert-msg))))
 
 (defsnippet index-body "templates/index.html" [:div#page-content]
   []
