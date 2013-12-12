@@ -28,7 +28,16 @@
 
 (def login-link "<a href=\"/login\" msg=\"header/login\">Login</a>")
 (defn logged-in-link [user]
-  (str "<a href=\"/logout\">" user "</a>"))
+  (str "<li class=\"dropdown\">"
+       "<a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\">"
+       user
+       "<span class=\"caret\"></span>"
+       "</a>"
+       "<ul class=\"dropdown-menu\">"
+       "<li> <a href=\"/schedule/student/" user "\">Schedule</li>"
+       "<li><a href=\"/logout\">Logout</a></li>"
+       "</ul>"
+       "</li>"))
 
 (deftemplate base "templates/layout.html"
   [body & {:keys [title alert]}]
