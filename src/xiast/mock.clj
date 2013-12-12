@@ -41,7 +41,9 @@
        (map  (fn [%]
                {:id (key %)
                 :title (:title (val %))})
-            (filter #(.contains (:title (val %)) title-kw) (:courses this)))))
+            (filter #(.contains (.toLowerCase (:title (val %)))
+                                (.toLowerCase title-kw))
+                    (:courses this)))))
   (course-schedule
     ([this course-id]
        (schedule-blocks this course-id))
