@@ -4,9 +4,11 @@
   (:use [xiast.authentication :as auth]))
 
 (def ^:dynamic *session* nil)
+(def ^:dynamic *alert* nil)
 
 (defn wrap-with-session
   [handler]
   (fn [{session :session :as request}]
-    (binding [*session* session]
+    (binding [*session* session
+              *alert* (:flash request)]
       (handler request))))
