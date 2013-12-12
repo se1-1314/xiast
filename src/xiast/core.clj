@@ -1,7 +1,7 @@
 (ns xiast.core
   (:use compojure.core
         [xiast.mock :only [*mock-data*]]
-        [xiast.session :as session]
+        [xiast.session :only [*session* wrap-with-session]]
         [xiast.authentication :as auth]
         [ring.middleware.file-info :only [wrap-file-info]]
         [ring.middleware.resource :only [wrap-resource]]
@@ -34,8 +34,9 @@
   [body & {:keys [title]}]
   [:html :> :head :> :title] (content title)
   [:div#page-content] (content body)
-  ;;[:li#login-out] (html-content loginout)
-  )
+  [:li#login-out] (html-content (if-let [user (:user *session*)]
+                                  (logged-in-link user)
+                                  login-link)))
 
 (defsnippet index-body "templates/index.html" [:div#page-content]
   []
@@ -43,13 +44,12 @@
                                      (content (:title  course))))
 
 (defroutes index-routes
-  (GET "/" {session :session}
+  (GET "/" []
     (base (-> (index-body)
             (t/translate-nodes
-              [:index/welcome (if-let [user (:user session)]
-                                user "Guest")]))
-          (if-let [user (:user session)]
-            (logged-in-link user) login-link)
+              [:index/welcome (if-let [user (:user *session*)]
+                                user
+                                "Guest")]))
           :title (t/translate :index/title))))
 
 (defsnippet about-body "templates/about.html" [:div#page-content]
@@ -57,11 +57,9 @@
   identity)
 
 (defroutes about-routes
-  (GET "/about" {session :session}
+  (GET "/about" []
        (base (-> (about-body)
-                 (t/translate-nodes))
-             (if-let [user (:user session)]
-               (logged-in-link user) login-link))))
+                 (t/translate-nodes)))))
 
 (defsnippet login-body "templates/login.html" [:div#page-content]
   []
@@ -70,23 +68,20 @@
 
 (defroutes login-routes
   (GET "/login" []
-    (if (:user session)
+    (if (:user *session*)
       ;;TODO: flash message that user is already logged in
       (resp/redirect "/")
       ;;TODO: flash message that login was succesful
       (base (-> (login-body)
-                (t/translate-nodes))
-            (if-let [user (:user session)]
-              (logged-in-link user) login-link))))
-  (POST "/login" {session :session params :params}
-    (if-let [res (auth/login (:user params) (:pwd params))]
-      (assoc (resp/redirect "/") :session (conj session res))
-      (base (login-body)
-            (if-let [user (:user session)]
-              (logged-in-link user) login-link)))) ;;TODO: flash message that username/password is incorrect
+                (t/translate-nodes)))))
+  (POST "/login" [user pwd]
+    (if-let [res (auth/login user pwd)]
+      (assoc (resp/redirect "/") :session (conj *session* res))
+      (base (-> (login-body)
+                (t/translate-nodes))))) ;;TODO: flash message that username/password is incorrect
   (GET "/logout" []
-    (if (:user session)
-      (assoc (resp/redirect "/") :session {:locale (:locale session)})
+    (if (:user *session*)
+      (assoc (resp/redirect "/") :session {:locale (:locale *session*)})
       (assoc (resp/redirect "/")))))
 
 (defn- block-time->time-str [t]
@@ -98,29 +93,30 @@
 
 (defsnippet schedule-body "templates/schedule.html" [:div#page-content]
   [schedule-blocks]
-  [:div#schedule :div] (clone-for [sb schedule-blocks]
-                                  (html-content (str "<div class=\"panel panel-success\">"
-                                                     "<div class=\"panel-heading\">"
-                                                     "W" (:week sb)
-                                                     " D" (:day sb)
-                                                     " - "
-                                                     (-> sb :course :title)
-                                                     "</div>"
-                                                     "<div class=\"panel-body row\">"
-                                                     "<div class=\"col-md-6 pull-left\">"
-                                                     " " (block-time->time-str (:start-time sb))
-                                                     "</div>"
-                                                     "<div class=\"col-md-6 pull-right\">"
-                                                     (block-time->time-str (:end-time sb))
-                                                     "</div>"
-                                                      "<div class=\"col-md-12\">"
-                                                     "<a href=\"/schedule/room/"
-                                                     (:room sb)
-                                                     "\" >"
-                                                     (:room sb)
-                                                     "</a>"
-                                                     "</div>"
-                                                     "</div>"))))
+  [:div#schedule :div]
+  (clone-for [sb schedule-blocks]
+             (html-content (str "<div class=\"panel panel-success\">"
+                                "<div class=\"panel-heading\">"
+                                "W" (:week sb)
+                                " D" (:day sb)
+                                " - "
+                                (-> sb :course :title)
+                                "</div>"
+                                "<div class=\"panel-body row\">"
+                                "<div class=\"col-md-6 pull-left\">"
+                                " " (block-time->time-str (:start-time sb))
+                                "</div>"
+                                "<div class=\"col-md-6 pull-right\">"
+                                (block-time->time-str (:end-time sb))
+                                "</div>"
+                                "<div class=\"col-md-12\">"
+                                "<a href=\"/schedule/room/"
+                                (:room sb)
+                                "\" >"
+                                (:room sb)
+                                "</a>"
+                                "</div>"
+                                "</div>"))))
 
 ;; FIXME, hack?
 (defn- schedule-page [schedule-blocks]
@@ -143,20 +139,18 @@
                                 (:id course) "\">"
                                 (:title course)
                                 "</a>"))))
-  
+
 (defroutes course-routes
   (GET "/courses" [key]
-       (base (-> (course-body (if (:key params)
-                                (query/courses *mock-data* (:key params))
-                                      (query/courses *mock-data*)))
-                       (t/translate-nodes))
-                   (if-let [user (:user session)]
-                     (logged-in-link user) login-link))))
-  
+       (base (-> (course-body (if key
+                                (query/courses *mock-data* key)
+                                (query/courses *mock-data*)))
+                 (t/translate-nodes)))))
+
 (defroutes language-routes
   (GET "/lang/:locale" [locale]
     (assoc (resp/redirect "/")
-           :session (assoc session :locale locale))))
+           :session (assoc *session* :locale locale))))
 
 ;;; Read: https://github.com/weavejester/compojure/wiki
 (defroutes main-routes
@@ -172,7 +166,7 @@
 (def app
   ;; TODO: get cookie-store secret key out of a config file or something
   (-> main-routes
-      session/wrap-with-session
+      wrap-with-session
       wrap-keyword-params
       wrap-nested-params
       wrap-params
