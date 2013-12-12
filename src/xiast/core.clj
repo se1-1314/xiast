@@ -40,7 +40,12 @@
                                   login-link))
   [:div#alert] (if alert-msg
                  (do-> (add-class (str "alert-" (name alert-type)))
-                       (content alert-msg))))
+                       (content alert-msg)))
+  ;; FIXME, this prefixes absolute URLs witha string. Needs to be read
+  ;; from configuration file.
+  [:a] (fn [nodes]
+         (update-in nodes [:attrs :href] #(if (= (first %) \/)
+                                            (str nil %)))))
 
 (defsnippet index-body "templates/index.html" [:div#page-content]
   []
