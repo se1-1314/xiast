@@ -1,7 +1,7 @@
 (ns xiast.core
   (:use compojure.core
         [xiast.mock :only [*mock-data*]]
-        [xiast.session :only [*session* wrap-with-session]]
+        [xiast.session :only [*alert* *session* wrap-with-session]]
         [xiast.authentication :as auth]
         [ring.middleware.file-info :only [wrap-file-info]]
         [ring.middleware.resource :only [wrap-resource]]
@@ -31,16 +31,15 @@
   (str "<a href=\"/logout\">" user "</a>"))
 
 (deftemplate base "templates/layout.html"
-  [body & {:keys [title alert-type alert-msg]
-           :or {alert-type :warning}}]
+  [body & {:keys [title alert]}]
   [:html :> :head :> :title] (content title)
   [:div#page-content] (content body)
   [:li#login-out] (html-content (if-let [user (:user *session*)]
                                   (logged-in-link user)
                                   login-link))
-  [:div#alert] (if alert-msg
-                 (do-> (add-class (str "alert-" (name alert-type)))
-                       (content alert-msg)))
+  [:div#alert] (if-let [alert (or *alert* alert)]
+                 (do-> (add-class (str "alert-" (name (:type alert))))
+                       (content (t/translate (:message alert)))))
   ;; FIXME, this prefixes absolute URLs witha string. Needs to be read
   ;; from configuration file.
   [:a] (fn [nodes]
@@ -78,16 +77,19 @@
 (defroutes login-routes
   (GET "/login" []
     (if (:user *session*)
-      ;;TODO: flash message that user is already logged in
-      (resp/redirect "/")
-      ;;TODO: flash message that login was succesful
+      (assoc (resp/redirect "/") :flash
+             {:message :authentication/already-logged-in :type "info"})
       (base (-> (login-body)
                 (t/translate-nodes)))))
   (POST "/login" [user pwd]
     (if-let [res (auth/login user pwd)]
-      (assoc (resp/redirect "/") :session (conj *session* res))
+      (assoc (resp/redirect "/")
+             :session (conj *session* res)
+             :flash {:message :authentication/logged-in-successful :type "success"})
       (base (-> (login-body)
-                (t/translate-nodes))))) ;;TODO: flash message that username/password is incorrect
+                (t/translate-nodes))
+            :alert {:message :authentication/incorrect-credentials
+                    :type "danger"})))
   (GET "/logout" []
     (if (:user *session*)
       (assoc (resp/redirect "/") :session {:locale (:locale *session*)})
