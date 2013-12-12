@@ -1,5 +1,6 @@
 {:nl-BE
- {:index {:description "Een lessenplanner voor studenten van de VUB"}
+ {:index {:welcome "Welkom bij Xiast, %s"
+          :description "Een lessenplanner voor studenten van de VUB"}
   :about {:team "Het Xiast team"
           :about {:title "Over Xiast"
                   :content1 "Xiast (Xiast is a scheduling tool) is een web- and android lessenplanner ontworpen en geîmplementeerd door studenten compueterwetenschappen van de VUB (Vrije Universiteit Brussel)."
@@ -16,7 +17,8 @@
                    :already-logged-in "U ben al ingelogd!"
                    :logged-in-successful "U bent ingelogd!"}}
  :en
- {:index {:description "A scheduling application for students of the VUB"}
+ {:index {:welcome "Welcome to Xiast, %s"
+          :description "A scheduling application for students of the VUB"}
   :about {:team "The Xiast team"
           :about {:title "About Xiast"
                   :content1 "Xiast (Xiast is a scheduling tool) is a web- and android scheduling application designed and implemented by students of computer-science at the VUB (Vrije Universiteit Brussel)."
