@@ -31,10 +31,11 @@
   (str "<a href=\"/logout\">" user "</a>"))
 
 (deftemplate base "templates/layout.html"
-  [body loginout & {:keys [title]}]
+  [body & {:keys [title]}]
   [:html :> :head :> :title] (content title)
   [:div#page-content] (content body)
-  [:li#login-out] (html-content loginout))
+  ;;[:li#login-out] (html-content loginout)
+  )
 
 (defsnippet index-body "templates/index.html" [:div#page-content]
   []
@@ -68,7 +69,7 @@
 
 
 (defroutes login-routes
-  (GET "/login" {session :session}
+  (GET "/login" []
     (if (:user session)
       ;;TODO: flash message that user is already logged in
       (resp/redirect "/")
@@ -83,7 +84,7 @@
       (base (login-body)
             (if-let [user (:user session)]
               (logged-in-link user) login-link)))) ;;TODO: flash message that username/password is incorrect
-  (GET "/logout" {session :session}
+  (GET "/logout" []
     (if (:user session)
       (assoc (resp/redirect "/") :session {:locale (:locale session)})
       (assoc (resp/redirect "/")))))
@@ -122,19 +123,17 @@
                                                      "</div>"))))
 
 ;; FIXME, hack?
-(defn- schedule-page [schedule-blocks & user]
+(defn- schedule-page [schedule-blocks]
   (base (-> (schedule-body schedule-blocks)
-            (t/translate-nodes))
-         (if (not (nil? user))
-           (logged-in-link user) login-link)))
+            (t/translate-nodes))))
 
 (defroutes schedule-routes
-  (GET "/schedule/student/:student-id" {session :session params :params}
-       (schedule-page (query/student-schedule *mock-data* (:student-id params))  (:user session)))
-  (GET "/schedule/room/:room-id" {session :session params :params}
-       (schedule-page (query/room-schedule *mock-data* (:room-id params) (:user session))))
-  (GET "/schedule/course/:course-id" {session :session params :params}
-       (schedule-page (query/course-schedule *mock-data* (:course-id params) (:user session)))))
+  (GET "/schedule/student/:student-id" [student-id]
+       (schedule-page (query/student-schedule *mock-data* student-id)))
+  (GET "/schedule/room/:room-id" [room-id]
+       (schedule-page (query/room-schedule *mock-data* room-id)))
+  (GET "/schedule/course/:course-id" [course-id]
+       (schedule-page (query/course-schedule *mock-data* course-id))))
 
 (defsnippet course-body "templates/courses.html" [:div#page-content]
   [courses]
@@ -146,7 +145,7 @@
                                 "</a>"))))
   
 (defroutes course-routes
-  (GET "/courses" {session :session params :params}
+  (GET "/courses" [key]
        (base (-> (course-body (if (:key params)
                                 (query/courses *mock-data* (:key params))
                                       (query/courses *mock-data*)))
@@ -155,7 +154,7 @@
                      (logged-in-link user) login-link))))
   
 (defroutes language-routes
-  (GET "/lang/:locale" [locale :as {session :session}]
+  (GET "/lang/:locale" [locale]
     (assoc (resp/redirect "/")
            :session (assoc session :locale locale))))
 
