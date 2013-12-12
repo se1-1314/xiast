@@ -37,7 +37,7 @@
   [:li#login-out] (html-content (if-let [user (:user *session*)]
                                   (logged-in-link user)
                                   login-link))
-  [:div#alert] (if-let [alert (or *alert* alert)]
+ [:div#alert] (if-let [alert (or *alert* alert)]
                  (do-> (add-class (str "alert-" (name (:type alert))))
                        (content (t/translate (:message alert))))))
 
