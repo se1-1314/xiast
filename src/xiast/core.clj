@@ -39,7 +39,7 @@
                                   login-link))
   [:div#alert] (if-let [alert (or *alert* alert)]
                  (do-> (add-class (str "alert-" (name (:type alert))))
-                       (content (:message alert)))))
+                       (content (t/translate (:message alert))))))
 
 (defsnippet index-body "templates/index.html" [:div#page-content]
   []
@@ -72,17 +72,18 @@
 (defroutes login-routes
   (GET "/login" []
     (if (:user *session*)
-      (assoc (resp/redirect "/") :flash {:message "Already logged in" :type "info"})
+      (assoc (resp/redirect "/") :flash
+             {:message :authentication/already-logged-in :type "info"})
       (base (-> (login-body)
                 (t/translate-nodes)))))
   (POST "/login" [user pwd]
     (if-let [res (auth/login user pwd)]
       (assoc (resp/redirect "/")
              :session (conj *session* res)
-             :flash {:message "You are now logged in!" :type "success"})
+             :flash {:message :authentication/logged-in-successful :type "success"})
       (base (-> (login-body)
                 (t/translate-nodes))
-            :alert {:message "Incorrect credentials!"
+            :alert {:message :authentication/incorrect-credentials
                     :type "danger"})))
   (GET "/logout" []
     (if (:user *session*)
