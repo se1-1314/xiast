@@ -173,6 +173,7 @@
 (def app
   ;; TODO: get cookie-store secret key out of a config file or something
   (-> main-routes
+      session/wrap-with-session
       wrap-keyword-params
       wrap-nested-params
       wrap-params
