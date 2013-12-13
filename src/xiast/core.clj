@@ -155,7 +155,7 @@
   [courses]
   [:div#course-list :div]
   (clone-for [course courses]
-             (html-content (str "<a href=\"/schedule/course/"
+             (html-content (str "<a class=\"btn course-btn\" href=\"/schedule/course/"
                                 (:id course) "\">"
                                 (:title course)
                                 "</a>"))))
