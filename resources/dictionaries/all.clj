@@ -1,6 +1,11 @@
 {:nl-BE
  {:index {:welcome "Welkom bij Xiast, %s"
           :description "Een lessenplanner voor studenten en faculteiten van de VUB"}
+  :header {:home "Home"
+           :about "About"
+           :courses "Vakken"
+           :vub "VUB"
+           :login "Inloggen"}
   :about {:team "Het Xiast team"
           :about {:title "Over Xiast"
                   :content1 "Xiast (Xiast is a scheduling tool) is een webplatform met ondersteuning voor android toestellen voor het weergeven en genereren van uurroosters. Deze is geîmplementeerd door studenten computerwetenschappen van de VUB (Vrije Universiteit Brussel)."
@@ -15,10 +20,16 @@
           }
   :authentication {:incorrect-credentials "Foute inloggegevens!"
                    :already-logged-in "U bent al ingelogd!"
-                   :logged-in-successful "U bent ingelogd!"}}
+                   :logged-in-successful "U bent ingelogd!"}
+  :login {:title "Log in"}}
  :en
  {:index {:welcome "Welcome to Xiast, %s"
           :description "A scheduling application for students and faculty managers of the VUB"}
+  :header {:home "Home"
+           :about "About"
+           :courses "Courses"
+           :vub "VUB"
+           :login "Login"}
   :about {:team "The Xiast team"
           :about {:title "About Xiast"
                   :content1 "Xiast (Xiast is a scheduling tool) is a webplatform with support for android devices to display and generate schedules. This application designed and implemented by students of computer-science at the VUB (Vrije Universiteit Brussel)."
@@ -33,4 +44,5 @@
           }
   :authentication {:incorrect-credentials "Incorrect credentials!"
                    :already-logged-in "You are already logged in!"
-                   :logged-in-successful "You are now logged in!"}}}
+                   :logged-in-successful "You are now logged in!"}
+  :login {:title "Sign in"}}}
