@@ -8,6 +8,10 @@
     width: 30px;
 }
 
+.flag{
+    float: left;
+}
+
 .course-list{
     max-heigth: 80%;
     overflow: auto;
@@ -18,4 +22,9 @@
     margin-top: 5px;
     margin-bottom: 5px;
     background-color: E6E6E6;
+}
+
+.navbar-toggle{
+    float: left;
+    margin-left: 15px;
 }
