@@ -26,7 +26,27 @@
             [xiast.translate :as t]))
 
 
-(def login-link "<a href=\"/login\" msg=\"header/login\">Login</a>")
+;; (def login-link "<a href=\"/login\" msg=\"header/login\">Login</a>")
+(def login-link
+  (str "<li class=\"dropdown\">"
+       "<a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\">"
+       "Login <strong class=\"caret\"></strong>"
+       "</a>"
+       "<div class=\"dropdown-menu login\">"
+       "<form action=\"/login\" method=\"post\" accept-charset=\"UTF-8\" role=\"form\">"
+       "<fieldset>"
+       "<div class=\"form-group\">"
+       "<input class=\"form-control\" id=\"user\" name=\"user\" placeholder=\"User\" type=\"text\">"
+       "</div>"
+       "<div class=\"form-group\">"
+       "<input class=\"form-control\" id=\"pwd\" name=\"pwd\" placeholder=\"Password\" type=\"password\">"
+       "</div>"
+       "<input class=\"btn btn-lg bt-succes btn-block\" type=\"submit\" value=\"Log in\">"
+       "</fieldset>"
+       "</div>"
+       "</li>"
+       "</form>"))
+
 (defn logged-in-link [user]
   (str "<li class=\"dropdown\">"
        "<a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\">"
