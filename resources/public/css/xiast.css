@@ -12,6 +12,12 @@
     float: left;
 }
 
+.login{
+    padding: 15px;
+    padding-bottom: 5px;
+    min-width: 250px;
+}
+
 .course-list{
     max-heigth: 80%;
     overflow: auto;
@@ -22,6 +28,10 @@
     margin-top: 5px;
     margin-bottom: 5px;
     background-color: E6E6E6;
+}
+
+.nav{
+    min-width: 80%;
 }
 
 .navbar-toggle{
