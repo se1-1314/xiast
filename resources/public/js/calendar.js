@@ -19,6 +19,36 @@ var days_array = [days_array_nl, days_array_en];
 
 
 /*
+name: week_matrix
+Arguments:	week_calendar:	A week calendar instance
+
+Returns: 2 dimensional array wich contains the information of the week
+Author: Kwinten Pardon
+Date: 25/02/2014
+
+Extracts the information matrix from the week calendar
+*/
+function week_matrix(week_calendar){
+	return week_calendar[1];
+}
+
+
+/*
+Name: week_number
+Arguments:	week_calender:	A week calendar instance
+
+Returns: Integer indicating what week of the year this week calendar represents
+Author: Kwinten Pardon
+Date: 25/02/2014
+
+Extracts the week number from the week calendar
+*/
+function week_number(week_calendar){
+	return week_calendar[0];
+}
+
+
+/*
 Name: write_days
 Arguments:	week_calendar	: A week calendar instance
 			language		: the integer value of the given language
@@ -32,6 +62,7 @@ This is where we use the extra timeslot for.
 Note: it's a assignment procedure.
 */
 function write_days(week_calendar, language){
+	var week_calendar = week_matrix(week_calendar);
 	var lang_days_array = days_array[language] // Extract the days by language. Since the names of the days are located in an array and we expect the language to be an integer, we can simple extract the day names in the right language
 	for (var index = 1; index < week_calendar.length; index++){ // The first time slot of each day is reservad for the day name
 		week_calendar[index][0] = lang_days_array[index -1];
@@ -51,6 +82,7 @@ Writes the time indication. This where we use the extra "day" slot for
 Note: it's a assignment procedure.
 */
 function write_time(week_calendar){
+	var week_calendar = week_matrix(week_calendar);
 	var time_array = week_calendar[0];
 	var hour = 7;
 	var minutes = "00";
@@ -79,14 +111,14 @@ A week calendar is multidimensional
 
 day, timeslot
 */
-function create_week_calendar(){ // a calendar is a two dimensional array
+function create_week_calendar(week_number){ // a calendar is a two dimensional array
 	var week_calendar = new Array(days_per_week + 1) // we create a buffer array to write the time of the timeslots
 	for (var index = 0; index < week_calendar.length; index++){
 		week_calendar[index] = new Array(max_slots_per_day + 1); // we add an extra timeslot. This timeslot will be used to write the correspondending day in
 	}
 	write_days(week_calendar, 0) // TODO read language form cookie, database
 	write_time(week_calendar)
-	return week_calendar
+	return [week_number, week_calendar] // array literal
 }
 
 /*
@@ -110,6 +142,7 @@ function add_event(week_calendar, event_name, day, start_slot, end_slot){
 		if (day > 7) throw "There a no more then 7 days";
 		if (end_slot < start_slot) throw "An event can't stop before it has begon";
 		
+		var week_calendar = week_matrix(week_calendar);
 		var day = week_calendar[day];
 		for (slot = start_slot; slot <= end_slot; slot++){
 			var current_slot = day[slot];
@@ -146,7 +179,7 @@ function week_calendar_render(calendar){
 	}
 }
 
-/***********************************
+/***********************************/
 function calendar_test(){
 	c = create_week_calendar();
 	write_days(c, 0);
@@ -158,4 +191,4 @@ function calendar_test(){
 	add_event(c ,"t4", 8, 0, 4);
 	return c
 }
-***********************************/
+/***********************************/
