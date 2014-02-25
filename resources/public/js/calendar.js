@@ -107,18 +107,25 @@ Author: Kwinten Pardon
 Date: 06/02/2014
 
 creates a calendar.
-A week calendar is multidimensional
+A week calendar is array with length 2
+The first slot contains the week number (function week_number)
+The second slot contains the information matric (function week_matrix)
 
-day, timeslot
+The matrix information is day, timeslot
 */
 function create_week_calendar(week_number){ // a calendar is a two dimensional array
+	//console.info('entered create_week_calendar');
 	var week_calendar = new Array(days_per_week + 1) // we create a buffer array to write the time of the timeslots
+	//console.info('2 dimensional array created');
 	for (var index = 0; index < week_calendar.length; index++){
 		week_calendar[index] = new Array(max_slots_per_day + 1); // we add an extra timeslot. This timeslot will be used to write the correspondending day in
 	}
+	//console.info('added extra timeslots');
+	week_calendar = [week_number, week_calendar] // Array literal
+	//console.info('overhead array with week_number');
 	write_days(week_calendar, 0) // TODO read language form cookie, database
 	write_time(week_calendar)
-	return [week_number, week_calendar] // array literal
+	return week_calendar
 }
 
 /*
@@ -179,16 +186,20 @@ function week_calendar_render(calendar){
 	}
 }
 
-/***********************************/
+/***********************************
 function calendar_test(){
-	c = create_week_calendar();
+	console.info('entered test');
+	c = create_week_calendar(5);
+	console.info('calendar created');
 	write_days(c, 0);
+	console.info('days written');
 	add_event(c ,"t", 1, 0, 2);
 	add_event(c ,"t2", 1, 2, 3);
 	add_event(c ,"t3", 1, 3, 4);
 	add_event(c ,"t4", 1, 0, 4);
 	add_event(c ,"t4", 0, 0, 4);
 	add_event(c ,"t4", 8, 0, 4);
+	console.info('events created');
 	return c
 }
-/***********************************/
+***********************************/
