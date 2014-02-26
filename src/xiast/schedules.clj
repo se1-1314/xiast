@@ -20,12 +20,6 @@
   Using the same semantics as timespans and (courses).")
 
 (defprotocol XiastQuery
-  (courses
-    [this]
-    [this title-kw]
-    "Return a list of {:title \"Course title\" :id \"Course ID\"},
-    optionally using a search keyword for the name of the course (case
-    insensitive).")
   (course-schedule
     [this course-id]
     [this course-id timespan]
@@ -40,7 +34,13 @@
     [this room-id]
     [this room-id timespan]
     "Return a list of schedule blocks for a room, optionally using a
-    timespan to limit results."))
+    timespan to limit results.")
+  (program-schedule
+    [this program-id]
+    [this program-id timespan]
+    "Return a list of schedule blocks for a whole program, optionally
+    using a timespan to limit results."))
+
 
 (defn- in-range? [num range]
   (<= (first range) num (second range)))
