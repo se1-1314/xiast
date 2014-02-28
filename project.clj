@@ -9,7 +9,11 @@
                  [enlive "1.1.4"]
                  [com.taoensso/tower "2.0.1"]
                  [hiccup "1.0.4"]
-                 [clj-http "0.1.3"]]
+                 [clj-http "0.1.3"]
+                 [org.clojure/java.jdbc "0.2.3"]
+                 [korma "0.3.0-RC6"]
+                 [org.xerial/sqlite-jdbc "3.7.2"]
+                 [mysql/mysql-connector-java "5.1.25"]]
   :plugins [[lein-ring "0.8.8"]]
   :main ^:skip-aot xiast.core
   :target-path "target/%s"
