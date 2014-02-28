@@ -24,7 +24,8 @@
     [this]
     [this title-kw]
     "Return a list of {:title \"Course title\" :id \"Course ID\"},
-    optionally using a search keyword for the name of the course.")
+    optionally using a search keyword for the name of the course (case
+    insensitive).")
   (course-schedule
     [this course-id]
     [this course-id timespan]
