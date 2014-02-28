@@ -60,14 +60,29 @@
        "</ul>"
        "</li>"))
 
+(defsnippet guest-menu "templates/guest-menu.html" [:div#menu]
+  []
+  identity)
+(defsnippet student-menu "templates/student-menu.html" [:div#menu]
+  []
+  identity)
+(defsnippet teacher-menu "templates/teacher-menu.html" [:div#menu]
+  []
+  identity)
+(defsnippet program-manager-menu "templates/program-manager-menu.html" [:div#menu]
+  []
+  identity)
+
+
 (deftemplate base "templates/layout.html"
   [body & {:keys [title alert]}]
   [:html :> :head :> :title] (content title)
+  [:div#menu] (content (student-menu))
   [:div#page-content] (content body)
   [:li#login-out] (html-content (if-let [user (:user *session*)]
                                   (logged-in-link user)
                                   login-link))
- [:div#alert] (if-let [alert (or *alert* alert)]
+  [:div#alert] (if-let [alert (or *alert* alert)]
                  (do-> (add-class (str "alert-" (name (:type alert))))
                        (content (t/translate (:message alert)))))
   ;; FIXME, this prefixes absolute URLs witha string. Needs to be read
