@@ -77,7 +77,11 @@
 (deftemplate base "templates/layout.html"
   [body & {:keys [title alert]}]
   [:html :> :head :> :title] (content title)
-  [:div#menu] (content (student-menu))
+  [:div#menu] (content ((case (:user-type *session*)
+                          :student student-menu
+                          :program-manager program-manager-menu
+                          :titular teacher-menu
+                          guest-menu)))
   [:div#page-content] (content body)
   [:li#login-out] (html-content (if-let [user (:user *session*)]
                                   (logged-in-link user)
