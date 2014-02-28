@@ -1,3 +1,68 @@
+#sidemenu{
+    background-color: #222;
+    border-color: #080808;
+}
+
+@media screen and (min-width: 767px) {
+    #sidemenu{
+    display: none!important;
+    }
+}
+
+.sidemenu>li>a{
+    color: #999;
+}
+
+.sidemenu>li>a:hover, .sidemenu>li>a:focus {
+color: #fff;
+background-color: transparent;
+}
+
+/* make all parent containers 100% height */
+html, body, .wrapper {
+  height: 100%;
+}
+
+/* move the toggle button to the left and give it
+   some breathing room */
+.navbar-toggle {
+  float: left;
+  margin-left: 10px;
+}
+@media screen and (max-width: 767px) {
+
+  /* outer div */
+  .row-offcanvas {
+    position: relative;
+    left: 0;
+    -webkit-transition: left .3s ease-in;
+    -most-transition: left .3s ease-in;
+    transition: left .3s ease-in;
+  }
+  
+  /* sidebar */
+  .sidebar-offcanvas {
+    left: -80%;
+    width: 80%;
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background-color: #F7F7F7;
+    padding: 0px;
+  }
+  
+  /* content */
+  .row-offcanvas.active {
+    left: 80%;
+  }
+  
+  /* Make the menu headers the same size as the
+     bootstrap navbar */
+  [data-role='panelbar'] .k-header {
+    min-height: 50px;
+  }
+}
+
 #menu{
     margin-bottom: 10px;
     min-height: 60px;
@@ -6,6 +71,16 @@
 .country-flag{
     height: 30px;
     width: 30px;
+}
+
+.flag{
+    float: left;
+}
+
+.login{
+    padding: 15px;
+    padding-bottom: 5px;
+    min-width: 250px;
 }
 
 .course-list{
@@ -18,4 +93,22 @@
     margin-top: 5px;
     margin-bottom: 5px;
     background-color: E6E6E6;
+}
+
+.nav{
+    min-width: 80%;
+}
+
+.navbar-toggle{
+    float: left;
+    margin-left: 15px;
+}
+
+@media screen and (max-width: 600px) {
+  h1 {
+    font-size:20pt;
+  }
+  h2 {
+    font-size:15pt;
+  }
 }
