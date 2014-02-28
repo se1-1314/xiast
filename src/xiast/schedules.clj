@@ -2,7 +2,7 @@
   "This namespace provides protocols for querying information
   accessible through Xiast information stores.
 
-  Timespans are maps structured as follows:
+  Timespans for schedule queries are maps structured as follows:
 
   {:weeks [1 52] ;; Weeks in the academic calendar
    :days [1 7]
