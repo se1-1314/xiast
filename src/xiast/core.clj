@@ -3,6 +3,7 @@
         [xiast.mock :only [*mock-data*]]
         [xiast.session :only [*alert* *session* wrap-with-session]]
         [xiast.authentication :as auth]
+        [xiast.config :only [config]]
         [ring.middleware.file-info :only [wrap-file-info]]
         [ring.middleware.resource :only [wrap-resource]]
         [ring.handler.dump :only [handle-dump]]
