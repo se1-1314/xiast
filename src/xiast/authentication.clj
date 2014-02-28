@@ -17,7 +17,8 @@
       {:user netid
        :locale "en"
        ;; FIXME actually implement
-       :user-type (rand-nth [:student :program-manager :titular])}
+       :user-functions (take (rand-int 4)
+                             (shuffle [:student :program-manager :titular :instructor]))}
       nil)))
 
 (defn logout
