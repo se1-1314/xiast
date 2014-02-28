@@ -123,7 +123,7 @@
                     :type "danger"})))
   (GET "/logout" []
     (if (:user *session*)
-      (assoc (resp/redirect "/") :session {:locale (:locale *session*)})
+      (assoc (resp/redirect "/") :session (auth/logout *session*))
       (assoc (resp/redirect "/")))))
 
 (defn- block-time->time-str [t]
