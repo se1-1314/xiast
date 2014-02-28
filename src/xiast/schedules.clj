@@ -19,6 +19,9 @@
 
   Using the same semantics as timespans and (courses).")
 
+;; TODO case insensitive searches
+
+
 (defprotocol XiastQuery
   (course-schedule
     [this course-id]
