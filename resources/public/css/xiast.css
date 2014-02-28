@@ -38,3 +38,12 @@
     float: left;
     margin-left: 15px;
 }
+
+@media screen and (max-width: 600px) {
+  h1 {
+    font-size:20pt;
+  }
+  h2 {
+    font-size:15pt;
+  }
+}
