@@ -46,10 +46,24 @@
   (course-get [this course-id])
   (course-find
     [this]
-    [this title-kw]
+    [this kws]
     "Return a list of {:title \"Course title\" :id \"Course ID\"},
-    optionally using a search keyword for the name of the course (case
-    insensitive)."))
+    optionally filtering by the strings in kws for the name of the
+    course (case insensitive and in any order)."))
+
+(defprotocol Programs
+  (program-list
+    [this]
+    [this kws]
+    "Return a list of {:title \"Program title\" :id \"Program ID\"")
+  (program-courses
+    [this program-id]
+    "Return a list of {:title \"Course title\" :id \"Course ID\""))
+
+(defprotocol Enrollements
+  (student-enrollments
+    [this student-id]
+    "Return a list of {:title \"Course title\" :id \"Course ID\""))
 
 (defn enrollment
   [{:keys [student-id course-id program element]
