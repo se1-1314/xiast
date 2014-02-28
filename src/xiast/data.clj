@@ -1,5 +1,9 @@
 (ns xiast.data
-  "Data structures.")
+  "Data structures.
+
+  ")
+
+;; TODO case insensitive searches
 
 (defn room [building floor number capacity
             {:keys [beamer overhead-projector]
