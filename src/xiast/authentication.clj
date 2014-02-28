@@ -16,3 +16,7 @@
       {:user netid
        :locale "en"} ;;TODO: get locale from db
       nil)))
+
+(defn logout
+  [session]
+  (apply dissoc session [:user]))
