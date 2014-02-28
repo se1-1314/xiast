@@ -1,9 +1,11 @@
 (ns xiast.authentication
-  (:require [clj-http.client :as client]))
+  (:require [clj-http.client :as client]
+            [xiast.database :as db]))
 
-(defn netid-from-token
-  [token]
-  "nvgeele")
+(def user-types
+  {0 :student
+   1 :program-manager
+   2 :titular})
 
 (defn login
   [netid password]
@@ -14,10 +16,15 @@
         body (:body req)]
     ;; TODO: get locale from db
     (if (re-find #"xiastsucc" body)
-      {:user netid
-       :locale "en"
-       ;; FIXME actually implement
-       :user-type (rand-nth [:student :program-manager :titular])}
+      (let [user (db/get-user netid)]
+        (if (empty? user)
+          (do (db/create-user netid "en" 1)
+              {:user netid
+               :locale "en"
+               :user-type :student})
+          {:user netid
+           :locale (:locale user)
+           :user-type (find (:type user) user-types)}))
       nil)))
 
 (defn logout

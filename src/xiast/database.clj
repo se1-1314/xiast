@@ -57,3 +57,15 @@
 (defentity studyprogram-mandatorycourse
   (table :studyprogram_mandatorycourse)
   (database db))
+
+(defn get-user
+  [netid]
+  (select student
+          (where {:netId netid})))
+
+(defn create-user
+  [netid locale type]
+  (insert student
+          (values {:netId netid
+                   :locale locale
+                   :type type})))
