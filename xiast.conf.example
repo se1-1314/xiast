@@ -3,4 +3,4 @@
             :password ""
             :database ""
             :host ""}
- :url "http://url.to/xiast"}
+ :url-prefix ""} ;; Prefix absolute URLs with this string
