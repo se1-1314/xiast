@@ -118,6 +118,42 @@
        (base (-> (about-body)
                  (t/translate-nodes)))))
 
+(defsnippet curriculum-info-body "templates/curriculum-info.html" [:div#page-content]
+  []
+  identity)
+
+(defroutes curriculum-info-routes
+  (GET "/curriculum-info" []
+       (base (-> (curriculum-info-body)
+                 (t/translate-nodes)))))
+
+(defsnippet semi-scheduling-body "templates/semi-scheduling.html" [:div#page-content]
+  []
+  identity)
+
+(defroutes semi-scheduling-routes
+  (GET "/semi-scheduling" []
+       (base (-> (semi-scheduling-body)
+                 (t/translate-nodes)))))
+
+(defsnippet program-edit-body "templates/program-edit.html" [:div#page-content]
+  []
+  identity)
+
+(defroutes program-edit-routes
+  (GET "/program-edit" []
+       (base (-> (program-edit-body)
+                 (t/translate-nodes)))))
+
+(defsnippet classroom-edit-body "templates/classroom-edit.html" [:div#page-content]
+  []
+  identity)
+
+(defroutes classroom-edit-routes
+  (GET "/classroom-edit" []
+       (base (-> (classroom-edit-body)
+                 (t/translate-nodes)))))
+
 (defsnippet login-body "templates/login.html" [:div#page-content]
   []
   identity)
@@ -220,6 +256,10 @@
   schedule-routes
   language-routes
   course-routes
+  curriculum-info-routes
+  semi-scheduling-routes
+  program-edit-routes
+  classroom-edit-routes
   (route/not-found "Not found!"))
 
 
