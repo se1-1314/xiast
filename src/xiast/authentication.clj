@@ -12,7 +12,14 @@
               {:body (format "username=%s&fields=username&failure=xiastfail&location=xiastsucc&password=%s&options=valid+relation"
                              netid password)})
         body (:body req)]
+    ;; TODO: get locale from db
     (if (re-find #"xiastsucc" body)
       {:user netid
-       :locale "en"} ;;TODO: get locale from db
+       :locale "en"
+       ;; FIXME actually implement
+       :user-type (rand-nth [:student :program-manager :titular])}
       nil)))
+
+(defn logout
+  [session]
+  (apply dissoc session [:user]))

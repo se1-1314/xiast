@@ -3,6 +3,7 @@
         [xiast.mock :only [*mock-data*]]
         [xiast.session :only [*alert* *session* wrap-with-session]]
         [xiast.authentication :as auth]
+        [xiast.config :only [config]]
         [ring.middleware.file-info :only [wrap-file-info]]
         [ring.middleware.resource :only [wrap-resource]]
         [ring.handler.dump :only [handle-dump]]
@@ -59,22 +60,40 @@
        "</ul>"
        "</li>"))
 
+(defsnippet guest-menu "templates/guest-menu.html" [:div#menu]
+  []
+  identity)
+(defsnippet student-menu "templates/student-menu.html" [:div#menu]
+  []
+  identity)
+(defsnippet teacher-menu "templates/teacher-menu.html" [:div#menu]
+  []
+  identity)
+(defsnippet program-manager-menu "templates/program-manager-menu.html" [:div#menu]
+  []
+  identity)
+
+
 (deftemplate base "templates/layout.html"
   [body & {:keys [title alert]}]
   [:html :> :head :> :title] (content title)
+  [:div#menu] (content ((case (:user-type *session*)
+                          :student student-menu
+                          :program-manager program-manager-menu
+                          :titular teacher-menu
+                          guest-menu)))
   [:div#page-content] (content body)
   [:li#login-out] (html-content (if-let [user (:user *session*)]
                                   (logged-in-link user)
                                   login-link))
- [:div#alert] (if-let [alert (or *alert* alert)]
+  [:div#alert] (if-let [alert (or *alert* alert)]
                  (do-> (add-class (str "alert-" (name (:type alert))))
                        (content (t/translate (:message alert)))))
-  ;; FIXME, this prefixes absolute URLs witha string. Needs to be read
-  ;; from configuration file.
-  ;; [:a] (fn [nodes]
-  ;;       (update-in nodes [:attrs :href] #(if (= (first %) \/)
-  ;;                                          (str nil %))))
-)
+ ;; This prefixes absolute URLs with a string.
+ [:a] (fn [nodes]
+        (update-in nodes [:attrs :href]
+                   #(if (= (first %) \/)
+                      (str (:url-prefix config) %)))))
 
 (defsnippet index-body "templates/index.html" [:div#page-content]
   []
@@ -122,7 +141,7 @@
                     :type "danger"})))
   (GET "/logout" []
     (if (:user *session*)
-      (assoc (resp/redirect "/") :session {:locale (:locale *session*)})
+      (assoc (resp/redirect "/") :session (auth/logout *session*))
       (assoc (resp/redirect "/")))))
 
 (defn- block-time->time-str [t]

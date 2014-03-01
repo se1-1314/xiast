@@ -1,0 +1,6 @@
+{:database {:type mysql
+            :user ""
+            :password ""
+            :database ""
+            :host ""}
+ :url-prefix ""} ;; Prefix absolute URLs with this string
