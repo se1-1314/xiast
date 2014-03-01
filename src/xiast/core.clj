@@ -88,7 +88,7 @@
                                   login-link))
   [:div#alert] (if-let [alert (or *alert* alert)]
                  (do-> (add-class (str "alert-" (name (:type alert))))
-                       (content (t/translate (:message alert)))))
+                       (append (t/translate (:message alert)))))
  ;; This prefixes absolute URLs with a string.
  [:a] (fn [nodes]
         (update-in nodes [:attrs :href]
