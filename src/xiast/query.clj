@@ -22,8 +22,16 @@
 (def Degree (s/enum :ma :ba :manama :schakel))
 (def SessionSemester (s/enum :1 :2 :1+2))
 (def CourseCode s/Str)
+;; TODO: fix to string
 (def Department [(s/one s/Keyword "department, e.g. :mathematics")
                  (s/one s/Keyword "faculty, e.g. :sciences")])
+(def CourseActivityType (s/enum :HOC :WPO))
+(def CourseActivity {:type CourseActivityType
+                     :semester s/Int
+                     :date s/Int ;; TODO: Fix this type
+                     :contact-time-hours s/Int
+                     ;; TODO: fix support for multiple instructors/activity
+                     :instructor PersonID})
 (def Course {:course-code CourseCode
              :title s/Str
              :description s/Str
@@ -32,13 +40,6 @@
              :department Department
              :grade (s/enum :ba :ma)
              :activities #{CourseActivity}})
-(def CourseActivity {:type CourseActivityType
-                     :semester s/Int
-                     :date s/Int ;; TODO: Fix this type
-                     :contact-time-hours s/Int
-                     ;; TODO: fix support for multiple instructors/activity
-                     :instructor PersonID})
-(def CourseActivityType (s/enum :HOC :WPO))
 (def ProgramID s/Int)
 (def Program {:title s/Str
               :description s/Str
@@ -112,6 +113,14 @@
   (program-courses
     [this program-id]
     "Return a list of {:title s/Str :course-code CourseCode}"))
+
+(defprotocol Persons
+  (person-add!
+    [this person]
+    "Adds a new person to the database")
+  (person-get
+    [this netid]
+    "Returns a single person"))
 
 (defprotocol Enrollments
   (student-enrollments

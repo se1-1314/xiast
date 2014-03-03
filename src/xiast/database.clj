@@ -33,7 +33,7 @@
   (database db)
   (table :CourseInstructor))
 
-(defentity deparment
+(defentity department
   (database db))
 
 (defentity person
@@ -83,6 +83,65 @@
    1 :overhead-projector
    2 :speakers})
 
+(def course-grades
+  {0 :ba
+   1 :ma})
+
+(def course-activity-types
+  {0 :HOC
+   1 :WPO})
+
+(defn person->sPerson
+  [person]
+  {:id (:netid person)
+   :first-name (:firstname person)
+   :last-name (:surname person)
+   :locale (:locale person)})
+
+(defn course-activity->sCourseActivity
+  [course-activity]
+  (let [instructor-id ;; TODO: fix support for multiple instructors/activity
+        ((comp :netid first)
+         (select course-instructor
+                 (where {:course-activity (:id course-activity)})))
+        instructor
+        (first
+         (select person
+                 (where {:netid instructor-id})))]
+    {:type (val (find course-activity-types (:type course-activity)))
+     :semester (:semester course-activity)
+     :data (:date course-activity)
+     :contact-time-hours (:contact-time-hours course-activity)
+     :instructor (person->sPerson instructor)}))
+
+(defn course->sCourse
+  [course]
+  (let [department
+        ((comp :name first)
+         (select department
+                 (where {:id (:department course)})))
+        titular
+        ((comp person->sPerson first)
+         (select person
+                 (where {:netid (:titular-id course)})))
+        activities
+        (map course-activity->sCourseActivity
+             (select course-activity
+                     (where {:course-code (:course-code course)})))
+        instructors
+        (map (comp person->sPerson :instructor)
+             activities)
+        grade
+        (val (find course-grades (:grade course)))]
+    {:course-code (:course-code course)
+     :title (:title course)
+     :description (:description course)
+     :titular titular
+     :grade grade
+     :department department
+     :activities (set activities)
+     :instructors (set instructors)}))
+
 (extend-type Database
   query/Rooms
   (room-add!
@@ -124,15 +183,81 @@
            :facilities (set facilities)})
         empty)))
 
+  query/Persons
+  (person-add!
+    [this new-person]
+    (insert person
+            (values {:netid (:id new-person)
+                     :firstname (:first-name new-person)
+                     :surname (:last-name new-person)
+                     :locale (:locale new-person)})))
+  (person-get
+    [this netid]
+    (let [person
+          (select person
+                  (where {:netid netid}))]
+      (if (not (empty? person))
+        (person->sPerson (first person))
+        nil)))
+
   query/Courses
   (course-add!
-    [this course])
+    [this new-course]
+    (let [department
+          ((comp :id first)
+           (select department
+                   (where {:name (:department new-course)})))]
+      (if (empty? (query/person-get this (:titular-id new-course)))
+        ;; TODO: Standard locale
+        (query/person-add! this
+                           {:id (:titular-id new-course)
+                            :first-name ""
+                            :last-name ""
+                            :locale "en"}))
+      (insert course
+              (values (merge (dissoc new-course
+                                     :instructors :department :grade :activities)
+                             {:grade ((:grade new-course)
+                                      (map-invert course-grades))
+                              :department department})))
+      (doseq [activity (:activities new-course)]
+        (if (empty? (query/person-get this (:instructor activity)))
+          ;; TODO: Standard locale
+          (query/person-add! this
+                             {:id (:instructor activity)
+                              :first-name ""
+                              :last-name ""
+                              :locale "en"}))
+        (let [activity-id
+              (:GENERATED_KEY
+               (insert course-activity
+                       (values {:course-code (:course-code new-course)
+                                :type ((:type activity)
+                                       (map-invert course-activity-types))
+                                :semester (:semester activity)
+                                :date (:date activity)
+                                :contact-time-hours
+                                (:contact-time-hours activity)})))]
+          (insert course-instructor
+                  (values {:course-activity activity-id
+                           :netid (:instructor activity)}))))))
   (course-delete!
-    [this course-code])
+    [this course-code]
+    ;; We only need to delete the course record,
+    ;; enrollments, instructors, ... will cascade
+    (delete course
+            (where {:course-code course-code})))
   (course-get
-    [this course-code])
+    [this course-code]
+    (let [course (select course
+                         (where {:course-code course-code}))]
+      (if (not (empty? course))
+        (course->sCourse (first course))
+        empty)))
   (course-list
-    [this])
+    [this]
+    (let [courses (select course)]
+      (map course->sCourse courses)))
   (course-find
     [this kws])
 
