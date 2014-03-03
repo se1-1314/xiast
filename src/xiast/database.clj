@@ -1,6 +1,7 @@
 (ns xiast.database
   (:require [xiast.query :as query])
-  (:use [xiast.config :only [config]]
+  (:use [clojure.set :only [map-invert]]
+        [xiast.config :only [config]]
         [korma.db]
         [korma.core]))
 
@@ -52,9 +53,9 @@
 (defentity room
   (database db))
 
-(defentity room-id
+(defentity room-facility
   (database db)
-  (table :roomid))
+  (table :roomfacility))
 
 (defentity subscription
   (database db))
@@ -77,17 +78,51 @@
 
 (defrecord Database [])
 
+(def room-facilities
+  {0 :beamer
+   1 :overhead-projector
+   2 :speakers})
+
 (extend-type Database
   query/Rooms
   (room-add!
-    [this room]
-    "Add a room")
+    [this new-room]
+    (let [facilities
+          (map #(% (map-invert room-facilities))
+               (:facilities new-room))
+          room-id
+          (:id new-room)
+          vals
+          (merge {:capacity (:capacity new-room)}
+                 room-id)
+          key
+          (:GENERATED_KEY
+           (insert room
+                   (values vals)))]
+      (doseq [facility facilities]
+        (insert room-facility
+                (values {:room key
+                         :facility facility})))))
   (room-delete!
-    [this room]
-    "Delete a room")
+    [this room-id]
+    ;; Do we need to check if the room exists first or not?
+    (delete room
+            (where {:id room-id})))
   (room-get
-    [this room]
-    "returns the matching")
+    [this room-id]
+    (let [room (select room
+                       (where {:id room-id}))]
+      (if (not (empty? room))
+        (let [facilities
+              (map #(val (find room-facilities (:facility %)))
+                   (select room-facility
+                           (where {:room (:id (first room))})))]
+          {:id {:building (:building (first room))
+                :floor (:floor (first room))
+                :number (:number (first room))}
+           :capacity (:capacity (first room))
+           :facilities (set facilities)})
+        empty)))
 
   query/Courses
   (course-add!
