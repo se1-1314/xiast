@@ -9,7 +9,8 @@
                  [enlive "1.1.4"]
                  [com.taoensso/tower "2.0.1"]
                  [hiccup "1.0.4"]
-                 [clj-http "0.1.3"]]
+                 [clj-http "0.1.3"]
+                 [prismatic/schema "0.2.1"]]
   :plugins [[lein-ring "0.8.8"]]
   :main ^:skip-aot xiast.core
   :target-path "target/%s"
