@@ -60,28 +60,25 @@
        "</ul>"
        "</li>"))
 
-(defsnippet guest-menu "templates/guest-menu.html" [:div#menu]
-  []
-  identity)
-(defsnippet student-menu "templates/student-menu.html" [:div#menu]
-  []
-  identity)
-(defsnippet teacher-menu "templates/teacher-menu.html" [:div#menu]
-  []
-  identity)
-(defsnippet program-manager-menu "templates/program-manager-menu.html" [:div#menu]
-  []
-  identity)
-
-
 (deftemplate base "templates/layout.html"
   [body & {:keys [title alert]}]
   [:html :> :head :> :title] (content title)
-  [:div#menu] (content ((case (:user-type *session*)
-                          :student student-menu
-                          :program-manager program-manager-menu
-                          :titular teacher-menu
-                          guest-menu)))
+  [:li#curriculum-info] (if (contains? (set (:user-functions *session*)) :student)
+                          identity
+                          nil)
+  [:li#semi-scheduling] (if (contains? (set (:user-functions *session*)) :titular)
+                          identity
+                          nil)
+  [:li#schedule] (if (contains? (set (:user-functions *session*)) :program-manager)
+                   identity 
+                   nil)
+  [:li#classroom-edit] (if (contains? (set (:user-functions *session*)) :program-manager)
+                         identity
+                         nil)
+  [:li#program-edit] (if (contains? (set (:user-functions *session*)) :program-manager)
+                       identity
+                       nil)
+
   [:div#page-content] (content body)
   [:li#login-out] (html-content (if-let [user (:user *session*)]
                                   (logged-in-link user)
