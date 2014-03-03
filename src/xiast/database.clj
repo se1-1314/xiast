@@ -5,6 +5,8 @@
         [korma.db]
         [korma.core]))
 
+(def ^:dynamic *db* nil)
+
 ;; TODO: Change `database' in config to `db' so we can
 ;; just use the config map as argument.
 (defdb db
@@ -288,3 +290,9 @@
   (program-schedule
     ([this program-id])
     ([this program-id timespan])))
+
+(defn wrap-database
+  [handler]
+  (fn [request]
+    (binding [*db* (Database.)]
+      (handler request))))
