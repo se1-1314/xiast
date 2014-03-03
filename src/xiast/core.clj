@@ -184,32 +184,10 @@
          "00"
          "30")))
 
-(defsnippet schedule-body "templates/schedule.html" [:div#page-content]
-  [schedule-blocks]
-  [:div#schedule :div]
-  (clone-for [sb schedule-blocks]
-             (html-content (str "<div class=\"panel panel-success\">"
-                                "<div class=\"panel-heading\">"
-                                "W" (:week sb)
-                                " D" (:day sb)
-                                " - "
-                                (-> sb :course :title)
-                                "</div>"
-                                "<div class=\"panel-body row\">"
-                                "<div class=\"col-md-6 pull-left\">"
-                                " " (block-time->time-str (:start-time sb))
-                                "</div>"
-                                "<div class=\"col-md-6 pull-right\">"
-                                (block-time->time-str (:end-time sb))
-                                "</div>"
-                                "<div class=\"col-md-12\">"
-                                "<a href=\"/schedule/room/"
-                                (:room sb)
-                                "\" >"
-                                (:room sb)
-                                "</a>"
-                                "</div>"
-                                "</div>"))))
+(defsnippet schedule-body "templates/schedule.html" [:div#page-content] []
+;  [schedule-blocks]
+  identity
+  )
 
 ;; FIXME, hack?
 (defn- schedule-page [schedule-blocks]
@@ -217,12 +195,15 @@
             (t/translate-nodes))))
 
 (defroutes schedule-routes
-  (GET "/schedule/student/:student-id" [student-id]
-       (schedule-page (query/student-schedule *mock-data* student-id)))
-  (GET "/schedule/room/:room-id" [room-id]
-       (schedule-page (query/room-schedule *mock-data* room-id)))
-  (GET "/schedule/course/:course-id" [course-id]
-       (schedule-page (query/course-schedule *mock-data* course-id))))
+  (GET "/timetables" []
+       (base (-> (schedule-body)
+                 (t/translate-nodes)))))
+;  (GET "/timetables/student/:student-id" [student-id]
+;       (schedule-page (query/student-schedule *mock-data* student-id)))
+;  (GET "/timetables/room/:room-id" [room-id]
+;       (schedule-page (query/room-schedule *mock-data* room-id)))
+;  (GET "/timetables/course/:course-id" [course-id]
+;       (schedule-page (query/course-schedule *mock-data* course-id))))
 
 (defsnippet course-body "templates/courses.html" [:div#page-content]
   [courses]
