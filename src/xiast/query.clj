@@ -77,8 +77,8 @@
   (course-add! [this course])
   (course-delete! [this course-code])
   (course-get [this course-code])
+  (course-list [this])
   (course-find
-    [this]
     [this kws]
     "Return a list of {:title s/Str :course-code CourseCode},
     optionally filtering by the strings in kws for the name of the
@@ -92,8 +92,9 @@
 (defprotocol Programs
   (program-list
     [this]
-    [this kws]
     "Return a list of {:title s/Str :program-id ProgramID}")
+  (program-find
+    [this kws])
   (program-courses
     [this program-id]
     "Return a list of {:title s/Str :course-code CourseCode}"))

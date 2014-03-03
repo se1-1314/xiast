@@ -1,4 +1,5 @@
 (ns xiast.database
+  (:require [xiast.query :as query])
   (:use [xiast.config :only [config]]
         [korma.db]
         [korma.core]))
@@ -16,55 +17,114 @@
       (sqlite3
        {:db (:database config)}))))
 
-(defentity student
-  (database db)
-  (pk :studentRoleNumber))
-
 (defentity course
-  (database db)
-  (pk :courseCode))
-
-(defentity department
-  (database db)
-  (pk :departmentID))
-
-(defentity instructor
-  (database db)
-  (pk :instructorID))
-
-(defentity course-titular
-  (table :course_titular)
   (database db))
+
+(defentity course-activity
+  (database db)
+  (table :CourseActivity))
 
 (defentity course-enrollment
-  (table :course_enrollment)
+  (database db)
+  (table :CourseEnrollment))
+
+(defentity course-instructor
+  (database db)
+  (table :CourseInstructor))
+
+(defentity deparment
   (database db))
 
-(defentity course-session-period
-  (table :course_session_period)
+(defentity person
   (database db))
 
-(defentity courseactivity
+(defentity program
   (database db))
 
-(defentity studyprogram
+(defentity program-choice-course
+  (database db)
+  (table :ProgramChoiceCourse))
+
+(defentity program-mandatory-course
+  (database db)
+  (table :ProgramMandatoryCourse))
+
+(defentity room
   (database db))
 
-(defentity studyprogram-choicecourse
-  (table :studyprogram_choicecourse)
+(defentity room-id
+  (database db)
+  (table :roomid))
+
+(defentity subscription
   (database db))
 
-(defentity studyprogram-mandatorycourse
-  (table :studyprogram_mandatorycourse)
-  (database db))
+#_(defentity studyprogram-mandatorycourse
+    (table :studyprogram_mandatorycourse)
+    (database db))
 
 (defn get-user
   [netid]
-  (select student
-          (where {:netId netid})))
+  (let [user (select person
+                     (where {:netid netid}))]
+    (if (empty? user) user (first user))))
 
 (defn create-user
   [netid locale]
-  (insert student
-          (values {:netId netid
+  (insert person
+          (values {:netid netid
                    :locale locale})))
+
+(defrecord Database [])
+
+(extend-type Database
+  query/Rooms
+  (room-add!
+    [this room]
+    "Add a room")
+  (room-delete!
+    [this room]
+    "Delete a room")
+  (room-get
+    [this room]
+    "returns the matching")
+
+  query/Courses
+  (course-add!
+    [this course])
+  (course-delete!
+    [this course-code])
+  (course-get
+    [this course-code])
+  (course-list
+    [this])
+  (course-find
+    [this kws])
+
+  query/Programs
+  (program-list
+    [this])
+  (program-find
+    [this kws])
+  (program-courses
+    [this program-id])
+
+  query/Enrollments
+  (student-enrollments
+    [this student-id])
+  (enroll-student!
+    [this student-id course-code])
+
+  query/Schedules
+  (course-schedule
+    ([this course-code])
+    ([this course-code timespan]))
+  (student-schedule
+    ([this student-id])
+    ([this student-id timespan]))
+  (room-schedule
+    ([this room-id])
+    ([this room-id timespan]))
+  (program-schedule
+    ([this program-id])
+    ([this program-id timespan])))
