@@ -11,7 +11,7 @@
 (def RoomFacility (s/enum :beamer :overhead-projector))
 (def Room {:id RoomID
            :capacity s/Int
-           :facilities #{RoomFacility})}
+           :facilities #{RoomFacility}})
 (def PersonID s/Str)
 (def StudyActivityType (s/enum :HOC :WPO))
 (def Degree (s/enum :ma :ba :manama :schakel))
