@@ -31,21 +31,26 @@
              :instructors #{PersonID}
              :department Department
              :grade (s/enum :ba :ma)
-             :activities {StudyActivityType {:contact-hours s/Int}}})
-(def CourseActivityID {:course-code CourseCode
-                       :study-activity-type StudyActivityType})
+             :activities #{CourseActivity}})
+(def CourseActivity {:type CourseActivityType
+                     :semester s/Int
+                     :date s/Int ;; TODO: Fix this type
+                     :contact-time-hours s/Int
+                     ;; TODO: fix support for multiple instructors/activity
+                     :instructor PersonID})
+(def CourseActivityType (s/enum :HOC :WPO))
 (def ProgramID s/Int)
 (def Program {:title s/Str
               :description s/Str
               :id ProgramID
-              :mandatory #{CourseActivityID}
-              :optional #{CourseActivityID}})
+              :mandatory #{Course}
+              :optional #{Course}})
 (def Subscription {:person-id PersonID
                    :course-code CourseCode})
 (def AcademicWeek (s/one s/Int "Week on the academic calendar: 1-52"))
 (def DayNumber (s/one s/Int "Day of the week: 1-7"))
 (def ScheduleSlot (s/one s/Int "Half-hour time slots from 07:00 through 23:30"))
-(def ScheduledItem {:type StudyActivityType
+(def ScheduledItem {:type CourseActivityType
                     :title s/Str
                     :id (s/one s/Str "e.g. course code")})
 (def ScheduleBlock
