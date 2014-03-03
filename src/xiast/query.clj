@@ -13,6 +13,11 @@
            :capacity s/Int
            :facilities #{RoomFacility}})
 (def PersonID s/Str)
+(def Person
+  {:id PersonID
+   :first-name s/Str
+   :last-name s/Str
+   :locale s/Str})
 (def StudyActivityType (s/enum :HOC :WPO))
 (def Degree (s/enum :ma :ba :manama :schakel))
 (def SessionSemester (s/enum :1 :2 :1+2))
@@ -59,7 +64,9 @@
                  DayNumber "last day")
    :slots (s/pair ScheduleSlot "first slot"
                   ScheduleSlot "last slot")})
-(def CourseActivityRequirements)
+(def CourseActivityRequirements
+  {:facilities #{RoomFacility}
+   :minimum-capacity s/Int})
 
 
 (defprotocol Rooms
@@ -85,9 +92,11 @@
     course (case insensitive and in any order)."))
 
 (defprotocol CourseRequirements
+  (course-room-requirements-set!
+    [this course-code course-activity-type course-activity-requirements])
   (course-room-requirements
     [this course-code course-activity-type]
-    "Return the room requirements for a course activity."))
+    "Return the CourseActivityRequirements for a course activity."))
 
 (defprotocol Programs
   (program-list
