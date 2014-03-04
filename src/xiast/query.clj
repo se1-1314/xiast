@@ -28,10 +28,10 @@
 (def CourseActivityType (s/enum :HOC :WPO))
 (def CourseActivity {:type CourseActivityType
                      :semester s/Int
-                     :date s/Int ;; TODO: Fix this type
+                     :date s/Int ;; TODO: Change to week (nvgeele)
                      :contact-time-hours s/Int
-                     ;; TODO: fix support for multiple instructors/activity
-                     ;; TODO: course facility requirements
+                     ;; TODO: fix support for multiple instructors/activity (nvgeele)
+                     ;; TODO: course facility requirements (nvgeele)
                      :instructor PersonID})
 (def Course {:course-code CourseCode
              :title s/Str
@@ -155,7 +155,7 @@
     "Return a list of schedule blocks for a whole program, optionally
     using a timespan to limit results."))
 
-;; TODO: Remove mockdata.
+;; TODO: Remove mockdata. (nvgeele)
 (defprotocol XiastQuery
   (courses
     [this]
@@ -183,7 +183,7 @@ timespan to limit results."))
   (<= (first range) num (second range)))
 
 (defn schedule-block-in-timespan? [block timespan]
-  ;; FIXME ew
+  ;; FIXME ew (aleijnse)
   (and (every? true?
                (map in-range?
                     (map block [:week :day])

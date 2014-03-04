@@ -8,7 +8,7 @@
 (def ^:dynamic *db* nil)
 
 ;; TODO: Change `database' in config to `db' so we can
-;; just use the config map as argument.
+;; just use the config map as argument. (nvgeele)
 (defdb db
   (let [config (:database config)]
     (if (= (:type config) 'mysql)
@@ -102,7 +102,8 @@
 
 (defn course-activity->sCourseActivity
   [course-activity]
-  (let [instructor-id ;; TODO: fix support for multiple instructors/activity
+  ;; TODO: fix support for multiple instructors/activity (nvgeele)
+  (let [instructor-id
         ((comp :netid first)
          (select course-instructor
                  (where {:course-activity (:id course-activity)})))]
@@ -153,7 +154,7 @@
            {:mandatory (set mandatory)
             :optional (set choice)})))
 
-;; TODO: replace all find's with get's
+;; TODO: replace all find's with get's (nvgeele)
 
 (extend-type Database
   query/Rooms
@@ -177,7 +178,7 @@
                          :facility facility})))))
   (room-delete!
     [this room-id]
-    ;; Do we need to check if the room exists first or not?
+    ;; Do we need to check if the room exists first or not? (nvgeele)
     (delete room
             (where {:id room-id})))
   (room-get
@@ -216,12 +217,14 @@
   query/Courses
   (course-add!
     [this new-course]
+    ;; I assume the department exists prior to adding a
+    ;; new course. (nvgeele)
     (let [department
           ((comp :id first)
            (select department
                    (where {:name (:department new-course)})))]
       (if (empty? (query/person-get this (:titular-id new-course)))
-        ;; TODO: Standard locale
+        ;; TODO: Standard locale (nvgeele)
         (query/person-add! this
                            {:id (:titular-id new-course)
                             :first-name ""
@@ -235,7 +238,7 @@
                               :department department})))
       (doseq [activity (:activities new-course)]
         (if (empty? (query/person-get this (:instructor activity)))
-          ;; TODO: Standard locale
+          ;; TODO: Standard locale (nvgeele)
           (query/person-add! this
                              {:id (:instructor activity)
                               :first-name ""
@@ -257,7 +260,7 @@
   (course-delete!
     [this course-code]
     ;; We only need to delete the course record,
-    ;; enrollments, instructors, ... will cascade
+    ;; enrollments, instructors, ... will cascade (nvgeele)
     (delete course
             (where {:course-code course-code})))
   (course-get
@@ -309,5 +312,3 @@
   (fn [request]
     (binding [*db* (Database.)]
       (handler request))))
-
-(def asdf (Database.))
