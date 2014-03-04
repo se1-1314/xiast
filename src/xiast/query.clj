@@ -31,6 +31,7 @@
                      :date s/Int ;; TODO: Fix this type
                      :contact-time-hours s/Int
                      ;; TODO: fix support for multiple instructors/activity
+                     ;; TODO: course facility requirements
                      :instructor PersonID})
 (def Course {:course-code CourseCode
              :title s/Str

@@ -144,6 +144,28 @@
      :activities (set activities)
      :instructors (set instructors)}))
 
+(defn program->sProgram
+  [program]
+  (let [mandatory
+        (map (comp course->sCourse
+                   #(first (select course
+                                   (where {:course-code
+                                           (:course-code %)}))))
+             (select program-mandatory-course
+                     (where {:program (:id program)})))
+        choice
+        (map (comp course->sCourse
+                   #(first (select course
+                                   (where {:course-code
+                                           (:course-code %)}))))
+             (select program-choice-course
+                     (where {:program (:id program)})))]
+    (merge program
+           {:mandatory (set mandatory)
+            :optional (set choice)})))
+
+;; TODO: replace all find's with get's
+
 (extend-type Database
   query/Rooms
   (room-add!
@@ -265,7 +287,9 @@
 
   query/Programs
   (program-list
-    [this])
+    [this]
+    (map program->sProgram
+         (select program)))
   (program-find
     [this kws])
   (program-courses
@@ -296,3 +320,5 @@
   (fn [request]
     (binding [*db* (Database.)]
       (handler request))))
+
+(def asdf (Database.))
