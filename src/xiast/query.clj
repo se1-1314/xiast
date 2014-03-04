@@ -45,8 +45,8 @@
 (def Program {:title s/Str
               :description s/Str
               :id ProgramID
-              :mandatory #{Course}
-              :optional #{Course}})
+              :mandatory #{CourseCode}
+              :optional #{CourseCode}})
 (def Subscription {:person-id PersonID
                    :course-code CourseCode})
 (def AcademicWeek (s/one s/Int "Week on the academic calendar: 1-52"))

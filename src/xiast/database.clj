@@ -105,16 +105,12 @@
   (let [instructor-id ;; TODO: fix support for multiple instructors/activity
         ((comp :netid first)
          (select course-instructor
-                 (where {:course-activity (:id course-activity)})))
-        instructor
-        (first
-         (select person
-                 (where {:netid instructor-id})))]
+                 (where {:course-activity (:id course-activity)})))]
     {:type (val (find course-activity-types (:type course-activity)))
      :semester (:semester course-activity)
      :data (:date course-activity)
      :contact-time-hours (:contact-time-hours course-activity)
-     :instructor (person->sPerson instructor)}))
+     :instructor instructor-id}))
 
 (defn course->sCourse
   [course]
@@ -131,14 +127,13 @@
              (select course-activity
                      (where {:course-code (:course-code course)})))
         instructors
-        (map (comp person->sPerson :instructor)
-             activities)
+        (map :instructor activities)
         grade
         (val (find course-grades (:grade course)))]
     {:course-code (:course-code course)
      :title (:title course)
      :description (:description course)
-     :titular titular
+     :titular (:titular-id course)
      :grade grade
      :department department
      :activities (set activities)
@@ -147,17 +142,11 @@
 (defn program->sProgram
   [program]
   (let [mandatory
-        (map (comp course->sCourse
-                   #(first (select course
-                                   (where {:course-code
-                                           (:course-code %)}))))
+        (map :course-code
              (select program-mandatory-course
                      (where {:program (:id program)})))
         choice
-        (map (comp course->sCourse
-                   #(first (select course
-                                   (where {:course-code
-                                           (:course-code %)}))))
+        (map :course-code
              (select program-choice-course
                      (where {:program (:id program)})))]
     (merge program
@@ -205,7 +194,7 @@
                 :number (:number (first room))}
            :capacity (:capacity (first room))
            :facilities (set facilities)})
-        empty)))
+        nil)))
 
   query/Persons
   (person-add!
