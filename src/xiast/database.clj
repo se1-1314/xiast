@@ -275,7 +275,17 @@
     (let [courses (select course)]
       (map course->sCourse courses)))
   (course-find
-    [this kws])
+    [this kws]
+    (let [terms
+          (map (fn [kw]
+                 `{:title [~'like ~(str "%" kw "%")]})
+               kws)
+          results
+          ((comp eval macroexpand)
+           `(select course
+                    (where (~'or ~@terms))))]
+      (map #(select-keys % [:course-code :title])
+           results)))
 
   query/Programs
   (program-list
