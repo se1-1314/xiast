@@ -62,10 +62,6 @@
 (defentity subscription
   (database db))
 
-#_(defentity studyprogram-mandatorycourse
-    (table :studyprogram_mandatorycourse)
-    (database db))
-
 (defn get-user
   [netid]
   (let [user (select person

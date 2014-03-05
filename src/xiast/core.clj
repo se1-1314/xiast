@@ -5,6 +5,7 @@
         [xiast.authentication :as auth]
         [xiast.config :only [config]]
         [xiast.database :only [*db* wrap-database]]
+        [xiast.api :only [api-routes]]
         [ring.middleware.file-info :only [wrap-file-info]]
         [ring.middleware.resource :only [wrap-resource]]
         [ring.handler.dump :only [handle-dump]]
@@ -72,7 +73,7 @@
                           identity
                           nil)
   [:li#schedule] (if (contains? (set (:user-functions *session*)) :program-manager)
-                   identity 
+                   identity
                    nil)
   [:li#classroom-edit] (if (contains? (set (:user-functions *session*)) :program-manager)
                          identity
@@ -249,6 +250,7 @@
 
 ;;; Read: https://github.com/weavejester/compojure/wiki
 (defroutes main-routes
+  (context "/api" [] api-routes)
   index-routes
   about-routes
   login-routes
