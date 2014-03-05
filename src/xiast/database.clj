@@ -304,12 +304,28 @@
   query/Programs
   (program-list
     [this]
-    (map program->sProgram
+    (map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
          (select program)))
   (program-find
-    [this kws])
-  (program-courses
-    [this program-id])
+    [this kws]
+    (let [terms
+          (map (fn [kw]
+                 `{:title [~'like ~(str "%" kw "%")]})
+               kws)
+          results
+          ((comp eval macroexpand)
+           `(select program
+                    (where (~'or ~@terms))))]
+      (map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
+           results)))
+  (program-get
+    [this program-id]
+    (let [result
+          (select program
+                  (where {:id program-id}))]
+      (if (not (empty? result))
+        (program->sProgram (first result))
+        nil)))
 
   query/Enrollments
   (student-enrollments

@@ -7,17 +7,19 @@
             [schema.core :as s]
             [schema.coerce :as coerce]))
 
+;; TODO: Write some API docs (nvgeele)
 ;; TODO: Define standard error message + HTTP error code (nvgeele)
+;; TODO: Return correct json on empty returns (nvgeele)
 
 (defn read-json
   [str]
   (read-str str :key-fn keyword))
 
-(def CourseFindQuery
+(def FindQuery
   {:keywords [s/Str]})
 
-(def parse-course-find-query
-  (coerce/coercer CourseFindQuery coerce/json-coercion-matcher))
+(def parse-find-query
+  (coerce/coercer FindQuery coerce/json-coercion-matcher))
 
 (defroutes course-routes
   (GET "/" [] "Invalid request")
@@ -26,18 +28,22 @@
   (GET "/get/:course-code" [course-code]
        (write-str (query/course-get *db* course-code)))
   (POST "/find" [data]
-        (let [request (parse-course-find-query (read-json data))
+        (let [request (parse-find-query (read-json data))
               result (query/course-find *db* (:keywords request))]
           (write-str {:result result}))))
 
 (defroutes program-routes
-  (GET "/" [] "Invalid request"))
+  (GET "/" [] "Invalid request")
+  (GET "/list" []
+       (write-str {:programs (query/program-list *db*)}))
+  (GET "/get/:id" [id]
+       (write-str (query/program-get *db* id)))
+  (POST "/find" [data]
+        (let [request (parse-find-query (read-json data))
+              result (query/program-find *db* (:keywords request))]
+          (write-str {:result result}))))
 
 (defroutes api-routes
   (GET "/" [] "Invalid request")
   (context "/course" [] course-routes)
   (context "/program" [] program-routes))
-
-
-(def test-data
-  "{ \"keywords\" : [] }")

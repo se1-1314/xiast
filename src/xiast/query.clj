@@ -114,9 +114,9 @@
     "Return a list of {:title s/Str :program-id ProgramID}")
   (program-find
     [this kws])
-  (program-courses
+  (program-get
     [this program-id]
-    "Return a list of {:title s/Str :course-code CourseCode}"))
+    "Return a program map."))
 
 (defprotocol Persons
   (person-add!
