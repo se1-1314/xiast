@@ -11,6 +11,7 @@
                  [hiccup "1.0.4"]
                  [clj-http "0.1.3"]
                  [prismatic/schema "0.2.1"]
+                 [org.clojure/data.json "0.2.4"]
                  [org.clojure/java.jdbc "0.2.3"]
                  [korma "0.3.0-RC6"]
                  [org.xerial/sqlite-jdbc "3.7.2"]
