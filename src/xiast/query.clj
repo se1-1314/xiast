@@ -26,7 +26,8 @@
 (def Department [(s/one s/Keyword "department, e.g. :mathematics")
                  (s/one s/Keyword "faculty, e.g. :sciences")])
 (def CourseActivityType (s/enum :HOC :WPO))
-(def CourseActivity {:type CourseActivityType
+(def CourseActivity {(s/optional-key :activity-id) s/Int
+                     :type CourseActivityType
                      :semester s/Int
                      :date s/Int ;; TODO: Change to week (nvgeele)
                      :contact-time-hours s/Int
@@ -37,10 +38,10 @@
              :title s/Str
              :description s/Str
              :titular-id PersonID
-             :instructors #{PersonID}
+             (s/optional-key :instructors) #{PersonID}
              :department Department
              :grade (s/enum :ba :ma)
-             :activities #{CourseActivity}})
+             (s/optional-key :activities) #{CourseActivity}})
 (def ProgramID s/Int)
 (def Program {:title s/Str
               :description s/Str
@@ -89,7 +90,9 @@
 
 (defprotocol Courses
   (course-add! [this course])
+  (course-add-activity! [this course-code activity])
   (course-delete! [this course-code])
+  (course-delete-activity! [this activity-code])
   (course-get [this course-code])
   (course-list [this])
   (course-find
