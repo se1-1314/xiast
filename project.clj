@@ -21,4 +21,5 @@
   :profiles {:uberjar {:aot :all}
              :dev {:dependencies [[ring-serve "0.1.2"]
                                   [ring-mock "0.1.5"]]}}
-  :ring {:handler xiast.core/app})
+  :ring {:handler xiast.core/app
+         :auto-reload? true})
