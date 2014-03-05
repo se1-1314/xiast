@@ -62,10 +62,6 @@
 (defentity subscription
   (database db))
 
-#_(defentity studyprogram-mandatorycourse
-    (table :studyprogram_mandatorycourse)
-    (database db))
-
 (defn get-user
   [netid]
   (let [user (select person
@@ -154,8 +150,21 @@
            {:mandatory (set mandatory)
             :optional (set choice)})))
 
-;; TODO: replace all find's with get's (nvgeele)
+(defn- create-person
+  "This functions checks whether a user with the given netid exists in the
+  database. If not, a new record for the person will be inserted. Returns
+  netid."
+  [db netid]
+  ;; TODO: Standard locale (nvgeele)
+  (if (empty? (query/person-get db netid))
+    (query/person-add! db
+                       {:netid netid
+                        :first-name ""
+                        :last-name ""
+                        :locale "en"}))
+  netid)
 
+;; TODO: replace all find's with get's (nvgeele)
 (extend-type Database
   query/Rooms
   (room-add!
@@ -223,31 +232,28 @@
           ((comp :id first)
            (select department
                    (where {:name (:department new-course)})))]
-      (if (empty? (query/person-get this (:titular-id new-course)))
-        ;; TODO: Standard locale (nvgeele)
-        (query/person-add! this
-                           {:id (:titular-id new-course)
-                            :first-name ""
-                            :last-name ""
-                            :locale "en"}))
       (insert course
-              (values (merge (dissoc new-course
-                                     :instructors :department :grade :activities)
-                             {:grade ((:grade new-course)
-                                      (map-invert course-grades))
-                              :department department})))
-      (doseq [activity (:activities new-course)]
-        (if (empty? (query/person-get this (:instructor activity)))
-          ;; TODO: Standard locale (nvgeele)
-          (query/person-add! this
-                             {:id (:instructor activity)
-                              :first-name ""
-                              :last-name ""
-                              :locale "en"}))
-        (let [activity-id
+              (values
+               (merge
+                (dissoc new-course
+                        :instructors :department :grade :activities :titular-id)
+                {:grade ((:grade new-course)
+                         (map-invert course-grades))
+                 :department department
+                 :titular-id (create-person this (:titular-id new-course))})))
+      (if (:activities new-course)
+        (doseq [activity (:activities new-course)]
+          (query/course-add-activity! this
+                                      (:course-code new-course)
+                                      activity)))))
+  (course-add-activity!
+    [this course-code activity]
+    (let [course (select course (where {:course-code course-code}))]
+      (if (not (empty? course))
+        (let [key
               (:GENERATED_KEY
                (insert course-activity
-                       (values {:course-code (:course-code new-course)
+                       (values {:course-code course-code
                                 :type ((:type activity)
                                        (map-invert course-activity-types))
                                 :semester (:semester activity)
@@ -255,21 +261,29 @@
                                 :contact-time-hours
                                 (:contact-time-hours activity)})))]
           (insert course-instructor
-                  (values {:course-activity activity-id
-                           :netid (:instructor activity)}))))))
+                  (values {:course-activity key
+                           :netid (create-person
+                                   this
+                                   (:instructor activity))}))
+          ;; Return newly created course-activity map.
+          (assoc activity :id key)))))
   (course-delete!
     [this course-code]
     ;; We only need to delete the course record,
     ;; enrollments, instructors, ... will cascade (nvgeele)
     (delete course
             (where {:course-code course-code})))
+  (course-delete-activity!
+    [this activity-code]
+    (delete course-activity
+            (where {:id activity-code})))
   (course-get
     [this course-code]
     (let [course (select course
                          (where {:course-code course-code}))]
       (if (not (empty? course))
         (course->sCourse (first course))
-        empty)))
+        nil)))
   (course-list
     [this]
     (let [courses (select course)]
@@ -290,12 +304,28 @@
   query/Programs
   (program-list
     [this]
-    (map program->sProgram
+    (map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
          (select program)))
   (program-find
-    [this kws])
-  (program-courses
-    [this program-id])
+    [this kws]
+    (let [terms
+          (map (fn [kw]
+                 `{:title [~'like ~(str "%" kw "%")]})
+               kws)
+          results
+          ((comp eval macroexpand)
+           `(select program
+                    (where (~'or ~@terms))))]
+      (map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
+           results)))
+  (program-get
+    [this program-id]
+    (let [result
+          (select program
+                  (where {:id program-id}))]
+      (if (not (empty? result))
+        (program->sProgram (first result))
+        nil)))
 
   query/Enrollments
   (student-enrollments
