@@ -283,7 +283,7 @@
                          (where {:course-code course-code}))]
       (if (not (empty? course))
         (course->sCourse (first course))
-        empty)))
+        nil)))
   (course-list
     [this]
     (let [courses (select course)]

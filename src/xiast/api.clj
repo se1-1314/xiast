@@ -26,7 +26,10 @@
   (GET "/list" []
        (write-str {:courses (query/course-list *db*)}))
   (GET "/get/:course-code" [course-code]
-       (write-str (query/course-get *db* course-code)))
+       (let [result (query/course-get *db* course-code)]
+         (if result
+           (write-str result)
+           "[]")))
   (POST "/find" [data]
         (let [request (parse-find-query (read-json data))
               result (query/course-find *db* (:keywords request))]
@@ -37,7 +40,10 @@
   (GET "/list" []
        (write-str {:programs (query/program-list *db*)}))
   (GET "/get/:id" [id]
-       (write-str (query/program-get *db* id)))
+       (let [result (query/program-get *db* id)]
+         (if result
+           (write-str result)
+           "[]")))
   (POST "/find" [data]
         (let [request (parse-find-query (read-json data))
               result (query/program-find *db* (:keywords request))]
