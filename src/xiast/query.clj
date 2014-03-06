@@ -45,7 +45,7 @@
 (def ProgramID s/Int)
 (def Program {:title s/Str
               :description s/Str
-              :id ProgramID
+              (s/optional-key :id) ProgramID
               :mandatory #{CourseCode}
               :optional #{CourseCode}})
 (def Subscription {:person-id PersonID
@@ -116,7 +116,10 @@
     [this kws])
   (program-get
     [this program-id]
-    "Return a program map."))
+    "Return a program map.")
+  (program-add!
+    [this new-program]
+    "Accepts a program map and inserts it into the database."))
 
 (defprotocol Persons
   (person-add!
