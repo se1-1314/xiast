@@ -1,6 +1,7 @@
 (ns xiast.authentication
+  (:use [xiast.database :only [*db* create-person]])
   (:require [clj-http.client :as client]
-            [xiast.database :as db]))
+            [xiast.query :as query]))
 
 (defn login
   [netid password]
@@ -11,20 +12,15 @@
         body (:body req)]
     ;; TODO: get locale from db
     (if (re-find #"xiastsucc" body)
-      (let [user (db/get-user netid)]
-        (if (empty? user)
+      (let [person (query/person-get *db* netid)]
+        (if person
+          (assoc person :user-functions (query/person-functions *db* netid))
           (do
-            (db/create-user netid "en")
-            {:user netid
-             ;; TODO: Get locale out of session
-             :locale "en"
-             :user-functions (take (rand-int 4)
-                                   (shuffle [:student :program-manager :titular :instructor]))})
-          {:user netid
-           ;; TODO: Get real locale out of db
-           :locale "en"
-           :user-functions (take (rand-int 4)
-                                 (shuffle [:student :program-manager :titular :instructor]))}))
+            (create-person *db* netid)
+            (assoc
+                (query/person-get *db* netid)
+              :user-functions
+              (query/person-functions *db* netid)))))
       nil)))
 
 (defn logout

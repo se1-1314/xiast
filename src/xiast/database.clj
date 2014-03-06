@@ -150,7 +150,7 @@
            {:mandatory (set mandatory)
             :optional (set choice)})))
 
-(defn- create-person
+(defn create-person
   "This functions checks whether a user with the given netid exists in the
   database. If not, a new record for the person will be inserted. Returns
   netid."
@@ -210,7 +210,7 @@
   (person-add!
     [this new-person]
     (insert person
-            (values {:netid (:id new-person)
+            (values {:netid (:netid new-person)
                      :firstname (:first-name new-person)
                      :surname (:last-name new-person)
                      :locale (:locale new-person)})))
@@ -222,6 +222,30 @@
       (if (not (empty? person))
         (person->sPerson (first person))
         nil)))
+  (person-functions
+    [this netid]
+    (let [program-manager?
+          (not (empty?(select program
+                              (where {:manager netid})
+                              (limit 1))))
+          instructor?
+          (not (empty? (select course-instructor
+                               (where {:netid netid})
+                               (limit 1))))
+          titular?
+          (not (empty? (select course
+                               (where {:titular-id netid})
+                               (limit 1))))
+          student?
+          (not (empty? (select course-enrollment
+                               (where {:netid netid})
+                               (limit 1))))]
+      (disj
+       (set [(if program-manager? :program-manager)
+             (if instructor? :instructor)
+             (if titular? :titular)
+             (if student? :student)])
+       nil)))
 
   query/Courses
   (course-add!
@@ -332,7 +356,8 @@
           (:GENERATED_KEY
            (insert program
                    (values {:title (:title new-program)
-                            :description (:description new-program)})))]
+                            :description (:description new-program)
+                            :manager (:manager new-program)})))]
       (doseq [course-code (:mandatory new-program)]
         (insert program-mandatory-course
                 (values {:program id
