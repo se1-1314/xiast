@@ -24,16 +24,13 @@
   (database db))
 
 (defentity course-activity
-  (database db)
-  (table :CourseActivity))
+  (database db))
 
 (defentity course-enrollment
-  (database db)
-  (table :CourseEnrollment))
+  (database db))
 
 (defentity course-instructor
-  (database db)
-  (table :CourseInstructor))
+  (database db))
 
 (defentity department
   (database db))
@@ -45,34 +42,19 @@
   (database db))
 
 (defentity program-choice-course
-  (database db)
-  (table :ProgramChoiceCourse))
+  (database db))
 
 (defentity program-mandatory-course
-  (database db)
-  (table :ProgramMandatoryCourse))
+  (database db))
 
 (defentity room
   (database db))
 
 (defentity room-facility
-  (database db)
-  (table :roomfacility))
+  (database db))
 
 (defentity subscription
   (database db))
-
-(defn get-user
-  [netid]
-  (let [user (select person
-                     (where {:netid netid}))]
-    (if (empty? user) user (first user))))
-
-(defn create-user
-  [netid locale]
-  (insert person
-          (values {:netid netid
-                   :locale locale})))
 
 (defrecord Database [])
 
@@ -105,7 +87,7 @@
                  (where {:course-activity (:id course-activity)})))]
     {:type (val (find course-activity-types (:type course-activity)))
      :semester (:semester course-activity)
-     :data (:date course-activity)
+     :week (:week course-activity)
      :contact-time-hours (:contact-time-hours course-activity)
      :instructor instructor-id}))
 

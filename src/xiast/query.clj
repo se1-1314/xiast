@@ -33,7 +33,7 @@
 (def CourseActivity {(s/optional-key :activity-id) s/Int
                      :type CourseActivityType
                      :semester s/Int
-                     :date s/Int ;; TODO: Change to week (nvgeele)
+                     :week s/Int
                      :contact-time-hours s/Int
                      ;; TODO: fix support for multiple instructors/activity (nvgeele)
                      ;; TODO: course facility requirements (nvgeele)
