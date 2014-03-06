@@ -326,6 +326,22 @@
       (if (not (empty? result))
         (program->sProgram (first result))
         nil)))
+  (program-add!
+    [this new-program]
+    (let [id
+          (:GENERATED_KEY
+           (insert program
+                   (values {:title (:title new-program)
+                            :description (:description new-program)})))]
+      (doseq [course-code (:mandatory new-program)]
+        (insert program-mandatory-course
+                (values {:program id
+                         :course-code course-code})))
+      (doseq [course-code (:optional new-program)]
+        (insert program-choice-course
+                (values {:program id
+                         :course-code course-code})))
+      (assoc new-program :id id)))
 
   query/Enrollments
   (student-enrollments
