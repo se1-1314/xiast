@@ -26,6 +26,10 @@
                  :programs "Programmas"
                  :courses "Vakken"
                  :courses-info "Vak informatie"}
+  :classroom-edit {:title "Lokalen aanpassen"
+                   :buildings "Gebouwen"
+                   :rooms "Lokalen"
+                   :room-details "Details lokaal"}
   }
  :en
  {:index {:welcome "Welcome to Xiast, %s"
@@ -55,4 +59,8 @@
                  :programs "Programs"
                  :courses "Courses"
                  :courses-info "Course information"}
+  :classroom-edit {:title "Room edit"
+                   :buildings "Buildings"
+                   :rooms "Rooms"
+                   :room-details "Details room"}
   }}
