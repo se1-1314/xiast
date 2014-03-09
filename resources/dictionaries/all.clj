@@ -21,7 +21,12 @@
   :authentication {:incorrect-credentials "Foute inloggegevens!"
                    :already-logged-in "U bent al ingelogd!"
                    :logged-in-successful "U bent ingelogd!"}
-  :login {:title "Log in"}}
+  :login {:title "Log in"}
+  :program-edit {:title "Programma aanpassen"
+                 :programs "Programmas"
+                 :courses "Vakken"
+                 :courses-info "Vak informatie"}
+  }
  :en
  {:index {:welcome "Welcome to Xiast, %s"
           :description "A scheduling application for students and faculty managers of the VUB"}
@@ -45,4 +50,9 @@
   :authentication {:incorrect-credentials "Incorrect credentials!"
                    :already-logged-in "You are already logged in!"
                    :logged-in-successful "You are now logged in!"}
-  :login {:title "Sign in"}}}
+  :login {:title "Sign in"}
+  :program-edit {:title "Program edit"
+                 :programs "Programs"
+                 :courses "Courses"
+                 :courses-info "Course information"}
+  }}
