@@ -5,9 +5,7 @@ $(document).ready(function() {
 	var m = date.getMonth();
 	var y = date.getFullYear();
 
-	console.log('wohoo');
-
-	$('#schedule').fullCalendar({
+	$('#schedule-content').fullCalendar({
 		aspectRatio: 2,
 		defaultView: 'agendaWeek',
 		header: {
