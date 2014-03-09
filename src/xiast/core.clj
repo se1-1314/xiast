@@ -58,7 +58,6 @@
        "<span class=\"caret\"></span>"
        "</a>"
        "<ul class=\"dropdown-menu\">"
-       "<li> <a href=\"/schedule/student/" user "\">Schedule</li>"
        "<li><a href=\"/logout\">Logout</a></li>"
        "</ul>"
        "</li>"))
@@ -72,7 +71,7 @@
   [:li#semi-scheduling] (if (contains? (set (:user-functions *session*)) :titular)
                           identity
                           nil)
-  [:li#schedule] (if (contains? (set (:user-functions *session*)) :program-manager)
+  [:li#schedule-nav] (if (contains? (set (:user-functions *session*)) :program-manager)
                    identity
                    nil)
   [:li#classroom-edit] (if (contains? (set (:user-functions *session*)) :program-manager)
