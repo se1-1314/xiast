@@ -13,8 +13,12 @@
            :capacity s/Int
            :facilities #{RoomFacility}})
 (def PersonID s/Str)
+(def PersonFunctions #{(s/enum :program-manager
+                               :titular
+                               :instructor
+                               :student)})
 (def Person
-  {:id PersonID
+  {:netid PersonID
    :first-name s/Str
    :last-name s/Str
    :locale s/Str})
@@ -29,7 +33,7 @@
 (def CourseActivity {(s/optional-key :activity-id) s/Int
                      :type CourseActivityType
                      :semester s/Int
-                     :date s/Int ;; TODO: Change to week (nvgeele)
+                     :week s/Int
                      :contact-time-hours s/Int
                      ;; TODO: fix support for multiple instructors/activity (nvgeele)
                      ;; TODO: course facility requirements (nvgeele)
@@ -45,7 +49,8 @@
 (def ProgramID s/Int)
 (def Program {:title s/Str
               :description s/Str
-              :id ProgramID
+              (s/optional-key :id) ProgramID
+              (s/optional-key :manager) PersonID
               :mandatory #{CourseCode}
               :optional #{CourseCode}})
 (def Subscription {:person-id PersonID
@@ -116,7 +121,10 @@
     [this kws])
   (program-get
     [this program-id]
-    "Return a program map."))
+    "Return a program map.")
+  (program-add!
+    [this new-program]
+    "Accepts a program map and inserts it into the database."))
 
 (defprotocol Persons
   (person-add!
@@ -124,7 +132,10 @@
     "Adds a new person to the database")
   (person-get
     [this netid]
-    "Returns a single person"))
+    "Returns a single person")
+  (person-functions
+    [this netid]
+    "Returns the person's functions"))
 
 (defprotocol Enrollments
   (student-enrollments
