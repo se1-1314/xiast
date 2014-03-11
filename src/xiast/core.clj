@@ -199,6 +199,9 @@
 (defroutes schedule-routes
   (GET "/timetables" []
        (base (-> (schedule-body)
+                 (t/translate-nodes))))
+  (GET "/schedule" []
+       (base (-> (schedule-body)
                  (t/translate-nodes)))))
 ;  (GET "/timetables/student/:student-id" [student-id]
 ;       (schedule-page (query/student-schedule *mock-data* student-id)))
