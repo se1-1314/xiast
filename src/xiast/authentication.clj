@@ -14,13 +14,17 @@
     (if (re-find #"xiastsucc" body)
       (let [person (query/person-get *db* netid)]
         (if person
-          (assoc person :user-functions (query/person-functions *db* netid))
+          (assoc person
+            :user-functions (query/person-functions *db* netid)
+            :user (:netid person))
           (do
             (create-person *db* netid)
-            (assoc
-                (query/person-get *db* netid)
-              :user-functions
-              (query/person-functions *db* netid)))))
+            (let [person (query/person-get *db* netid)]
+              (assoc
+                  person
+                :user-functions
+                (query/person-functions *db* netid)
+                :user (:netid person))))))
       nil)))
 
 (defn logout
