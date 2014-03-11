@@ -36,8 +36,7 @@
   (database db))
 
 (defentity person
-  (database db)
-  (table :Person))
+  (database db))
 
 (defentity program
   (database db))
