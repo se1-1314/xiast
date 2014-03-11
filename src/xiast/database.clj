@@ -24,16 +24,13 @@
   (database db))
 
 (defentity course-activity
-  (database db)
-  (table :CourseActivity))
+  (database db))
 
 (defentity course-enrollment
-  (database db)
-  (table :CourseEnrollment))
+  (database db))
 
 (defentity course-instructor
-  (database db)
-  (table :CourseInstructor))
+  (database db))
 
 (defentity department
   (database db))
@@ -46,34 +43,19 @@
   (database db))
 
 (defentity program-choice-course
-  (database db)
-  (table :ProgramChoiceCourse))
+  (database db))
 
 (defentity program-mandatory-course
-  (database db)
-  (table :ProgramMandatoryCourse))
+  (database db))
 
 (defentity room
   (database db))
 
 (defentity room-facility
-  (database db)
-  (table :roomfacility))
+  (database db))
 
 (defentity subscription
   (database db))
-
-(defn get-user
-  [netid]
-  (let [user (select person
-                     (where {:netid netid}))]
-    (if (empty? user) user (first user))))
-
-(defn create-user
-  [netid locale]
-  (insert person
-          (values {:netid netid
-                   :locale locale})))
 
 (defrecord Database [])
 
@@ -92,7 +74,7 @@
 
 (defn person->sPerson
   [person]
-  {:id (:netid person)
+  {:netid (:netid person)
    :first-name (:firstname person)
    :last-name (:surname person)
    :locale (:locale person)})
@@ -106,7 +88,7 @@
                  (where {:course-activity (:id course-activity)})))]
     {:type (val (find course-activity-types (:type course-activity)))
      :semester (:semester course-activity)
-     :data (:date course-activity)
+     :week (:week course-activity)
      :contact-time-hours (:contact-time-hours course-activity)
      :instructor instructor-id}))
 
@@ -151,7 +133,7 @@
            {:mandatory (set mandatory)
             :optional (set choice)})))
 
-(defn- create-person
+(defn create-person
   "This functions checks whether a user with the given netid exists in the
   database. If not, a new record for the person will be inserted. Returns
   netid."
@@ -211,7 +193,7 @@
   (person-add!
     [this new-person]
     (insert person
-            (values {:netid (:id new-person)
+            (values {:netid (:netid new-person)
                      :firstname (:first-name new-person)
                      :surname (:last-name new-person)
                      :locale (:locale new-person)})))
@@ -223,6 +205,30 @@
       (if (not (empty? person))
         (person->sPerson (first person))
         nil)))
+  (person-functions
+    [this netid]
+    (let [program-manager?
+          (not (empty?(select program
+                              (where {:manager netid})
+                              (limit 1))))
+          instructor?
+          (not (empty? (select course-instructor
+                               (where {:netid netid})
+                               (limit 1))))
+          titular?
+          (not (empty? (select course
+                               (where {:titular-id netid})
+                               (limit 1))))
+          student?
+          (not (empty? (select course-enrollment
+                               (where {:netid netid})
+                               (limit 1))))]
+      (disj
+       (set [(if program-manager? :program-manager)
+             (if instructor? :instructor)
+             (if titular? :titular)
+             (if student? :student)])
+       nil)))
 
   query/Courses
   (course-add!
@@ -327,6 +333,23 @@
       (if (not (empty? result))
         (program->sProgram (first result))
         nil)))
+  (program-add!
+    [this new-program]
+    (let [id
+          (:GENERATED_KEY
+           (insert program
+                   (values {:title (:title new-program)
+                            :description (:description new-program)
+                            :manager (:manager new-program)})))]
+      (doseq [course-code (:mandatory new-program)]
+        (insert program-mandatory-course
+                (values {:program id
+                         :course-code course-code})))
+      (doseq [course-code (:optional new-program)]
+        (insert program-choice-course
+                (values {:program id
+                         :course-code course-code})))
+      (assoc new-program :id id)))
 
   query/Enrollments
   (student-enrollments

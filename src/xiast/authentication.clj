@@ -1,8 +1,10 @@
 (ns xiast.authentication
+  (:use [xiast.database :only [*db* create-person]]
+        [xiast.config :only [config]])
   (:require [clj-http.client :as client]
-            [xiast.database :as db]))
+            [xiast.query :as query]))
 
-(defn login
+(defn- login-production
   [netid password]
   (let [req (client/post
              "https://idsserve.vub.ac.be/cgi-bin/vrfy-pw"
@@ -11,22 +13,43 @@
         body (:body req)]
     ;; TODO: get locale from db
     (if (re-find #"xiastsucc" body)
-      (let [user (db/get-user netid)]
-        (if (empty? user)
+      (let [person (query/person-get *db* netid)]
+        (if person
+          (assoc person
+            :user-functions (query/person-functions *db* netid)
+            :user (:netid person))
           (do
-            (db/create-user netid "en")
-            {:user netid
-             ;; TODO: Get locale out of session
-             :locale "en"
-             :user-functions (take (rand-int 4)
-                                   (shuffle [:student :program-manager :titular :instructor]))})
-          {:user netid
-           ;; TODO: Get real locale out of db
-           :locale "en"
-           :user-functions (take (rand-int 4)
-                                 (shuffle [:student :program-manager :titular :instructor]))}))
+            (create-person *db* netid)
+            (let [person (query/person-get *db* netid)]
+              (assoc
+                  person
+                :user-functions
+                (query/person-functions *db* netid)
+                :user (:netid person))))))
       nil)))
+
+(defn- login-debug
+  [netid password]
+  (case netid
+    "pmanager" (assoc (query/person-get *db* "pmanager")
+                        :user "pmanager"
+                        :user-functions #{:program-manager})
+    "titular" (assoc (query/person-get *db* "titular")
+                :user "titular"
+                :user-functions #{:titular})
+    "instructor" (assoc (query/person-get *db* "instructor")
+                   :user "instructor"
+                   :user-functions #{:instructor})
+    "student" (assoc (query/person-get *db* "student")
+                :user "student"
+                :user-functions #{:student})
+    "default" (login-production netid password)))
+
+(def login
+  (if (:production? config)
+    login-production
+    login-debug))
 
 (defn logout
   [session]
-  (apply dissoc session [:user]))
+  (apply dissoc session [:user :user-functions]))
