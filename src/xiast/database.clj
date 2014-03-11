@@ -73,7 +73,7 @@
 
 (defn person->sPerson
   [person]
-  {:id (:netid person)
+  {:netid (:netid person)
    :first-name (:firstname person)
    :last-name (:surname person)
    :locale (:locale person)})
