@@ -52,4 +52,4 @@
 
 (defn logout
   [session]
-  (apply dissoc session [:user]))
+  (apply dissoc session [:user :user-functions]))
