@@ -1,4 +1,5 @@
-{:database {:type mysql
+{:production? false ;; Set to true for production
+ :database {:type mysql
             :user ""
             :password ""
             :database ""

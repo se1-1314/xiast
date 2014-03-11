@@ -41,7 +41,12 @@ CREATE TABLE `person` (
   PRIMARY KEY (`netid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
+INSERT INTO `person` (`netid`, `firstname`, `surname`, `locale`)
+VALUES
+('instructor','Instruc','Tor','en'),
+('pmanager','Program','Manager','en'),
+('student','Stu','Dent','en'),
+('titular','Ti','Tular','en');
 
 # Dump of table course
 # ------------------------------------------------------------
