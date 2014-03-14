@@ -34,6 +34,7 @@
                      :type CourseActivityType
                      :semester s/Int
                      :week s/Int
+                     :contact-time-days s/Int
                      :contact-time-hours s/Int
                      ;; TODO: fix support for multiple instructors/activity (nvgeele)
                      ;; TODO: course facility requirements (nvgeele)
@@ -58,11 +59,11 @@
 (def AcademicWeek (s/one s/Int "Week on the academic calendar: 1-52"))
 (def DayNumber (s/one s/Int "Day of the week: 1-7"))
 (def ScheduleSlot (s/one s/Int "Half-hour time slots from 07:00 through 23:30"))
-(def ScheduledItem {:type CourseActivityType
-                    :title s/Str
-                    :id (s/one s/Str "e.g. course code")})
+(def ScheduledItem {:type s/Keyword
+                    s/Any s/Any})
 (def ScheduleBlock
-  {:week AcademicWeek
+  {(s/optional-key :id) s/Int
+   :week AcademicWeek
    :day DayNumber
    :first-slot ScheduleSlot
    :last-slot ScheduleSlot
