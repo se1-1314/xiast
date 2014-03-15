@@ -22,3 +22,4 @@ tr {
 |1|Weet ik veel|Nils|<font color='red'>Not done</font>|
 |2|Nog iets|Kwinten|<font color='#FFD700'>In development</font>|
 |3|Logo|Anders|<font color='green'>Done</font>|
+|4|Change requirements through github itself|Nils|<font color='green'>Done</font>|
