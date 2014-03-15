@@ -4,7 +4,7 @@ logo:             site-logo.png
 disqus_shortname: 
 search:           false
 # Change url to your domain. Leave localhost server or blank when working locally.
-url:              http://se1-1314.github.io/xiast/
+url:              http://se1-1314.github.io/xiast
 
 
 # Owner/author information
