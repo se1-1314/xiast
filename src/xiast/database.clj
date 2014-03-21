@@ -357,6 +357,10 @@
                 (values {:program id
                          :course-code course-code})))
       (assoc new-program :id id)))
+  (program-delete!
+    [this id]
+    (delete program
+            (where {:id id})))
 
   query/Enrollments
   (student-enrollments

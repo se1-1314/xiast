@@ -41,6 +41,11 @@
          (if result
            (write-str result)
            "[]")))
+  (DELETE "/del/:course-code" [course-code]
+          (if (query/course-get *db* course-code)
+            (do (query/course-delete! *db* course-code)
+                (write-str {:result "OK"}))
+            (write-str {:result "ERROR"})))
   (POST "/find" {body :body}
         (try+ (let [request (coerce-as FindQuery (slurp body))
                     result (query/course-find *db* (:keywords request))]
@@ -65,6 +70,11 @@
          (if result
            (write-str result)
            "[]")))
+  (DELETE "/del/:id" [id]
+          (if (query/program-get *db* id)
+            (do (query/program-delete! *db* id)
+                (write-str {:result "OK"}))
+            (write-str {:result "ERROR"})))
   (POST "/find" {body :body}
         (try+ (let [request (coerce-as FindQuery (slurp body))
                     result (query/program-find *db* (:keywords request))]

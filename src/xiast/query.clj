@@ -125,7 +125,9 @@
     "Return a program map.")
   (program-add!
     [this new-program]
-    "Accepts a program map and inserts it into the database."))
+    "Accepts a program map and inserts it into the database.")
+  (program-delete!
+    [this id]))
 
 (defprotocol Persons
   (person-add!
