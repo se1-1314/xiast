@@ -22,7 +22,7 @@ tr {
 |FRG1|Log In|/|<font color='green'>Done</font>|
 |FRG2|Timetables|HIGH|<font color='#FFD700'>In development</font>|
 |FRG3|Choosing Language|/|<font color='green'>Done</font>|
-|FRU1|Log Out|/|<font color='green'>Done</fon>|
+|FRU1|Log Out|/|<font color='green'>Done</font>|
 |FRU2|Timetables|HIGH|<font color='#FFD700'>In development</font>|
 |FRU3|Viewing Personal Schedule|HIGH|<font color='#FFD700'>In development</font>|
 |FRU4|Set Default Language|LOW|<font color='#FFD700'>In development</font>|
