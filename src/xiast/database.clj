@@ -132,6 +132,14 @@
            {:mandatory (set mandatory)
             :optional (set choice)})))
 
+(defn department->sDepartment
+  [department]
+  (let [dep {:id (:id department)
+             :name (:name department)}]
+    (if (= (:faculty department) "")
+      dep
+      (assoc dep :faculty (:faculty department)))))
+
 (defn create-person
   "This functions checks whether a user with the given netid exists in the
   database. If not, a new record for the person will be inserted. Returns
@@ -355,6 +363,27 @@
     [this student-id])
   (enroll-student!
     [this student-id course-code])
+
+  query/Departments
+  (department-list
+    [this]
+    (let [deps (select department)]
+      (if (empty? deps)
+        []
+        (map department->sDepartment deps))))
+  (department-get
+    [this id]
+    (let [dep (select department
+                      (where {:id id}))]
+      (if (empty? dep)
+        nil
+        (department->sDepartment dep))))
+  (department-add!
+    [this new-department]
+    (let [dep (if (:faculty new-department)
+                new-department
+                (assoc new-department :faculty ""))]
+      (query/department-add! *db* dep)))
 
   query/Schedules
   (course-schedule

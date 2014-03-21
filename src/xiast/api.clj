@@ -1,15 +1,26 @@
 (ns xiast.api
   (:use compojure.core
         [xiast.database :only [*db*]]
-        [clojure.data.json :only [read-str write-str]])
+        [clojure.data.json :only [read-str write-str]]
+        [slingshot.slingshot :only [throw+ try+]])
   (:require [xiast.query :as query]
             [clojure.data.json :as json]
             [schema.core :as s]
+            [schema.utils :as utils]
             [schema.coerce :as coerce]))
 
 ;; TODO: Write some API docs (nvgeele)
 ;; TODO: Define standard error message + HTTP error code (nvgeele)
 ;; TODO: Return correct json on empty returns (nvgeele)
+
+(defn coerce-as
+  [schema str]
+  (let [json (read-str str :key-fn keyword)
+        coercer (coerce/coercer schema coerce/json-coercion-matcher)
+        res (coercer json)]
+    (if (schema.utils/error? res)
+      (throw+ {:type :coercion-error})
+      res)))
 
 (defn read-json
   [str]
@@ -30,10 +41,20 @@
          (if result
            (write-str result)
            "[]")))
-  (POST "/find" [data]
-        (let [request (parse-find-query (read-json data))
-              result (query/course-find *db* (:keywords request))]
-          (write-str {:result result}))))
+  (POST "/find" {body :body}
+        (try+ (let [request (coerce-as FindQuery (slurp body))
+                    result (query/course-find *db* (:keywords request))]
+                (write-str {:result result}))
+              (catch [:type :coercion-error] e
+                "Malformed request")))
+  (POST "/add" {body :body}
+        (try+ (let [request (coerce-as query/Course (slurp body))]
+                (query/course-add! *db* request)
+                (write-str {:result "OK"}))
+              (catch [:type :coercion-error] e
+                "Malformed request")
+              (catch Exception e
+                (write-str {:result "ERROR"})))))
 
 (defroutes program-routes
   (GET "/" [] "Invalid request")
@@ -44,10 +65,20 @@
          (if result
            (write-str result)
            "[]")))
-  (POST "/find" [data]
-        (let [request (parse-find-query (read-json data))
-              result (query/program-find *db* (:keywords request))]
-          (write-str {:result result}))))
+  (POST "/find" {body :body}
+        (try+ (let [request (coerce-as FindQuery (slurp body))
+                    result (query/program-find *db* (:keywords request))]
+                (write-str {:result result}))
+              (catch [:type :coercion-error] e
+                "Malformed request")))
+  (POST "/add" {body :body}
+        (try+ (let [request (coerce-as query/Program (slurp body))]
+                (query/program-add! *db* request)
+                (write-str {:result "OK"}))
+              (catch [:type :coercion-error] e
+                "Malformed request")
+              (catch Exception e
+                (write-str {:result "ERROR"})))))
 
 (defroutes api-routes
   (GET "/" [] "Invalid request")
