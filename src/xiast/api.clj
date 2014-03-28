@@ -1,6 +1,7 @@
 (ns xiast.api
   (:use compojure.core
         [xiast.database :only [*db*]]
+        [xiast.session :only [*session*]]
         [clojure.data.json :only [read-str write-str]]
         [slingshot.slingshot :only [throw+ try+]])
   (:require [xiast.query :as query]
@@ -43,9 +44,12 @@
            "[]")))
   (DELETE "/del/:course-code" [course-code]
           (if (query/course-get *db* course-code)
-            (do (query/course-delete! *db* course-code)
-                (write-str {:result "OK"}))
-            (write-str {:result "ERROR"})))
+            (if-let [course (query/course-delete! *db* course-code)]
+              (if (= (:titular-id course) (:user *session*))
+                (do (query/course-delete! *db* course-code)
+                    (write-str {:result "OK"}))
+                (write-str {:result "Not authorized"}))
+              (write-str {:result "Course not found"}))))
   (POST "/find" {body :body}
         (try+ (let [request (coerce-as FindQuery (slurp body))
                     result (query/course-find *db* (:keywords request))]
@@ -53,13 +57,15 @@
               (catch [:type :coercion-error] e
                 "Malformed request")))
   (POST "/add" {body :body}
-        (try+ (let [request (coerce-as query/Course (slurp body))]
-                (query/course-add! *db* request)
-                (write-str {:result "OK"}))
-              (catch [:type :coercion-error] e
-                "Malformed request")
-              (catch Exception e
-                (write-str {:result "ERROR"})))))
+        (if (some #{:program-manager} (:user-functions *session*))
+          (try+ (let [request (coerce-as query/Course (slurp body))]
+                  (query/course-add! *db* request)
+                  (write-str {:result "OK"}))
+                (catch [:type :coercion-error] e
+                  "Malformed request")
+                (catch Exception e
+                  (write-str {:result "ERROR"})))
+          (write-str {:result "Not authorized"}))))
 
 (defroutes program-routes
   (GET "/" [] "Invalid request")
