@@ -90,7 +90,13 @@
               (catch Exception e
                 (write-str {:result "ERROR"})))))
 
+(defroutes room-routes
+  (GET "/" [] "Invalid request")
+  (GET "/list" []
+       (write-str {:rooms (query/room-list *db*)})))
+
 (defroutes api-routes
   (GET "/" [] "Invalid request")
   (context "/course" [] course-routes)
-  (context "/program" [] program-routes))
+  (context "/program" [] program-routes)
+  (context "/room" [] room-routes))

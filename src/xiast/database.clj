@@ -65,7 +65,10 @@
 
 (def course-grades
   {0 :ba
-   1 :ma})
+   1 :ma
+   2 :manama
+   3 :schakel
+   4 :voorbereiding})
 
 (def course-activity-types
   {0 :HOC
@@ -140,6 +143,14 @@
       dep
       (assoc dep :faculty (:faculty department)))))
 
+(defn room->sRoom
+  [room]
+  {:id (select-keys room [:id :building :floor :number])
+   :capacity (:capacity room)
+   :facilities (set (map #(get room-facilities (:facility %))
+                         (select room-facility
+                                 (where {:room (:id room)}))))})
+
 (defn create-person
   "This functions checks whether a user with the given netid exists in the
   database. If not, a new record for the person will be inserted. Returns
@@ -157,6 +168,10 @@
 ;; TODO: replace all find's with get's (nvgeele)
 (extend-type Database
   query/Rooms
+  (room-list
+    [this]
+    (let [rooms (select room)]
+      (map room->sRoom rooms)))
   (room-add!
     [this new-room]
     (let [facilities

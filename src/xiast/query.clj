@@ -5,7 +5,8 @@
   Data is described using the prismatic/schema schema language."
   (:require [schema.core :as s]))
 
-(def RoomID {:building s/Str
+(def RoomID {(s/optional-key :id) s/Int
+             :building s/Str
              :floor s/Int
              :number s/Int})
 (def RoomFacility (s/enum :beamer :overhead-projector))
@@ -23,7 +24,7 @@
    :last-name s/Str
    :locale s/Str})
 (def StudyActivityType (s/enum :HOC :WPO))
-(def Degree (s/enum :ma :ba :manama :schakel))
+(def Degree (s/enum :ma :ba :manama :schakel :voorbereiding))
 (def SessionSemester (s/enum :1 :2 :1+2))
 (def CourseCode s/Str)
 (def DepartmentName s/Str)
@@ -84,6 +85,9 @@
 
 
 (defprotocol Rooms
+  (room-list
+    [this]
+    "Get a list of all rooms.")
   (room-add!
     [this room]
     "Add a Room.")
