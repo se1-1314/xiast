@@ -119,7 +119,7 @@
                 (elective-course? (-> % :item :course-id) program-id))
           blocks))
 ;; Checks
-(defn check-mandatory-courses [schedule proposed]
+(defn check-mandatory-courses [proposed]
   "Checks if there are overlaps in time for mandatory course
    activities."
   ;; Sort proposals by the programs they belong to
@@ -139,7 +139,7 @@
                :concerning %}))))
 ;; TODO this is almost the same as check-mandatory-courses and could
 ;; be done in one go
-(defn check-elective-courses [schedule proposed]
+(defn check-elective-courses [proposed]
   (->> (for [[program proposed] (blocks-by-programs proposed)]
          (let [proposal-electives (elective-blocks proposed program)]
            (-> schedule
@@ -152,7 +152,7 @@
               {:type :elective-course-overlap
                :concerning blocks}))))
 
-(defn check-room-overlaps [schedule proposed]
+(defn check-room-overlaps [proposed]
   (->> (-> schedule
            (blocks-for-rooms (rooms-in-blocks proposed)
                              (blocks-timespan proposed))
@@ -164,14 +164,14 @@
               {:type :room-overlap
                :concerning [block]}))))
 
-(defn check-instructor-availabilities [schedule proposed]
+(defn check-instructor-availabilities [proposed]
   (->> proposed
        (filter #(not (instructor-available? (:instructor (:item %))
                                             (:timespan %))))
        (map (fn [block]
               {:type :instructor-unavailable
                :concerning [block]}))))
-(defn check-weekly-activity [schedule proposed]
+(defn check-weekly-activity [proposed]
   "Check if activities occur more than once per week"
   (->> proposed
        (group-by #(list (:week %) (:course %) (:activity %)))
@@ -181,15 +181,28 @@
        (map (fn [blocks]
               {:type :activity-more-than-once-weekly
                :concerning blocks}))))
-(defn check-room-capacities [schedule proposed]
+(defn check-room-capacities [proposed]
   (->> proposed
        (filter #(room-capacity-satisfied? (:room %) (:item %)))
        (map (fn [block]
               {:type :room-capacity-unsatisfied
                :concerning [block]}))))
-(defn check-room-facilities [schedule proposed]
+(defn check-room-facilities [proposed]
   (->> proposed
        (filter #(room-facilities-satisfied? (:room %) (:item %)))
        (map (fn [block]
               {:type :room-facility-unsatisfied
                :concerning [block]}))))
+(defn proposal-checks
+  [check-mandatory-courses
+   check-elective-courses
+   check-room-overlaps
+   check-instructor-available
+   check-weekly-activity
+   check-room-capacities
+   check-room-facilities])
+(s/defn check-proposal :- [ScheduleCheckResult]
+  [proposal :- Schedule]
+  (->> proposal-checks
+       (map #(% proposal))
+       flatten))
