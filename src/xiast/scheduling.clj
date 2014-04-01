@@ -1,51 +1,53 @@
 (ns xiast.scheduling
-  (:require [clojure.math.combinatorics :as comb]
-            [schema.core :as s]))
+  (:require [xiast.scheme :as xs]
+            [clojure.math.combinatorics :as comb]
+            [schema.core :as s])
+  (:use [clojure.set :only [empty? difference]]))
 
 (defprotocol XiastSchedule
   (move-block [id to])
   (room-blocks [room-id timespan])
   (schedule-for-courses [schedule courses timespan]))
 
-(def CheckResult {:type (s/enum :mandatory-course-overlap
-                                :elective-course-overlap
-                                :room-overlap
-                                :instructor-unavailable
-                                :activity-more-than-once-weekly
-                                :room-capacity-unsatisfied
-                                :room-facility-unsatisfied)
-                  :concerning [xs/ScheduleBlock]
-                  s/Any s/Any})
 ;; Database stuff
-(defn room-capacity-satisfied? [room-id schedule-item]
-  ;; TODO
-  )
-(defn room-facilities-satisfied? [room-id schedule-item]
-  ;; TODO
-  )
+(s/defn room-capacity-satisfied? :- s/Bool
+  [room-id :- xs/RoomID
+   schedule-item :- xs/ScheduledItem]
+  ;; TODO: expected amount of student in course(activity)
+  true)
+(defn room-facilities-satisfied? :- s/Bool
+  [room-id :- xs/RoomID
+   schedule-item :- xs/ScheduledItem]
+  (if (contains? (set :HOC :WPO)
+                 (:type schedule-item))
+    (let [required (query/course-activity-facilities (:id schedule-item))
+          available (:facilities (query/room-facilities room-id))]
+      (empty? (difference required available)))
+    false))
 (defn instructor-available? [instructor-id timespan]
   ;; TODO
-  )
-(defn mandatory-course-in-program? [course-id program-id]
+  true)
+(defn blocks-for-courses [course-ids timespan]
   ;; TODO
-  )
-(defn blocks-for-courses [schedule course-ids timespan]
+  true)
+(defn blocks-for-rooms [room-ids timespan]
   ;; TODO
-  )
-(defn blocks-for-rooms [schedule room-ids timespan]
-  ;; TODO
-  )
-(defn elective-course? [course-id program-id]
-  ;; TODO
-  )
-(defn mandatory-course? [course-id program-id]
-  ;; TODO
-  )
-(defn course-programs [schedule course-id]
+  true)
+(defn elective-course? :- s/Bool
+  [course-id :- xs/CourseCode
+   program-id :- xs/ProgramID]
+  (let [program (query/program-get program-id)]
+    (contains? (:optional program) course-id)))
+(defn mandatory-course? :- s/Bool
+  [course-id :- xs/CourseCode
+   program-id :- xs/ProgramID]
+  (let [program (query/program-get program-id)]
+    (contains? (:mandatory program) course-id)))
+(defn course-programs :- #{xs/ProgramID}
+  [course-id :- xs/CourseCode]
   "Return seq of program-ids for programs which contain course with
   course-id"
-  ;; TODO
-  )
+  (query/course-programs course-id))
 ;; Work on schedule block items
 (defn course-item? [item]
   (contains? (set :HOC :WPO)

@@ -100,7 +100,11 @@
 (defroutes room-routes
   (GET "/" [] "Invalid request")
   (GET "/list" []
-       (write-str {:rooms (query/room-list)})))
+       (write-str {:rooms (query/room-list)}))
+  (GET "/get/:building/:floor/:number" [building floor number]
+       (write-str (query/room-get {:building building
+                                   :floor floor
+                                   :number number}))))
 
 (defroutes api-routes
   (GET "/" [] "Invalid request")
