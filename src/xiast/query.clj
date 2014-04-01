@@ -5,7 +5,8 @@
   Data is described using the prismatic/schema schema language."
   (:require [schema.core :as s]))
 
-(def RoomID {:building s/Str
+(def RoomID {(s/optional-key :id) s/Int
+             :building s/Str
              :floor s/Int
              :number s/Int})
 (def RoomFacility (s/enum :beamer :overhead-projector))
@@ -23,12 +24,13 @@
    :last-name s/Str
    :locale s/Str})
 (def StudyActivityType (s/enum :HOC :WPO))
-(def Degree (s/enum :ma :ba :manama :schakel))
+(def Degree (s/enum :ma :ba :manama :schakel :voorbereiding))
 (def SessionSemester (s/enum :1 :2 :1+2))
 (def CourseCode s/Str)
-;; TODO: fix to string
-(def Department [(s/one s/Keyword "department, e.g. :mathematics")
-                 (s/one s/Keyword "faculty, e.g. :sciences")])
+(def DepartmentName s/Str)
+(def Department {:id s/Int
+                 :name DepartmentName
+                 (s/optional-key :faculty) s/Str})
 (def CourseActivityType (s/enum :HOC :WPO))
 (def CourseActivity {(s/optional-key :activity-id) s/Int
                      :type CourseActivityType
@@ -43,7 +45,7 @@
              :description s/Str
              :titular-id PersonID
              (s/optional-key :instructors) #{PersonID}
-             :department Department
+             :department DepartmentName
              :grade (s/enum :ba :ma)
              (s/optional-key :activities) #{CourseActivity}})
 (def ProgramID s/Int)
@@ -51,8 +53,8 @@
               :description s/Str
               (s/optional-key :id) ProgramID
               (s/optional-key :manager) PersonID
-              :mandatory #{CourseCode}
-              :optional #{CourseCode}})
+              :mandatory [CourseCode]
+              :optional [CourseCode]})
 (def Subscription {:person-id PersonID
                    :course-code CourseCode})
 (def AcademicWeek (s/one s/Int "Week on the academic calendar: 1-52"))
@@ -83,6 +85,9 @@
 
 
 (defprotocol Rooms
+  (room-list
+    [this]
+    "Get a list of all rooms.")
   (room-add!
     [this room]
     "Add a Room.")
@@ -124,7 +129,9 @@
     "Return a program map.")
   (program-add!
     [this new-program]
-    "Accepts a program map and inserts it into the database."))
+    "Accepts a program map and inserts it into the database.")
+  (program-delete!
+    [this id]))
 
 (defprotocol Persons
   (person-add!
@@ -145,6 +152,15 @@
   (enroll-student!
     [this student-id course-code]
     "Enroll a student for all activities in a course."))
+
+(defprotocol Departments
+  (department-list
+    [this]
+    "Returns a list of all departments.")
+  (department-get
+    [this id])
+  (department-add!
+    [this new-department]))
 
 
 (defprotocol Schedules
