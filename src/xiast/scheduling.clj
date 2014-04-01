@@ -4,11 +4,6 @@
             [schema.core :as s])
   (:use [clojure.set :only [empty? difference]]))
 
-(defprotocol XiastSchedule
-  (move-block [id to])
-  (room-blocks [room-id timespan])
-  (schedule-for-courses [schedule courses timespan]))
-
 ;; Database stuff
 (s/defn room-capacity-satisfied? :- s/Bool
   [room-id :- xs/RoomID
@@ -23,7 +18,7 @@
     (let [required (query/course-activity-facilities (:id schedule-item))
           available (:facilities (query/room-facilities room-id))]
       (empty? (difference required available)))
-    false))
+    true))
 (defn instructor-available? [instructor-id timespan]
   ;; TODO
   true)
