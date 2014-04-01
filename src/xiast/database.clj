@@ -1,5 +1,7 @@
 (ns xiast.database
-  (:require [xiast.query :as query])
+  (:require [xiast.query :as query]
+            [xiast.schema :as xs]
+            [schema.core :as s])
   (:use [clojure.set :only [map-invert]]
         [xiast.config :only [config]]
         [korma.db]
@@ -165,16 +167,22 @@
                         :locale "en"}))
   netid)
 
-;; TODO: replace all find's with get's (nvgeele)
-(extend-type Database
-  query/Rooms
-  (room-list
-    [this]
-    (let [rooms (select room)]
-      (map room->sRoom rooms)))
-  (room-add!
-    [this new-room]
-    (let [facilities
+(defn wrap-database
+  [handler]
+  (fn [request]
+    (binding [*db* (Database.)]
+      (handler request))))
+
+;; PUBLIC API
+
+(s/defn room-list :- (xs/Room)
+  []
+  "Get a list of all of rooms"
+  (map db/room->sRoom (db/select room)))
+(s/defn room-add! :- (xs/Room)
+  [new-room xs/Room]
+  "Add a Room."
+  (let [facilities
           (map #(% (map-invert room-facilities))
                (:facilities new-room))
           room-id
@@ -190,6 +198,9 @@
         (insert room-facility
                 (values {:room key
                          :facility facility})))))
+
+(extend-type Database
+  query/Rooms
   (room-delete!
     [this room-id]
     ;; Do we need to check if the room exists first or not? (nvgeele)
@@ -417,9 +428,3 @@
   (program-schedule
     ([this program-id])
     ([this program-id timespan])))
-
-(defn wrap-database
-  [handler]
-  (fn [request]
-    (binding [*db* (Database.)]
-      (handler request))))
