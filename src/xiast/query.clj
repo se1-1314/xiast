@@ -193,15 +193,3 @@ a timespan to limit results.")
     [this room-id timespan]
     "Return a list of schedule blocks for a room, optionally using a
 timespan to limit results."))
-
-(defn- in-range? [num range]
-  (<= (first range) num (second range)))
-
-(defn schedule-block-in-timespan? [block timespan]
-  ;; FIXME ew (aleijnse)
-  (and (every? true?
-               (map in-range?
-                    (map block [:week :day])
-                    (map timespan [:weeks :days])))
-       (or (in-range? (:start-time block) (:time timespan))
-           (in-range? (:end-time block) (:time timespan)))))
