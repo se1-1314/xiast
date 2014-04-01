@@ -16,7 +16,8 @@
                  [korma "0.3.0-RC6"]
                  [org.xerial/sqlite-jdbc "3.7.2"]
                  [mysql/mysql-connector-java "5.1.25"]
-                 [org.clojure/math.combinatorics "0.0.7"]]
+                 [org.clojure/math.combinatorics "0.0.7"]
+                 [slingshot "0.10.3"]]
   :plugins [[lein-ring "0.8.8"]]
   :main ^:skip-aot xiast.core
   :target-path "target/%s"

@@ -4,7 +4,6 @@
         [xiast.session :only [*alert* *session* wrap-with-session]]
         [xiast.authentication :as auth]
         [xiast.config :only [config]]
-        [xiast.database :only [*db* wrap-database]]
         [xiast.api :only [api-routes]]
         [ring.middleware.file-info :only [wrap-file-info]]
         [ring.middleware.resource :only [wrap-resource]]
@@ -250,7 +249,6 @@
 (def app
   ;; TODO: get cookie-store secret key out of a config file or something
   (-> main-routes
-      wrap-database
       wrap-with-session
       wrap-keyword-params
       wrap-nested-params
