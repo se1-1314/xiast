@@ -1,0 +1,24 @@
+CACHE MANIFEST
+# 2014-03-09:v4
+
+
+# Cached files
+CACHE:
+css/bootstrap.min.css
+css/xiast.css
+css/fullcalendar.css
+css/fullcalendar.print.css
+img/logo/favicon.ico
+img/logo/xiast_logo_small.png
+img/flags/Belgium.png
+img/flags/UnitedKingdom.png
+js/jquery.js
+js/bootstrap.min.js
+js/date_conversion.js
+js/fullcalendar.min.js
+js/calendarviewer.js
+js/jquery-ui.js
+
+# Requires internet acces
+NETWORK:
+login.html
