@@ -47,7 +47,11 @@
      :semester (:semester course-activity)
      :week (:week course-activity)
      :contact-time-hours (:contact-time-hours course-activity)
-     :instructor instructor-id}))
+     :instructor instructor-id
+     :facilities (set (map #(get room-facilities (:facility %))
+                           (select course-activity-facility
+                                   (where {:course-activity
+                                           (:id course-activity)}))))}))
 
 (defn course->sCourse
   [course]
@@ -141,10 +145,13 @@
           (where {:id room-id})))
 
 (s/defn room-get :- xs/Room
-  [room-id :- s/Int]
+  [room-id :- xs/RoomID]
   "Fetch information about a room."
-  (let [room (select room
-                     (where {:id room-id}))]
+  (let [room (if (:id room-id)
+               (select room
+                       (where {:id room-id}))
+               (select room
+                       (where room-id)))]
     (if (not (empty? room))
       (let [facilities
             (map #(val (find room-facilities (:facility %)))
@@ -281,6 +288,24 @@
     (if (not (empty? course))
       (course->sCourse (first course))
       nil)))
+
+(s/defn course-programs :- #{xs/ProgramID}
+  [course-code :- xs/CourseCode]
+  "Return seq of program-ids for programs which contain course with
+  course-id"
+  (let [m-ids (map :program
+                   (select program-mandatory-course
+                           (where {:course-code course-code})))
+        o-ids (map :program
+                   (select program-choice-course
+                           (where {:course-code course-code})))]
+    (set (conj m-ids o-ids))))
+
+(s/defn course-activity-facilities :- #{xs/RoomFacility}
+  [activity-code :- s/Int]
+  (set (map #(get room-facilities (:facility %))
+            (select course-activity-facility
+                    (where {:course-activity activity-code})))))
 
 (s/defn course-list :- [xs/Course]
   []

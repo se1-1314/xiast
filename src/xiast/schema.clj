@@ -37,8 +37,8 @@
                      :week s/Int
                      :contact-time-hours s/Int
                      ;; TODO: fix support for multiple instructors/activity (nvgeele)
-                     ;; TODO: course facility requirements (nvgeele)
-                     :instructor PersonID})
+                     :instructor PersonID
+                     :facilities #{RoomFacility}})
 (def Course {:course-code CourseCode
              :title s/Str
              :description s/Str
@@ -69,6 +69,16 @@
    :last-slot ScheduleSlot
    :item ScheduledItem
    :room RoomID})
+(def Schedule [ScheduleBlock])
+(def ScheduleCheckResult {:type (s/enum :mandatory-course-overlap
+                                        :elective-course-overlap
+                                        :room-overlap
+                                        :instructor-unavailable
+                                        :activity-more-than-once-weekly
+                                        :room-capacity-unsatisfied
+                                        :room-facility-unsatisfied)
+                          :concerning [ScheduleBlock]
+                          s/Any s/Any})
 (def TimeSpan
   "These are used to filter schedule blocks in queries; weeks, days
   and slots are filtered separately."
