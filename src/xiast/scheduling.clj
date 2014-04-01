@@ -1,11 +1,21 @@
 (ns xiast.scheduling
-  (:require [clojure.math.combinatorics :as comb]))
+  (:require [clojure.math.combinatorics :as comb]
+            [schema.core :as s]))
 
 (defprotocol XiastSchedule
   (move-block [id to])
   (room-blocks [room-id timespan])
   (schedule-for-courses [schedule courses timespan]))
 
+(def CheckResult {:type (s/enum :mandatory-course-overlap
+                                :elective-course-overlap
+                                :room-overlap
+                                :instructor-unavailable
+                                :activity-more-than-once-weekly
+                                :room-capacity-unsatisfied
+                                :room-facility-unsatisfied)
+                  :concerning [xs/ScheduleBlock]
+                  s/Any s/Any})
 ;; Database stuff
 (defn room-capacity-satisfied? [room-id schedule-item]
   ;; TODO
@@ -113,53 +123,73 @@
   "Checks if there are overlaps in time for mandatory course
    activities."
   ;; Sort proposals by the programs they belong to
-  (-> (for [[program proposed] (blocks-by-programs proposed)]
-        (let [;; Mandatory courses in proposal
-              proposal-mandatory (mandatory-blocks program proposed)]
-          (-> schedule
-              ;; Schedule for mandatory courses in program
-              (schedule-for-courses (:mandatory program)
-                                    (blocks-timespan proposed))
-              (remove-moves proposal-mandatory)
-              ;; Overlaps between the two
-              (overlapping-schedule-blocks proposal-mandatory))))
-      flatten))
+  (->> (for [[program proposed] (blocks-by-programs proposed)]
+         (let [;; Mandatory courses in proposal
+               proposal-mandatory (mandatory-blocks program proposed)]
+           (-> schedule
+               ;; Schedule for mandatory courses in program
+               (schedule-for-courses (:mandatory program)
+                                     (blocks-timespan proposed))
+               (remove-moves proposal-mandatory)
+               ;; Overlapping pairs between the two
+               (overlapping-schedule-blocks proposal-mandatory))))
+       flatten
+       (map (fn []
+              {:type :mandatory-course-overlap
+               :concerning %}))))
 ;; TODO this is almost the same as check-mandatory-courses and could
 ;; be done in one go
 (defn check-elective-courses [schedule proposed]
-  (-> (for [[program proposed] (blocks-by-programs proposed)]
-        (let [proposal-electives (elective-blocks proposed program)]
-          (-> schedule
-              (blocks-for-courses (:optional program)
-                                  (blocks-timespan proposed))
-              (remove-moves proposal-electives)
-              (overlapping-schedule-blocks proposal-electives))))))
+  (->> (for [[program proposed] (blocks-by-programs proposed)]
+         (let [proposal-electives (elective-blocks proposed program)]
+           (-> schedule
+               (blocks-for-courses (:optional program)
+                                   (blocks-timespan proposed))
+               (remove-moves proposal-electives)
+               (overlapping-schedule-blocks proposal-electives))))
+       flatten
+       (map (fn [blocks]
+              {:type :elective-course-overlap
+               :concerning blocks}))))
 
 (defn check-room-overlaps [schedule proposed]
-  (-> schedule
-      (blocks-for-rooms (rooms-in-blocks proposed)
-                        (blocks-timespan proposed))
-      (remove-moves proposed)
-      (overlapping-schedule-blocks proposed)
-      (->> (filter #(= (:room (first %))
-                       (:room (second %)))))))
+  (->> (-> schedule
+           (blocks-for-rooms (rooms-in-blocks proposed)
+                             (blocks-timespan proposed))
+           (remove-moves proposed)
+           (overlapping-schedule-blocks proposed))
+       (filter #(= (:room (first %))
+                   (:room (second %))))
+       (map (fn [block]
+              {:type :room-overlap
+               :concerning [block]}))))
 
 (defn check-instructor-availabilities [schedule proposed]
   (->> proposed
        (filter #(not (instructor-available? (:instructor (:item %))
-                                            (:timespan %))))))
+                                            (:timespan %))))
+       (map (fn [block]
+              {:type :instructor-unavailable
+               :concerning [block]}))))
 (defn check-weekly-activity [schedule proposed]
   "Check if activities occur more than once per week"
   (->> proposed
-       (group-by #(list (:week %)
-                        (:course %)
-                        (:activity %)))
+       (group-by #(list (:week %) (:course %) (:activity %)))
        (map second)
        (filter #(> (count %) 1))
-       flatten))
+       flatten
+       (map (fn [blocks]
+              {:type :activity-more-than-once-weekly
+               :concerning blocks}))))
 (defn check-room-capacities [schedule proposed]
-  (filter #(room-capacity-satisfied? (:room %) (:item %))
-          proposed))
+  (->> proposed
+       (filter #(room-capacity-satisfied? (:room %) (:item %)))
+       (map (fn [block]
+              {:type :room-capacity-unsatisfied
+               :concerning [block]}))))
 (defn check-room-facilities [schedule proposed]
-  (filter #(room-facilities-satisfied? (:room %) (:item %))
-          proposed))
+  (->> proposed
+       (filter #(room-facilities-satisfied? (:room %) (:item %)))
+       (map (fn [block]
+              {:type :room-facility-unsatisfied
+               :concerning [block]}))))
