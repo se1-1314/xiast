@@ -5,6 +5,7 @@
         [clojure.data.json :only [read-str write-str]]
         [slingshot.slingshot :only [throw+ try+]])
   (:require [xiast.query :as query]
+            [xiast.schema :as xs]
             [clojure.data.json :as json]
             [schema.core :as s]
             [schema.utils :as utils]
@@ -38,28 +39,28 @@
   (GET "/list" []
        (write-str {:courses (query/course-list *db*)}))
   (GET "/get/:course-code" [course-code]
-       (let [result (query/course-get *db* course-code)]
+       (let [result (query/course-get course-code)]
          (if result
            (write-str result)
            "[]")))
   (DELETE "/del/:course-code" [course-code]
-          (if (query/course-get *db* course-code)
-            (if-let [course (query/course-delete! *db* course-code)]
+          (if (query/course-get course-code)
+            (if-let [course (query/course-delete! course-code)]
               (if (= (:titular-id course) (:user *session*))
-                (do (query/course-delete! *db* course-code)
+                (do (query/course-delete! course-code)
                     (write-str {:result "OK"}))
                 (write-str {:result "Not authorized"}))
               (write-str {:result "Course not found"}))))
   (POST "/find" {body :body}
         (try+ (let [request (coerce-as FindQuery (slurp body))
-                    result (query/course-find *db* (:keywords request))]
+                    result (query/course-find (:keywords request))]
                 (write-str {:result result}))
               (catch [:type :coercion-error] e
                 "Malformed request")))
   (POST "/add" {body :body}
         (if (some #{:program-manager} (:user-functions *session*))
-          (try+ (let [request (coerce-as query/Course (slurp body))]
-                  (query/course-add! *db* request)
+          (try+ (let [request (coerce-as xs/Course (slurp body))]
+                  (query/course-add! request)
                   (write-str {:result "OK"}))
                 (catch [:type :coercion-error] e
                   "Malformed request")
@@ -70,26 +71,26 @@
 (defroutes program-routes
   (GET "/" [] "Invalid request")
   (GET "/list" []
-       (write-str {:programs (query/program-list *db*)}))
+       (write-str {:programs (query/program-list)}))
   (GET "/get/:id" [id]
-       (let [result (query/program-get *db* id)]
+       (let [result (query/program-get id)]
          (if result
            (write-str result)
            "[]")))
   (DELETE "/del/:id" [id]
-          (if (query/program-get *db* id)
-            (do (query/program-delete! *db* id)
+          (if (query/program-get id)
+            (do (query/program-delete! id)
                 (write-str {:result "OK"}))
             (write-str {:result "ERROR"})))
   (POST "/find" {body :body}
         (try+ (let [request (coerce-as FindQuery (slurp body))
-                    result (query/program-find *db* (:keywords request))]
+                    result (query/program-find (:keywords request))]
                 (write-str {:result result}))
               (catch [:type :coercion-error] e
                 "Malformed request")))
   (POST "/add" {body :body}
-        (try+ (let [request (coerce-as query/Program (slurp body))]
-                (query/program-add! *db* request)
+        (try+ (let [request (coerce-as xs/Program (slurp body))]
+                (query/program-add! request)
                 (write-str {:result "OK"}))
               (catch [:type :coercion-error] e
                 "Malformed request")
@@ -99,7 +100,7 @@
 (defroutes room-routes
   (GET "/" [] "Invalid request")
   (GET "/list" []
-       (write-str {:rooms (query/room-list *db*)})))
+       (write-str {:rooms (query/room-list)})))
 
 (defroutes api-routes
   (GET "/" [] "Invalid request")
