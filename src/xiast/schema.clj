@@ -63,7 +63,8 @@
                     :title s/Str
                     :id (s/one s/Str "e.g. course code")})
 (def ScheduleBlock
-  {:week AcademicWeek
+  {(s/optional-key :id) s/Int
+   :week AcademicWeek
    :day DayNumber
    :first-slot ScheduleSlot
    :last-slot ScheduleSlot
