@@ -13,6 +13,18 @@
                                 :room "E1.02"}]}}}
              {"student1" #{"course1"}}))
 
+(defn- in-range? [num range]
+  (<= (first range) num (second range)))
+
+(defn- schedule-block-in-timespan? [block timespan]
+  ;; FIXME ew (aleijnse)
+  (and (every? true?
+               (map in-range?
+                    (map block [:week :day])
+                    (map timespan [:weeks :days])))
+       (or (in-range? (:start-time block) (:time timespan))
+           (in-range? (:end-time block) (:time timespan)))))
+
 (defn- schedule-blocks [{schedules :schedules
                          courses :courses}
                         course-id]
@@ -29,7 +41,7 @@
        :room (:room block)})))
 
 (defn- filter-timespan [timespan schedule-blocks]
-  (filter #(xiast.query/schedule-block-in-timespan? % timespan)
+  (filter #(schedule-block-in-timespan? % timespan)
           schedule-blocks))
 
 (extend-type MockData
