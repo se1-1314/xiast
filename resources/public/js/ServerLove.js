@@ -16,21 +16,25 @@ var courses = api_root.concat("course/");
 var programs = api_root.concat("program/");
 
 /*
-
+Creation Date: 21/03/2014
+Author: Kwinten Pardon
 */
 function apiURL(root, command){
 	return root.concat(command);
 }
 
 /*
-
+Creation Date: 21/03/2014
+Last modified: 02/04/2014
+Author: Kwinten Pardon
 */
 function apicourse(command){
 	return apiURL(courses, command);
 }
 
 /*
-
+Creation Date: 21/03/2014
+Author: Kwinten Pardon
 */
 function apiprogram(command){
 	return apiURL(programs, command);

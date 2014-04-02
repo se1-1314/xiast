@@ -7,33 +7,11 @@ Author: Kwinten Pardon
 API calls and processing of resulting JSON
 concerning programs
  *****************************************/
+var divID = null; // UGLY!!!
 
-/*
-Name: list_programs
-Arguments: 	divID: Required ID of the div where the programs should be listed
-			keyword: optional keyword when you are searching for a specific program
-Returns: Void
-Author: Kwinten Pardon
-Date: 01/04/2014
-*/
-function list_programs(divID, keyword){
-
-	try {
-		// If divID is empty (required parameter)
-		// We throw an error stating that divID is required
-		if (typeof divID === 'undefined') {
-			throw("Requires divID");
-		}
-
-		// Given a keyword: the command should be find.
-		// otherwise the command should be list (list every existing program)
-		var command = (typeof keyword === 'undefined') ? "list" : ("find/").concat(keyword);
-		// Create API url ServerLove.js for more details
-		var url = apiprogram(command);
-
-		// The fun starts with the JSON call
-		// this is an AJAX call that executes the given function on the resulting data
-		$.getJSON(url, function (data) {
+function process_JSON(data){
+	console.log("entered");
+	//console.log(data);
 			// We are going to store the information in an array and in the end write the array to the given div
 			var programs = [];
 
@@ -69,7 +47,56 @@ function list_programs(divID, keyword){
 			$.each(programs, function(index, value) {
 				$("#program-list").append(value);
 			});
-		});
+		}
+
+/*
+Name: list_programs
+Arguments: 	divID: Required ID of the div where the programs should be listed
+			keyword: optional keyword when you are searching for a specific program
+Returns: Void
+Author: Kwinten Pardon
+Date: 01/04/2014
+*/
+function list_programs(given_divID, keyword){
+
+	try {
+		// If divID is empty (required parameter)
+		// We throw an error stating that divID is required
+		if (typeof given_divID === 'undefined') {
+			throw("Requires divID");
+		}
+		
+		divID = given_divID
+
+		// Given a keyword: the command should be find.
+		// otherwise the command should be list (list every existing program)
+		var command = (typeof keyword === 'undefined') ? "list" : "find";
+		// Create API url ServerLove.js for more details
+		var url = apiprogram(command);
+
+		// The fun starts with the JSON call
+		// this is an AJAX call that executes the given function on the resulting data
+		
+		// $.getJSON(url, process_JSON);
+		if (command == 'list'){
+			console.log(command);
+			console.log(url);
+			$.ajax({
+  				type: "GET",
+  				url: url,
+  				success: process_JSON,
+  				dataType: "JSON"
+				});
+			} else {
+				$.ajax({
+  				type: "POST",
+  				url: url,
+  				data: 'keywords='.concat(keyword), 
+  				success: process_JSON,
+  				dataType: "JSON"
+				});
+			}
+
 	// If an error was throw we display the error to the console of the user.
 	// He may then choose to laugh or warn us about it.
 	// He / She will Probably do both
