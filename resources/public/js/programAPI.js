@@ -10,7 +10,7 @@ concerning programs
 var divID = null; // UGLY!!!
 
 function process_JSON(data){
-	console.log("entered");
+	console.log(data);
 	//console.log(data);
 			// We are going to store the information in an array and in the end write the array to the given div
 			var programs = [];
@@ -88,10 +88,18 @@ function list_programs(given_divID, keyword){
   				dataType: "JSON"
 				});
 			} else {
+				console.log(command);
+				console.log(url);
+				console.log(keyword);
+				var data = new Object();
+				data.keywords = [keyword];
+				data = JSON.stringify(data);
+				console.log(data);
+				console.log("---------");
 				$.ajax({
   				type: "POST",
   				url: url,
-  				data: 'keywords='.concat(keyword), 
+  				data: data, 
   				success: process_JSON,
   				dataType: "JSON"
 				});
@@ -101,7 +109,7 @@ function list_programs(given_divID, keyword){
 	// He may then choose to laugh or warn us about it.
 	// He / She will Probably do both
 	} catch(error) {
-		console.error(error);
+	//	console.log(error);
 	}
 
 
