@@ -92,3 +92,21 @@
 (def CourseActivityRequirements
   {:facilities #{RoomFacility}
    :minimum-capacity s/Int})
+
+;; Maps for conversion between DB and Schema
+
+(def room-facilities
+  {0 :beamer
+   1 :overhead-projector
+   2 :speakers})
+
+(def course-grades
+  {0 :ba
+   1 :ma
+   2 :manama
+   3 :schakel
+   4 :voorbereiding})
+
+(def course-activity-types
+  {0 :HOC
+   1 :WPO})
