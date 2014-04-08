@@ -5,6 +5,7 @@
   (:require [schema.core :as s]
             [xiast.schema :as xs])
   (:use [clojure.set :only [map-invert]]
+        [xiast.schema :only [room-facilities course-grades course-activity-types]]
         [xiast.database]
         [korma.db]
         [korma.core]))
@@ -12,22 +13,7 @@
 
 ;; TODO: replace all find's with get's (nvgeele)
 
-
-(def room-facilities
-  {0 :beamer
-   1 :overhead-projector
-   2 :speakers})
-
-(def course-grades
-  {0 :ba
-   1 :ma
-   2 :manama
-   3 :schakel
-   4 :voorbereiding})
-
-(def course-activity-types
-  {0 :HOC
-   1 :WPO})
+;; Functions for converting database records to Schema data.
 
 (defn person->sPerson
   [person]
