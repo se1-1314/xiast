@@ -38,6 +38,8 @@ function process_JSON_program(divID){
 
 					// because strange JSON constructions makes for multiple loops
 					$.each(val, function(key, val){
+						console.log(key);
+						console.log(val);
 						$.each(val, function(key, val){
 							// we store the value of title in the variable 'title'
 							if (key == 'title'){
@@ -48,14 +50,16 @@ function process_JSON_program(divID){
 								id = val;
 							}
 						})
+						// Store the information in the programs array
+						programs.push("<li id='" + id + "' class='list-item btn'>" + title + "</li>");
 					})
-					// Store the information in the programs array
-					programs.push("<li id='" + id + "'>" + title + "</li>");
+					
+					
 				}
 			})
 			// Writing the information to the html div addressed by there given ID
 			$(divID).empty();
-			$(divID).append("<ul id='program-list'></ul>");
+			$(divID).append("<ul id='program-list' class='listing'></ul>");
 
 			$.each(programs, function(index, value) {
 				$("#program-list").append(value);
