@@ -6,7 +6,7 @@
   (:require [xiast.schema :as xs]))
 
 ;; Courses
-(def linear_algebra :- xs/Course
+(def linear_algebra
   {:course-code "1015328ANR"
    :title "Lineaire Algebra"
    :description "De hoofdbedoeling van deze cursus is het aanleren en gebruiken van de
@@ -25,18 +25,20 @@ gebruiken van  wiskundig formalisme."
    :activities #{hoc_linear_algebra wpo_linear_algebra}
   })
 
-(def hoc_linear_algebra :- xs/CourseActivity
+(def hoc_linear_algebra
   {:type :HOC
    :semester 1
    :week 3
    :contact-time-hours 2
    :instructor "100127"})
-(def wpo_linear_algebra :- xs/CourseActivity
+(def wpo_linear_algebra
   {:type :WPO
    :semester 1
    :week 3
    :contact-time-hours 2
    :instructor "0084047"})
+
+
 
 ;; Programs
 (def ba_cw1
@@ -45,7 +47,7 @@ gebruiken van  wiskundig formalisme."
    :description "Alle studenten die de bacheloropleiding in de Computerwetenschappen aanvatten starten met de module eerste bachelor Computerwetenschappen. Deze module komt overeen met het eerste jaar van het modeltraject. Bij een eerste inschrijving in de bacheloropleiding mag de student enkel verplichte studiedelen eerste bachelor opnemen, met uitzondering van het voorbereidend keuzestudiedeel \"Basisvaardigheden Wiskunde\"."
    ;; :id
    ;; :manager
-   :mandatory ["1015328ANR"]
+   :mandatory ["1015328ANR", "1000447ANR"]
 
    })
 
