@@ -22,22 +22,16 @@ gebruiken van  wiskundig formalisme."
    :instructors #{"1000127", "0084047"} ;; Jespers, Thumas
    :department "WE"
    :grade :ba
-   :activities #{hoc_linear_algebra wpo_linear_algebra}
+   :activities #{{:type :HOC
+                  :semester 1
+                  :week 3
+                  :contact-time-hours 2
+                  :instructor "100127"}
+                 {                 :semester 1
+                 :week 3
+                 :contact-time-hours 2
+                 :instructor "0084047"}}
   })
-
-(def hoc_linear_algebra
-  {:type :HOC
-   :semester 1
-   :week 3
-   :contact-time-hours 2
-   :instructor "100127"})
-(def wpo_linear_algebra
-  {:type :WPO
-   :semester 1
-   :week 3
-   :contact-time-hours 2
-   :instructor "0084047"})
-
 
 
 ;; Programs
