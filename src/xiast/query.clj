@@ -407,27 +407,33 @@
               (assoc new-department :faculty ""))]
     (department-add! *db* dep)))
 
-;;(defprotocol Schedules
-;;  (course-schedule
-;;    [this course-code]
-;;    [this course-code timespan]
-;;    "Return a list of schedule blocks for a course, optionally using a
-;;    timespan to limit results.")
-;;  (student-schedule
-;;    [this student-id]
-;;    [this student-id timespan]
-;;    "Return a list of schedule blocks for a student, optionally using
-;;    a timespan to limit results.")
-;;  (room-schedule
-;;    [this room-id]
-;;    [this room-id timespan]
-;;    "Return a list of schedule blocks for a room, optionally using a
-;;    timespan to limit results.")
-;;  (program-schedule
-;;    [this program-id]
-;;    [this program-id timespan]
-;;    "Return a list of schedule blocks for a whole program, optionally
-;;    using a timespan to limit results."))
+;; Schedule queries
+
+(s/defn course-schedule :- xs/Schedule
+  [course-code :- xs/CourseCode
+   timespan :- xs/TimeSpan]
+  "Returns the schedule for a certain course in the provided timespan."
+  nil)
+
+(s/defn student-schedule :- xs/Schedule
+  [student-id :- xs/PersonID
+   timespan :- xs/TimeSpan]
+  "Returns the schedules for courses a certain student is enrolled in the
+   provided timespan."
+  nil)
+
+(s/defn room-schedule :- xs/Schedule
+  [room-id :- xs/RoomID
+   timespan :- xs/TimeSpan]
+  "Returns the schedule for a certain room in the provided timespan."
+  nil)
+
+(s/defn program-schedule :- xs/Schedule
+  [program-id :- xs/ProgramID
+   timespan :- xs/TimeSpan]
+  "Returns the schedules for all courses in a certain program in the provided
+   timespan."
+  nil)
 
 ;; TODO: Remove mockdata. (nvgeele)
 (defprotocol XiastQuery
