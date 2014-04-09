@@ -33,7 +33,7 @@
 (def CourseActivityType (s/enum :HOC :WPO))
 (def CourseActivity {(s/optional-key :activity-id) s/Int
                      :type CourseActivityType
-                     :semester s/Int
+                     :semester s/Int   ;; TODO: ?? niet sessionsemester gebruiken?
                      :week s/Int
                      :contact-time-hours s/Int
                      ;; TODO: fix support for multiple instructors/activity (nvgeele)
@@ -44,7 +44,7 @@
              :description s/Str
              :titular-id PersonID
              (s/optional-key :instructors) #{PersonID}
-             :department DepartmentName
+             :department DepartmentName   ;; TODO: ?? Gebruiken we niet beter ID? (lavholsb)
              :grade (s/enum :ba :ma)
              (s/optional-key :activities) #{CourseActivity}})
 (def ProgramID s/Int)
