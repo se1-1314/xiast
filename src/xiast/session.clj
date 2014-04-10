@@ -9,13 +9,17 @@
         [korma.core])
   (:import java.util.UUID))
 
+(defn generate-id
+  []
+  (UUID/randomUUID))
+
 ;; We store when the session was created, this allows us to run
 ;; scripts to remove sessions older than X.
 ;; TODO: Maybe change timestamp on update?
 (defn session-create
   "Creates a new session record in the database and returns its ID."
   ([] (session-create ""))
-  ([data] (let [id (str (UUID/randomUUID))]
+  ([data] (let [id (str (generate-id))]
             (insert session
                     (values {:id id
                              :data data
