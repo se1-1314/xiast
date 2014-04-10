@@ -56,3 +56,6 @@
 
 (defentity subscription
   (database db))
+
+(defentity session
+  (database db))
