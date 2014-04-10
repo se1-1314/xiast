@@ -18,7 +18,7 @@ Parameters: 	divID: The id where the information should be displayed
 returns: 		function to be used as a callback in the AJAX call
 
  *****************************************/
-function process_JSON_program(divID){
+function process_JSON_program(divID, root_key){
 
 	return function(data){
 	console.log(data);
@@ -48,14 +48,18 @@ function process_JSON_program(divID){
 								id = val;
 							}
 						})
+						// Store the information in the programs array
+						programs.push("<li id='" + id + "' class='list-item btn program-item'>" + title + "</li>");
 					})
-					// Store the information in the programs array
-					programs.push("<li id='" + id + "'>" + title + "</li>");
+					
+					
 				}
 			})
 			// Writing the information to the html div addressed by there given ID
 			$(divID).empty();
-			$(divID).append("<ul id='program-list'></ul>");
+			$(divID).append("<ul id='program-list' class='listing'></ul>");
+
+			$("#program-list").append("<h2>Programs</h2>");
 
 			$.each(programs, function(index, value) {
 				$("#program-list").append(value);
@@ -140,3 +144,12 @@ function list_programs(divID, keyword){
 	//	console.log(error);
 	}
 }
+
+$("#programs").on("mousedown", ".program-item", function (){
+	console.log(this.id);
+	//console.log(this);
+	$('.program-item').removeClass('active');
+	$(this).addClass('active');
+	list_courses_by_program("#courses", this.id);
+})
+

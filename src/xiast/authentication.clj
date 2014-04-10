@@ -1,6 +1,5 @@
 (ns xiast.authentication
-  (:use [xiast.database :only [*db* create-person]]
-        [xiast.config :only [config]])
+  (:use [xiast.config :only [config]])
   (:require [clj-http.client :as client]
             [xiast.query :as query]))
 
@@ -13,37 +12,37 @@
         body (:body req)]
     ;; TODO: get locale from db
     (if (re-find #"xiastsucc" body)
-      (let [person (query/person-get *db* netid)]
+      (let [person (query/person-get netid)]
         (if person
           (assoc person
-            :user-functions (query/person-functions *db* netid)
+            :user-functions (query/person-functions netid)
             :user (:netid person))
           (do
-            (create-person *db* netid)
-            (let [person (query/person-get *db* netid)]
+            (query/person-create! netid)
+            (let [person (query/person-get netid)]
               (assoc
                   person
                 :user-functions
-                (query/person-functions *db* netid)
+                (query/person-functions netid)
                 :user (:netid person))))))
       nil)))
 
 (defn- login-debug
   [netid password]
   (case netid
-    "pmanager" (assoc (query/person-get *db* "pmanager")
+    "pmanager" (assoc (query/person-get "pmanager")
                         :user "pmanager"
                         :user-functions #{:program-manager})
-    "titular" (assoc (query/person-get *db* "titular")
+    "titular" (assoc (query/person-get "titular")
                 :user "titular"
                 :user-functions #{:titular})
-    "instructor" (assoc (query/person-get *db* "instructor")
+    "instructor" (assoc (query/person-get "instructor")
                    :user "instructor"
                    :user-functions #{:instructor})
-    "student" (assoc (query/person-get *db* "student")
+    "student" (assoc (query/person-get "student")
                 :user "student"
                 :user-functions #{:student})
-    "default" (login-production netid password)))
+    (login-production netid password)))
 
 (def login
   (if (:production? config)
