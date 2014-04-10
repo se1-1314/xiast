@@ -2,12 +2,12 @@
   "This namespace provides dummydata in the shape of programs, given at the VUB university.
   More information on the internal structure of a studyprogram can be found in schema.clj"
   (:require [xiast.schema :as xs]
-            [schema.core :as s]
-            [schema.macros :as sm])
+            [schema.core :as s])
   (:use [clojure.set :only [union]]))
 
 ;; misc functions
 ;; **************
+;;  Not longer in use
 (defn gencourseactivities
   "Generates course activities given the type of activity (:HOC/:WPO), semester, range of weeks, instructor, contact-time"
   [type semester [from till] contacthours instructor]
@@ -20,7 +20,7 @@
 ;; =======
 ;; 1e bach CW
 ;; ----------
-(def linear_algebra
+(def linear-algebra
   {:course-code "1015328ANR"
    :title "Lineaire Algebra"
    :description "De hoofdbedoeling van deze cursus is het aanleren en gebruiken van de
@@ -36,9 +36,9 @@ gebruiken van  wiskundig formalisme."
    :instructors #{"1000127", "0084047"} ;; Jespers, Thumas
    :department "DINF"
    :grade :ba
-   :activities (union (gencourseactivities :HOC 1 [3 14] 2 "100127") (gencourseactivities :WPO 1 [3 14] 2 "0084047"))
-   })
-(def foundations_of_informatics1
+   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 2 :titular-id "100127"}
+   {:type :WPO :semester 1 :week 0 :contact-time-hours 2 :titular-id "0084047"))})
+(def foundations-of-informatics1
   {:course-code "1000447ANR"
    :title "Grondslagen van de informatica I"
    :description "Dit opleidingsonderdeel bestaat uit drie delen:
@@ -53,9 +53,10 @@ Het derde gedeelte is een inleiding tot de lambda-calculus. Hier ligt de nadruk 
    :instructors #{"0008275", "0081560"} ;; De Troyer, Debruyne
    :department "DINF"
    :grade :ba
-   :activities (union (gencourseactivities :HOC 1 [3 14] 2 "0008275") (gencourseactivities :WPO 1 [3 14] 2 "0081560"))
+   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 2 :titular-id "0008275"}
+                 {:type :WPO :semester 1 :week 0 :contact-time-hours 2 :titular-id "0081560"}}
    })
-(def algorithms_and_datastructures1
+(def algorithms-and-datastructures1
   {:course-code "1015259ANR"
    :title "Algoritmen & Datastructuren I"
    :description "De vakkenreeks \"Algoritmen en Datastructuren 1&2\" presenteert de algoritmen en datastructuren die tot het basisvocabularium van een informaticus behoren. In principe staan al deze algoritmen en datastructuren los van een specifieke programmeertaal maar omwille van de wetenschappelijke precisie wordt Scheme als formele taal gebruikt.
@@ -81,9 +82,10 @@ Het derde gedeelte is een inleiding tot de lambda-calculus. Hier ligt de nadruk 
    :instructors #{"0033825", "0075773"} ;; De Meuter, Philips (no other assistants could be found)
    :department "DINF"
    :grade :ba
-   :activities (union (gencourseactivities :HOC 3 [8 36] 3 "0033825") (gencourseactivities :WPO 3 [9 36] 4 "0075773"))
+   :activities #{{:type :HOC :semester 3 :week 0 :contact-time-hours 3 :titular-id "0033825"}
+                 { :type :WPO :semester 3 :week 0 :contact-time-hours 4 :titular-id "0075773"}}
    })
-(def introduction_to_databases
+(def introduction-to-databases
   {:course-code "1007156ANR"
    :title "Inleiding Databases"
    :description "De cursus bestaat uit de volgende onderwerpen:
@@ -99,9 +101,10 @@ Het derde gedeelte is een inleiding tot de lambda-calculus. Hier ligt de nadruk 
    :instructors #{"1000454", "0081560"} ;; Signer, Debruyne
    :department "DINF"
    :grade :ba
-   :activities (union (gencourseactivities :HOC 2 [22 36] 2 "1000454") (gencourseactivities :WPO 2 [23 36] 2 "0081560"))
+   :activities #{{:type :HOC :semester 2 :week 0 :contact-time-hours 2 :titular-id "1000454"}
+                 {:type :WPO :semester 2 :week 0 :contact-time-hours 2 :titular-id "0081560"}}
    })
-(def discrete_mathematics
+(def discrete-mathematics
   {:course-code "1007132ANR"
    :title "Discrete Wiskunde"
    :description "Basisbegrippen wiskunde
@@ -116,11 +119,12 @@ Recurrentievergelijkingen"
    :instructors #{"0040941", "0084047"} ;; Cara, Thumas
    :department "DWIS"
    :grade :ba
-   :activities (union (gencourseactivities :HOC 1 [2 14] 3 "0040941") (gencourseactivities :WPO 1 [2 14] 2 "0084047"))
+   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 3 :titular-id "0040941"}
+                 {:type :WPO :semester 1 :week 0 :contact-time-hours 2 :titular-id "0084047"}}
    })
 ;; 3e bach CW
 ;; ----------
-(def software_engineering
+(def software-engineering
   {:course-code "1004483BNR"
    :title "Software Engineering"
    :description "Naast een kort theoretisch gedeelte bestaat dit vak hoofdzakelijk uit een
@@ -145,8 +149,8 @@ De inhoud van het theoretisch gedeelte:
    :titular-id "0062333"
    :instructors #{"0062333"} ;; Van der Straeten
    :department "DINF"
-   :grade :ba:
-   :activities (union (gencourseactivities :HOC 3 [2 36] 2 "0062333"))
+   :grade :ba
+   :activities #{{:type :HOC :semester 3 :week 0 :contact-time-hours 2 :titular-id "0062333"}}
    })
 (def teleprocessing
   {:course-code  "1001673BNR"
@@ -157,9 +161,11 @@ De inhoud van het theoretisch gedeelte:
    :instructors #{"1234567", "5389644", "4264924"} ;; Steenhaut(random), Dominguez (random), Uwase (random)
    :department "ETRO"
    :grade :ba
-   :activities (union (gencourseactivities :HOC 1 [2 14] 3 "1234567") (gencourseactivities :WPO 1 [9 11] 4 "5389644") (gencourseactivities :WPO 1 [12 14] 4 "4264924"))
+   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 3 :titular-id "1234567"}
+                 {:type :WPO :semester 1 :week 0 :contact-time-hours 4 :titular-id "5389644"}
+                  {:type :WPO :semester 1 :week 0 :contact-time-hours 4 :titular-id "4264924"}}
    })
-(def economics_for_business
+(def economics-for-business
   {:course-code "1001714AER"
    :title "Economie en Bedrijfsleven"
    :description "Het doel van dit onderdeel is inzicht te verschaffen in de beginselen van de economie. Met het oog op het voorbereiden van de student op de toetreding tot de arbeidsmarkt, wordt uitvoerig aandacht besteed aan de micro-economische aspecten van de economie. Wat de macro-economie betreft, legt de cursus vooral de nadruk op economische indicatoren; geaggregeerde vraag en geaggregeerd aanbod; het meten en interpreteren van de macro-economische activiteit; en het belang van economische politiek en institutionele aspecten voor het bedrijfsleven. De topics zijn:
@@ -180,7 +186,7 @@ De inhoud van het theoretisch gedeelte:
    :instructors #{"0025867"} ;; Scheerlick (random)
    :department "BEDR"
    :grade :ba
-   :activities (union (gencourseactivities :HOC 1 [2 14] 2 "0025867"))
+   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 2 :titular-id "0025867"}}
    })
 (def interpretation2
   {:course-code "1005176BNR"
@@ -198,9 +204,10 @@ Optimalisatie van de virtuele machine"
    :instructors #{"0000585","1568634" } ; D'Hondt, De Koster (random)
    :department "DINF"
    :grade :ba
-   :activities (union (gencourseactivities :HOC 1 [2 14] 2 "0000585") (gencourseactivities :WPO 1 [2 14] 2 "1568634"))
+   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 2 :titular-id "0000585"}
+                 {:type :WPO :semester 1 :week 0 :contact-time-hours 2 :titular-id "1568634"}}
     })
-(def social_psychology
+(def social-psychology
   {:course-code "1018725AER"
    :title "Sociale Psychologie"
    :description "Les 1: Hoofdstuk 1 - Introduction to Social Psychology
@@ -216,12 +223,12 @@ Les 9: Hoofdstuk 7 - Attitudes: Resistance, Behavior & Advertising"
    :instructors #{"3596346"} ;; Van Overwalle (random)
    :department "EXTO"
    :grade :ba
-   :activities (union (gencourseactivities :HOC 1 [4 8] 3 "3596346"))
+   :activities #{{:type :HOC :semester 1 :weel 0 :contact-time-hours 3 :titular-id "3596346"}}
     })
 
 ;; Programs
 ;; ========
-(def ba_cw1
+(def ba-cw1
   ;; xs/Program
   {:title "1e bachelor Computerwetenschappen"
    :description "Alle studenten die de bacheloropleiding in de Computerwetenschappen aanvatten starten met de module eerste bachelor Computerwetenschappen. Deze module komt overeen met het eerste jaar van het modeltraject. Bij een eerste inschrijving in de bacheloropleiding mag de student enkel verplichte studiedelen eerste bachelor opnemen, met uitzondering van het voorbereidend keuzestudiedeel \"Basisvaardigheden Wiskunde\"."
@@ -229,13 +236,13 @@ Les 9: Hoofdstuk 7 - Attitudes: Resistance, Behavior & Advertising"
    ;; :manager
    :mandatory ["1015328ANR", "1000447ANR", "1015259ANR", "1007156ANR"]
    :optional ["1007132ANR"]})
-(def ba_cw3
+(def ba-cw3
   {:title "3e bachelor computerwetenschappen"
    :description "In combinatie met de verplichte studiedelen derde bachelor neemt de student bij voorkeur voor 30 studiepunten aan keuzestudiedelen op.
 Inschrijven voor de bachelorproef kan indien het een inschrijving betreft waarbij met de andere gekozen studiedelen het volledige bachelortraject van minstens 180 studiepunten wordt ingevuld."
    :mandatory ["1004483BNR", "1001673BNR", "1001714AER"]
    :optional ["1005176BNR", "1018725AER"]})
-(def ba_IRCW3
+(def ba-IRCW3
   {:title "3e Bachelor Ingenieurswetenschappen - Computerwetenschappen"
    :description "Deze module (60 SP) is specifiek voor de Afstudeerrichting Elektronica en informatietechnologie, met het profiel Computerwetenschappen. Ze bestaat uit een submodule die gemeenschappelijk is voor alle studenten die de afstudeerrichting Elektronica en informatietechnologie hebben gekozen en een submodule specifiek voor het profiel Computerwetenschappen. De studenten moeten alle studiedelen uit beide modules verplicht voltooien. Deze studiedelen behoren tot het derde jaar van het voltijds modeltraject bachelor (Bachelor 3). Bij een eerste inschrijving in de bacheloropleiding is het niet toegelaten reeds in te schrijven voor studiedelen uit deze module. Studenten mogen pas inschrijven voor studiedelen uit 'Jaar 3 van het voltijds modeltraject BA IR – EIT Computerwetenschappen' indien zij reeds de credits verworven hebben voor het technologieproject 'Informatie en communicatietechnologie' en ten minste één van de 3 andere technologieprojecten (Leefmilieu en duurzame materialen of Werktuigkunde en Elektrotechniek of Informatie en communicatietechnologie) uit de module ‘Technologieprojecten in opleidingsateliers' van 'Jaar 2 van het modeltraject BA IR' of voor deze 2 technologieprojecten inschrijven samen met de studiedelen uit de afstudeerrichtingsmodule. Studenten moeten voldoen aan de aan elk van de studiedelen verbonden specifieke inschrijvingsvereisten."
    :mandatory ["1004483BNR", "1007156ANR", "1000447ANR", "1001673BNR", "1015259ANR"]
