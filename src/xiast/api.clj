@@ -155,10 +155,34 @@
   (POST "/add" {body :body}
         ((wrap-api-function program-add) (slurp body))))
 
+;; Room API
+;;;; These all map 1 to 1 on query.
+
+(defn room-list
+  ([building floor]
+     {:rooms (query/room-list building floor)})
+  ([building]
+     {:rooms (query/room-list building)})
+  ([]
+     {:rooms (query/room-list)}))
+
+(defn room-get
+  [building floor number]
+  (query/room-get {:building building
+                   :floor floor
+                   :number number}))
+
 (defroutes room-routes
-  (GET "/" [] "Invalid request")
+  (GET "/" []
+       "Invalid request")
+  (GET "/list/:building/:floor" [building floor]
+       ((wrap-api-function room-list) building floor))
+  (GET "/list/:building" [building]
+       ((wrap-api-function room-list) building))
   (GET "/list" []
-       (write-str {:rooms (query/room-list)})))
+       ((wrap-api-function room-list)))
+  (GET "/get/:building/:floor/:number" [building floor number]
+       ((wrap-api-function room-get) building floor number)))
 
 (defroutes api-routes
   (GET "/" [] "Invalid request")
