@@ -75,7 +75,6 @@
 (defn course-add
   [body]
   (try+ (let [request (coerce-as xs/Course body)]
-          (println "fufu: ")(println *session*)
           (if (some #{:program-manager} (:user-functions *session*))
             (do (query/course-add! request)
                 {:result "OK"})
@@ -127,17 +126,20 @@
               result (query/program-find (:keywords request))]
           {:result result})
         (catch [:type :coercion-error] e
-          {:result "Malformed request"})))
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result "Error"})))
 
+;; TODO: everyone can add programs now! We need some kind of admin role!
 (defn program-add
   [body]
   (try+ (let [request (coerce-as xs/Program body)]
           (query/program-add! request)
           {:result "OK"})
         (catch [:type :coercion-error] e
-          {:result "Malformed request"})
+          {:result "Invalid JSON"})
         (catch Exception e
-          {:result "ERROR"})))
+          {:result "Error"})))
 
 (defroutes program-routes
   (GET "/" []

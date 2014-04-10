@@ -3,8 +3,7 @@
         [clojure.data.json :only [write-str]])
   (:require [midje.sweet :refer :all]
             [xiast.api :as api]
-            [xiast.query :as query])
-  (:import java.util.UUID))
+            [xiast.query :as query]))
 
 (def course-add-request
   ;; Let's make this a bit easier for ourselves.
@@ -15,6 +14,13 @@
     :titular "testuser"
     :department "DINF"
     :grade :ba}))
+
+(def program-add-request
+  (write-str
+   {:title "Test program"
+    :description "Nothing but a test program"
+    :mandatory []
+    :optional []}))
 
 (facts "Course API functions work"
        (fact "course-get works"
@@ -48,3 +54,34 @@
                       (api/course-add course-add-request)) => {:result "OK"}
                     (provided
                      (query/course-add! irrelevant) => nil))))
+
+(facts "Program API functions work"
+       (fact "program-get"
+             (api/program-get nil) => []
+             (provided
+              (query/program-get nil) => []))
+       (fact "program-delete works"
+             (fact (api/program-delete nil) => {:result "Program not found"}
+                   (provided
+                    (query/program-get nil) => nil))
+             (fact (binding [*session* {:user "testuser"}]
+                     (api/program-delete nil)) => {:result "Not authorized"}
+                   (provided
+                    (query/program-get nil) => {:program "not-testuser"}))
+             (fact (binding [*session* {:user "testuser"}]
+                     (api/program-delete nil)) => {:result "OK"}
+                   (provided
+                    (query/program-get nil) => {:manager "testuser"}
+                    (query/program-delete! nil) => nil)))
+       (fact "program-find works"
+             (api/program-find "fubar") => {:result "Error"}
+             (api/program-find "{\"keywrds\":[\"test\"]}") => {:result "Invalid JSON"}
+             (api/program-find "{\"keywords\":[\"test\"]}") => {:result []}
+             (provided
+              (query/program-find ["test"]) => []))
+       (fact "program-add works"
+              (api/program-add "test") => {:result "Error"}
+              (api/program-add "{\"test\":0}") => {:result "Invalid JSON"}
+              (fact (api/program-add program-add-request) => {:result "OK"}
+                    (provided
+                     (query/program-add! irrelevant) => nil))))
