@@ -249,11 +249,11 @@
             (values
              (merge
               (dissoc new-course
-                      :instructors :department :grade :activities :titular-id)
+                      :instructors :department :grade :activities :titular)
               {:grade ((:grade new-course)
                        (map-invert course-grades))
                :department department
-               :titular-id (person-create! (:titular-id new-course))})))
+               :titular-id (person-create! (:titular new-course))})))
     (if (:activities new-course)
       (doseq [activity (:activities new-course)]
         (course-add-activity! (:course-code new-course)

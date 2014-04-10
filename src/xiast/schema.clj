@@ -42,7 +42,7 @@
 (def Course {:course-code CourseCode
              :title s/Str
              :description s/Str
-             :titular-id PersonID
+             :titular PersonID
              (s/optional-key :instructors) #{PersonID}
              :department DepartmentName
              :grade (s/enum :ba :ma)
