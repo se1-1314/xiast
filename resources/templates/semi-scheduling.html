@@ -9,31 +9,49 @@
 
 		<div class="row-fluid">
 			<div class="col-md-12">
-				<button class="btn btn-primary">Current</button>
-				<button class="btn btn-primary">Proposition</button>
+				<button class="btn btn-primary">
+					Current
+				</button>
+				<button class="btn btn-primary">
+					Proposition
+				</button>
+				<button id="test" class="btn btn-primary">
+					Simulate slected course
+				</button>
 			</div>
 			<div class="col-md-3">
 				<h1>Preferences</h1>
-
-				<ul>
-					<li>
-						<input type="checkbox" name="projector" value="projector">Needs Projector
-					</li>
-					<li>
-						<input type="checkbox" name="computers" value="computers">Needs computers
-					</li>
-				</ul>
-				<button class="btn btn-primary">Apply</button>
+				<div id="facilities">
+					<!--
+						<ul>
+						<li>
+							<input type="checkbox" name="projector" value="projector">
+							Needs Projector
+						</li>
+						<li>
+							<input type="checkbox" name="computers" value="computers">
+							Needs computers
+						</li>
+					</ul>
+					-->
+				</div>
+				<button class="btn btn-primary" id="save_facilities">
+					Save
+				</button>
 				<hr>
-				<button class="btn btn-primary">Schedule</button>
+				<button class="btn btn-primary">
+					Schedule
+				</button>
 			</div>
 			<div class="col-md-9">
 				<h1>Semi-schedule</h1>
-      			<div id="schedule-content">
-        
-      			</div>
-      			<button class="btn btn-primary">Propose</button>
-      		</div>
+				<div id="schedule-content">
+
+				</div>
+				<button class="btn btn-primary">
+					Propose
+				</button>
+			</div>
 		</div>
 	</div>
 </html>
