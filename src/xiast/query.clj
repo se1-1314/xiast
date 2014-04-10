@@ -109,9 +109,18 @@
 ;; PUBLIC API
 
 (s/defn room-list :- [xs/Room]
-  []
-  "Get a list of all of rooms"
-  (map room->sRoom (select room)))
+  ([]
+     "Get a list of all of rooms"
+     (map room->sRoom (select room)))
+  ([building]
+     "Get a list of all rooms in a building"
+     (map room->sRoom (select room
+                              (where {:building building}))))
+  ([building floor]
+     "Get a list of all rooms on a floor in a building"
+     (map room->sRoom (select room
+                              (where {:building building
+                                      :floor floor})))))
 
 (s/defn room-add! :- s/Any
   [new-room :- xs/Room]
@@ -120,7 +129,7 @@
         (map #(% (map-invert room-facilities))
              (:facilities new-room))
         room-id
-        (:id new-room)
+        (dissoc (:id new-room) :id)
         vals
         (merge {:capacity (:capacity new-room)}
                room-id)
@@ -134,17 +143,20 @@
                        :facility facility})))))
 
 (s/defn room-delete! :- s/Any
-  [room-id :- s/Int]
+  [room-id :- xs/RoomID]
   "Delete a room from the database."
   ;; Do we need to check if the room exists first or not? (nvgeele)
   (delete room
-          (where {:id room-id})))
+          (where room-id)))
 
 (s/defn room-get :- xs/Room
-  [room-id :- s/Int]
+  [room-id :- xs/RoomID]
   "Fetch information about a room."
-  (let [room (select room
-                     (where {:id room-id}))]
+  (let [room (if (:id room-id)
+               (select room
+                       (where {:id room-id}))
+               (select room
+                       (where room-id)))]
     (if (not (empty? room))
       (let [facilities
             (map #(val (find room-facilities (:facility %)))
@@ -249,11 +261,11 @@
             (values
              (merge
               (dissoc new-course
-                      :instructors :department :grade :activities :titular-id)
+                      :instructors :department :grade :activities :titular)
               {:grade ((:grade new-course)
                        (map-invert course-grades))
                :department department
-               :titular-id (person-create! (:titular-id new-course))})))
+               :titular-id (person-create! (:titular new-course))})))
     (if (:activities new-course)
       (doseq [activity (:activities new-course)]
         (course-add-activity! (:course-code new-course)
@@ -359,17 +371,31 @@
   (delete program
           (where {:id id})))
 
-;; TODO: Implement enrollment stuff (nvgeele)
-(s/defn student-enrollments :- [s/Any]
+(s/defn enrollments-student :- [xs/Enrollment]
   [student-id :- xs/PersonID]
   "Get a list of all enrollments from a student."
-  nil)
+  (map (fn [en]
+         {:course (:course-code en)
+          :netid (:netid en)})
+       (select course-enrollment
+               (where {:netid student-id}))))
 
 (s/defn enroll-student! :- s/Any
   [student-id :- xs/PersonID
    course-code :- xs/CourseCode]
   "Add a new enrollment to the database."
-  nil)
+  (insert course-enrollment
+          (values {:course-code course-code
+                   :netid student-id})))
+
+(s/defn enrollments-course :- [xs/Enrollment]
+  [course-code :- xs/CourseCode]
+  "Get a list of all enrollments for a certain course."
+  (map (fn [en]
+         {:course (:course-code en)
+          :netid (:netid en)})
+       (select course-enrollment
+               (where {:course-code course-code}))))
 
 (s/defn department-list :- [xs/Department]
   []
