@@ -54,6 +54,8 @@
               (s/optional-key :manager) PersonID
               :mandatory [CourseCode]
               :optional [CourseCode]})
+(def Enrollment {:course CourseCode
+                 :netid PersonID})
 (def Subscription {:person-id PersonID
                    :course-code CourseCode})
 (def AcademicWeek (s/one s/Int "Week on the academic calendar: 1-52"))

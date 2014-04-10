@@ -371,17 +371,31 @@
   (delete program
           (where {:id id})))
 
-;; TODO: Implement enrollment stuff (nvgeele)
-(s/defn student-enrollments :- [s/Any]
+(s/defn enrollments-student :- [xs/Enrollment]
   [student-id :- xs/PersonID]
   "Get a list of all enrollments from a student."
-  nil)
+  (map (fn [en]
+         {:course (:course-code en)
+          :netid (:netid en)})
+       (select course-enrollment
+               (where {:netid student-id}))))
 
 (s/defn enroll-student! :- s/Any
   [student-id :- xs/PersonID
    course-code :- xs/CourseCode]
   "Add a new enrollment to the database."
-  nil)
+  (insert course-enrollment
+          (values {:course-code course-code
+                   :netid student-id})))
+
+(s/defn enrollments-course :- [xs/Enrollment]
+  [course-code :- xs/CourseCode]
+  "Get a list of all enrollments for a certain course."
+  (map (fn [en]
+         {:course (:course-code en)
+          :netid (:netid en)})
+       (select course-enrollment
+               (where {:course-code course-code}))))
 
 (s/defn department-list :- [xs/Department]
   []

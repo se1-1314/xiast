@@ -156,7 +156,6 @@
         ((wrap-api-function program-add) (slurp body))))
 
 ;; Room API
-;;;; These all map 1 to 1 on query.
 
 (defn room-list
   ([building floor]
@@ -184,8 +183,27 @@
   (GET "/get/:building/:floor/:number" [building floor number]
        ((wrap-api-function room-get) building floor number)))
 
+;; Enrollment API
+
+(defn enrollment-student
+  [id]
+  {:enrollments (query/enrollments-student id)})
+
+(defn enrollment-course
+  [id]
+  {:enrollments (query/enrollments-course id)})
+
+(defroutes enrollment-routes
+  (GET "/" []
+       "Invalid request")
+  (GET "/student/:id" [id]
+       ((wrap-api-function enrollment-student) id))
+  (GET "/course/:id" [id]
+       ((wrap-api-function enrollment-course) id)))
+
 (defroutes api-routes
   (GET "/" [] "Invalid request")
   (context "/course" [] course-routes)
   (context "/program" [] program-routes)
-  (context "/room" [] room-routes))
+  (context "/room" [] room-routes)
+  (context "/enrollment" [] enrollment-routes))
