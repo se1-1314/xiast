@@ -42,7 +42,7 @@
 (def Course {:course-code CourseCode
              :title s/Str
              :description s/Str
-             :titular-id PersonID
+             :titular PersonID
              (s/optional-key :instructors) #{PersonID}
              :department DepartmentName   ;; TODO: ?? maybe using DepartmentID? WE <> DINF? (lavholsb)
              :grade (s/enum :ba :ma)
@@ -54,6 +54,8 @@
               (s/optional-key :manager) PersonID
               :mandatory [CourseCode]
               :optional [CourseCode]})
+(def Enrollment {:course CourseCode
+                 :netid PersonID})
 (def Subscription {:person-id PersonID
                    :course-code CourseCode})
 (def AcademicWeek (s/one s/Int "Week on the academic calendar: 1-52"))
