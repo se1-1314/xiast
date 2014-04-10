@@ -45,13 +45,12 @@
            (write-str result)
            "[]")))
   (DELETE "/del/:course-code" [course-code]
-          (if (query/course-get course-code)
-            (if-let [course (query/course-delete! course-code)]
-              (if (= (:titular-id course) (:user *session*))
-                (do (query/course-delete! course-code)
-                    (write-str {:result "OK"}))
-                (write-str {:result "Not authorized"}))
-              (write-str {:result "Course not found"}))))
+          (if-let [course (query/course-get course-code)]
+            (if (= (:titular course) (:user *session*))
+              (do (query/course-delete! course-code)
+                  (write-str {:result "OK"}))
+              (write-str {:result "Not authorized"}))
+            (write-str {:result "Course not found"})))
   (POST "/find" {body :body}
         (try+ (let [request (coerce-as FindQuery (slurp body))
                     result (query/course-find (:keywords request))]
@@ -79,10 +78,12 @@
            (write-str result)
            "[]")))
   (DELETE "/del/:id" [id]
-          (if (query/program-get id)
-            (do (query/program-delete! id)
-                (write-str {:result "OK"}))
-            (write-str {:result "ERROR"})))
+          (if-let [program (query/program-get id)]
+            (if (= (:manager program) (:user *session*))
+              (do (query/program-delete! id)
+                  (write-str {:result "OK"}))
+              (write-str {:result "Not authorized"}))
+            (write-str {:result "Program not found"})))
   (POST "/find" {body :body}
         (try+ (let [request (coerce-as FindQuery (slurp body))
                     result (query/program-find (:keywords request))]

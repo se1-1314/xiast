@@ -1,7 +1,7 @@
 (ns xiast.core
   (:use compojure.core
         [xiast.mock :only [*mock-data*]]
-        [xiast.session :only [*alert* *session* wrap-with-session]]
+        [xiast.session :only [*session* *alert* session-store wrap-with-session]]
         [xiast.authentication :as auth]
         [xiast.config :only [config]]
         [xiast.api :only [api-routes]]
@@ -247,7 +247,6 @@
 
 
 (def app
-  ;; TODO: get cookie-store secret key out of a config file or something
   (-> main-routes
       wrap-with-session
       wrap-keyword-params
@@ -256,6 +255,6 @@
       wrap-multipart-params
       wrap-flash
       (tower.ring/wrap-tower-middleware :fallback-locale :en :tconfig t/tower-config)
-      (wrap-session {:store (cookie-store {:key "Kn4pHR5jxnuo3Bmc"})})
+      (wrap-session {:store (session-store)})
       (wrap-resource "public")
       (wrap-file-info)))
