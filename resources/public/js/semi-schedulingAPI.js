@@ -39,7 +39,6 @@ function show_facilities_course(divID)
 		{
 			if (key === 'activities')
 			{
-				alert('activities');
 				$.each(val, function(key, val)
 				{
 					$.each(val, function(key, val)
@@ -99,3 +98,7 @@ function get_facilities_course(divID, course_code)
 			alert(error.message);
 		}
 }	
+
+$("#test").click(function(){
+	get_facilities_course('facilities','1000330ANR');
+});
