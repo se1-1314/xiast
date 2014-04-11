@@ -1,19 +1,19 @@
 (ns xiast.scheduling
-  (:require [xiast.schema :as xs]
-            [clojure.math.combinatorics :as comb]
+  (:require [clojure.math.combinatorics :as comb]
             [schema.core :as s]
-            [xiast.query :as query])
-  (:use [clojure.set :only [difference]]))
+            [xiast.query :as q])
+  (:use [clojure.set :only [difference rename-keys]]
+        [xiast.schema]))
 
 ;; Database stuff
 ;; (s/defn room-capacity-satisfied? :- s/Bool
-;;   [room-id :- xs/RoomID
-;;    schedule-item :- xs/ScheduledCourse]
+;;   [room-id :- RoomID
+;;    schedule-item :- ScheduledCourse]
 ;;   ;; TODO: expected amount of student in course(activity)
 ;;   true)
 ;; (s/defn room-facilities-satisfied? :- s/Bool
-;;   [room-id :- xs/RoomID
-;;    schedule-item :- xs/ScheduledItem]
+;;   [room-id :- RoomID
+;;    schedule-item :- ScheduledItem]
 ;;   (if (contains? (set :HOC :WPO)
 ;;                  (:type schedule-item))
 ;;     (let [required (query/course-activity-facilities (:id schedule-item))
@@ -29,52 +29,43 @@
 ;; (defn blocks-for-rooms [room-ids timespan]
 ;;   ;; TODO
 ;;   true)
-(s/defn elective-course? :- s/Bool
-  [course-id :- xs/CourseCode
-   program-id :- xs/ProgramID]
-  (let [program (query/program-get program-id)]
-    (contains? (:optional program) course-id)))
-(s/defn mandatory-course? :- s/Bool
-  [course-id :- xs/CourseCode
-   program-id :- xs/ProgramID]
-  (let [program (query/program-get program-id)]
-    (contains? (:mandatory program) course-id)))
 
 ;; Work on schedule block items
 (s/defn schedule-blocks-overlap? :- s/Bool
-  [b1 :- xs/ScheduleBlock
-   b2 :- xs/ScheduleBlock]
+  [b1 :- ScheduleBlock
+   b2 :- ScheduleBlock]
   (and (= (:week b1) (:week b2))
        (= (:day b1) (:day b2))
        (or (<= (:first-slot b1) (:first-slot b2) (:last-slot b1))
            (<= (:first-slot b1) (:last-slot b2) (:last-slot b1)))))
-(s/defn overlapping-schedule-blocks :- [(s/pair xs/ScheduleBlock ""
-                                                xs/ScheduleBlock "")]
-  [sched1 :- xs/Schedule
-   sched2 :- xs/Schedule]
-  "Return a seq of pairs of overlapping schedule blocks between two
-  schedules."
-  (set (for [[b1 b2] (comb/cartesian-product sched1 sched2)
-             :when (schedule-blocks-overlap? b1 b2)]
-         (set [b1 b2]))))
+(s/defn overlapping-schedule-blocks :- [(s/pair ScheduleBlock ""
+                                                ScheduleBlock "")]
+  [correct-schedule :- Schedule
+   proposed-schedule :- Schedule]
+  "Return a seq of pairs of overlapping schedule blocks between a
+  schedule without overlaps and a proposal schedule which might
+  contain overlaps."
+  (->> (concat
+        (comb/cartesian-product correct-schedule proposed-schedule)
+        (remove = (comb/cartesian-product proposed-schedule
+                                          proposed-schedule)))
+       (filter #(apply schedule-blocks-overlap? %))
+       (map #(set %))
+       set))
 ;; Work on seqs of schedule blocks
-(s/defn mandatory-blocks :- xs/Schedule
-  [blocks :- xs/Schedule
-   program-id :- xs/ProgramID]
+(s/defn mandatory-blocks :- Schedule
+  [blocks :- Schedule
+   program-id :- ProgramID]
   (filter #(mandatory-course? (-> % :item :course-id)
                               program-id)
           blocks))
-(s/defn elective-blocks :- xs/Schedule
-  [blocks :- xs/Schedule
-   program-id :- xs/ProgramID]
-  )
-(s/defn blocks-by-programs :- {xs/ProgramID xs/Schedule}
-  [schedule :- xs/Schedule]
-  "Return a map of Programs to schedule blocks. The programs are those
-  to which the scheduled course belongs to."
+(s/defn blocks-by-program-ids :- {ProgramID Schedule}
+  [schedule :- Schedule]
+  "Return a map of ProgramIDS to Schedules. The programs are those to
+  which the scheduled course belongs to."
   (->> schedule
        (mapcat (fn [block]
-                 (comb/cartesian-product (query/course-programs
+                 (comb/cartesian-product (q/course-programs
                                           (-> block :item :course-id))
                                          [block])))
        (reduce (fn [program-id-schedule-map [program-id block]]
@@ -82,9 +73,16 @@
                             [program-id]
                             #(clojure.set/union % #{block})))
                {})))
-(s/defn remove-deleted&moved :- xs/Schedule
-  [schedule :- xs/Schedule
-   proposal :- xs/ScheduleProposal]
+(s/defn blocks-by-programs :- {Program Schedule}
+  [schedule :- Schedule]
+  (let [bbpi (blocks-by-program-ids schedule)]
+    (rename-keys bbpi
+                 (zipmap (keys bbpi)
+                         (map q/program-get (keys bbpi))))))
+
+(s/defn remove-deleted&moved :- Schedule
+  [schedule :- Schedule
+   proposal :- ScheduleProposal]
   "Produce a new schedule based on schedule, with the blocks which
   share the same ids between schedule and proposal removed, as well as
   the blocks with :deleted? set in the proposal."
@@ -92,15 +90,17 @@
         (set (concat (map :id (:moved proposal)) (:deleted proposal)))]
     (set (filter #(not (contains? deleted&moved-block-ids (:id %)))
                  schedule))))
-(s/defn apply-proposal-to-schedule :- xs/Schedule
-  [schedule :- xs/Schedule
-   proposal :- xs/ScheduleProposal]
+(s/defn proposal-new&moved :- Schedule
+  [proposal :- ScheduleProposal]
+  (clojure.set/union (:moved proposal) (:new proposal)))
+(s/defn apply-proposal-to-schedule :- Schedule
+  [schedule :- Schedule
+   proposal :- ScheduleProposal]
   (clojure.set/union (remove-deleted&moved schedule proposal)
-                     (:moved proposal)
-                     (:new proposal)))
+                     (proposal-new&moved proposal)))
 ;; This is the best thing ever written.
-(s/defn schedule-timespan :- xs/TimeSpan
-  [schedule :- xs/Schedule]
+(s/defn schedule-timespan :- TimeSpan
+  [schedule :- Schedule]
   "Return the timespan covered by schedule blocks"
   (let [init-range [Float/POSITIVE_INFINITY Float/NEGATIVE_INFINITY]]
     (reduce (fn [{[w< >w] :weeks
@@ -118,60 +118,36 @@
              :days init-range
              :slots init-range}
             schedule)))
-(s/defn electives-schedule :- xs/Schedule
-  [program-id :- xs/ProgramID
-   schedule :- xs/Schedule]
+(s/defn electives-schedule :- Schedule
+  [program-id :- ProgramID
+   schedule :- Schedule]
   (filter #(elective-course? (-> % :item :course-id) program-id)
           schedule))
 
 ;; Checks
 ;;-------
-
-;; Check-mandatory and check-elective need to know:
-;; - mandatory/optional status for each schedule block in proposal
-;; - programs for each schedule block in proposal
-;; - the schedules for the mandatory/optional courses in those programs
-;; -> if mandatory and elective courses are checked together,
-;;    the whole schedule for all programs involved could be supplied
-;; Check room overlaps needs to know:
-;; -> room schedules for proposal blocks
-(comment
-  (defn check-mandatory-courses [proposal]
-   "Checks if there are overlaps in time for mandatory course
+(s/defn check-mandatory&optional :- [ScheduleCheckResult]
+  [proposal :- ScheduleProposal]
+  "Checks if there are overlaps in time for mandatory course
    activities."
-   ;; Sort proposals by the programs they belong to
-   (->> (for [[program proposal] (blocks-by-programs proposal)]
-          (let [ ;; Mandatory courses in proposal
-                proposal-mandatory (mandatory-blocks                                                             program proposed)]
-            (-> schedule
-                ;; Schedule for mandatory courses in program
-                (schedule-for-courses (:mandatory program)
-                                      (blocks-timespan proposed))
-                (remove-moves proposal-mandatory)
-                ;; Overlapping pairs between the two
-                (overlapping-schedule-blocks proposal-mandatory))))
-        flatten
-        (map (fn [blocks]
-               {:type :mandatory-course-overlap
-                :concerning blocks}))))
-  ;; TODO this is almost the same as check-mandatory-courses and could
-  ;; be done in one go
-  (defn check-elective-courses [proposed]
-    (->> (for [[program-id proposed] (blocks-by-programs proposed)]
-           (let [proposal-electives (filter #(elective-course?
-                                              (-> % :item :course-id)
-                                              program-id)
-                                            proposed)]
-             (-> schedule
-                 (blocks-for-courses (:optional program)
-                                     (blocks-timespan proposed))
-                 (remove-moves proposal-electives)
-                 (overlapping-schedule-blocks proposal-electives))))
-         flatten
-         (map (fn [blocks]
-                {:type :elective-course-overlap
-                 :concerning blocks}))))
-
+  (->> (for [[program prop-schedule]
+             (blocks-by-programs (proposal-new&moved proposal))]
+         (let [mandatory-courses (:mandatory program)]
+           (-> (:id program)
+               (q/program-schedule (schedule-timespan prop-schedule))
+               (remove-deleted&moved proposal)
+               (overlapping-schedule-blocks prop-schedule)
+               (->>
+                (map (fn [[b1 b2 :as blocks]]
+                       {:type (if (and (contains? mandatory-courses
+                                                  (-> b1 :item :course-id))
+                                       (contains? mandatory-courses
+                                                  (-> b2 :item :course-id)))
+                                :mandatory-course-overlap
+                                :elective-course-overlap)
+                        :concerning blocks}))))))
+       (apply concat)))
+(comment
   (defn check-room-overlaps [proposed]
     (->> (-> schedule
              (blocks-for-rooms (map :room proposed)
@@ -225,6 +201,4 @@
     [proposal :- Schedule]
     (->> proposal-checks
          (map #(% proposal))
-         flatten))
-
-  )
+         flatten)))

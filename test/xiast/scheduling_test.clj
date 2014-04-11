@@ -2,7 +2,7 @@
   (:use midje.sweet
         xiast.schema)
   (:require [xiast.scheduling :as sched]
-            [xiast.query :as query]
+            [xiast.query :as q]
             [schema.core :as s]))
 
 (def b1 {:id 1
@@ -62,12 +62,12 @@
 
 (fact
  "Sort blocks by programs"
- (sched/blocks-by-programs #{b1 b2 b3}) => {1 #{b1 b2}
-                                            2 #{b2}
-                                            3 #{b3}}
- (provided (query/course-programs "c1") => #{1}
-           (query/course-programs "c2") => #{1 2}
-           (query/course-programs "c3") => #{3}))
+ (sched/blocks-by-program-ids #{b1 b2 b3}) => {1 #{b1 b2}
+                                               2 #{b2}
+                                               3 #{b3}}
+ (provided (q/course-programs "c1") => #{1}
+           (q/course-programs "c2") => #{1 2}
+           (q/course-programs "c3") => #{3}))
 
 (fact
  "Remove deleted & moved from schedule"
@@ -80,3 +80,8 @@
 (fact
  "Total timespan calculation for schedule blocks"
  (sched/schedule-timespan s1-after-p1) => s1-after-p1-timespan)
+
+(fact
+ "Check mandatory courses"
+ (sched/check-mandatory-courses #{b1 b2})
+ (provided (q/)))
