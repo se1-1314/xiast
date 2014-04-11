@@ -15,6 +15,15 @@
     :department "DINF"
     :grade :ba}))
 
+(def course-activity-put-request
+  (write-str
+   {:type "HOC"
+    :semester 2
+    :week 0
+    :contact-time-hours 26
+    :instructor "testuser"
+    :facilities []}))
+
 (def program-add-request
   (write-str
    {:title "Test program"
@@ -53,7 +62,14 @@
               (fact (binding [*session* {:user-functions #{:program-manager}}]
                       (api/course-add course-add-request)) => {:result "OK"}
                     (provided
-                     (query/course-add! irrelevant) => nil))))
+                     (query/course-add! irrelevant) => nil)))
+       (facts "course-activity-put"
+              (api/course-activity-put 0 "") => {:result "Error"}
+              (api/course-activity-put 0 "[]") => {:result "Invalid JSON"}
+              (fact (api/course-activity-put 0 course-activity-put-request)
+                    => {:id 1}
+                    (provided
+                     (query/course-activity-update! irrelevant) => 1))))
 
 (facts "Program API functions work"
        (fact "program-get"
