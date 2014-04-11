@@ -95,6 +95,48 @@ function get_course_info(divID, course){
 
 }
 
+function print_student_courses(divID){
+	
+	return function(data){
+
+		var enrollments = data.enrollments;
+		console.log(enrollments);
+
+		$(divID).empty();
+		$(divID).append("<ul id='student_courses'></ul>");
+
+		$.each(enrollments, function(index, value){
+			$("#student_courses").append("<li>" + value.course + "</li>");
+		})
+	}
+}
+
+
+function list_courses_by_current_student(divID){
+	try {
+
+		if (typeof divID === 'undefined') {
+			throw("No div ID makes me cry");
+		}
+
+		var url = apienrollment("student");
+		console.log(url);
+
+		$.ajax({
+  				type: "GET",
+  				url: url,
+  				//success: process_JSON_program(divID),
+  				success: print_student_courses(divID),
+  				dataType: "JSON"
+				});
+
+	}catch(error) {
+		console.log(error);
+	}
+}
+
+
+
 $("#courses").on("mousedown", ".course-item", function (){
 	console.log(this);
 	$('.course-item').removeClass('active');

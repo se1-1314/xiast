@@ -226,6 +226,16 @@
                                 (query/courses *mock-data*)))
                  (t/translate-nodes)))))
 
+(defsnippet profile-body "templates/profile.html" [:div#page-content]
+  []
+  identity)
+
+(defroutes profile-routes
+  (GET "/profile" []
+       (base (-> (profile-body)
+                 (t/translate-nodes)))))
+
+
 (defroutes language-routes
   (GET "/lang/:locale" [locale]
     (assoc (resp/redirect "/")
@@ -244,6 +254,7 @@
   semi-scheduling-routes
   program-edit-routes
   classroom-edit-routes
+  profile-routes
   (route/not-found "Not found!"))
 
 
