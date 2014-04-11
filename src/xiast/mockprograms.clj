@@ -362,6 +362,3 @@ Inschrijven voor de bachelorproef kan indien het een inschrijving betreft waarbi
             :capacity 80
             :facilities {:beamer :overhead-projector}
             })
-
-
-
