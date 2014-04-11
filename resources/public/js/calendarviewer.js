@@ -17,20 +17,25 @@ $(document).ready(function() {
 			right: 'agendaWeek,agendaDay'
 		},
 		editable: true,
-		events: [{
-					title: 'Software engineering',
-					start: new Date(2014, 2, 12, 9, 0),
-					end: new Date(2014, 2, 12, 11, 0),
-					allDay: false
-				},
+		events: [
 				{
-					title: 'Some random class',
-					start: new Date(2014, 2, 13, 15, 0),
-					end: new Date(2014, 2, 13, 18, 0),
-					allDay: false
-				},
-
-				]
-
+					coursecode: '1000330ANR',
+					title: 'Vak',
+					start: new Date(y, m, d, 10, 30),
+					allDay: false,
+				}
+				,
+								{
+					coursecode: '1000332ANR',
+					title: 'Vak',
+					start: new Date(y, m, d, 18, 30),
+					allDay: false,
+				}
+				],
+		eventClick:  
+		function(calEvent, jsEvent, view) 
+		{
+        	get_facilities_course('#facilities', calEvent.coursecode);
+        }
 	});
 });

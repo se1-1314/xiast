@@ -87,7 +87,3 @@ function get_facilities_course(divID, course_code)
 			alert(error.message);
 		}
 }	
-
-$("#test").click(function(){
-	get_facilities_course('#facilities','1000330ANR');
-});
