@@ -33,8 +33,8 @@ function process_JSON_program(divID, root_key){
 				if ((key === 'programs') || (key === 'result')){
 
 					// variable creation
-					var id = -1;
-					var title = -1;
+					var id = -1
+					var title = -1
 
 					// because strange JSON constructions makes for multiple loops
 					$.each(val, function(key, val){
@@ -87,16 +87,6 @@ function list_programs(divID, keyword){
 		// Given a keyword: the command should be find.
 		// otherwise the command should be list (list every existing program)
 		var command = (typeof keyword === 'undefined') ? "list" : "find";
-		
-		/*
-		if (typeof keyword == 'undefined'){
-			command = "list";
-		}
-		else{
-			command = "find";
-		}
-		*/
-		
 		// Create API url ServerLove.js for more details
 		var url = apiprogram(command);
 
