@@ -246,8 +246,8 @@ Inschrijven voor de bachelorproef kan indien het een inschrijving betreft waarbi
 (def ba-IRCW3
   {:title "3e Bachelor Ingenieurswetenschappen - Computerwetenschappen"
    :description "Deze module (60 SP) is specifiek voor de Afstudeerrichting Elektronica en informatietechnologie, met het profiel Computerwetenschappen. Ze bestaat uit een submodule die gemeenschappelijk is voor alle studenten die de afstudeerrichting Elektronica en informatietechnologie hebben gekozen en een submodule specifiek voor het profiel Computerwetenschappen. De studenten moeten alle studiedelen uit beide modules verplicht voltooien. Deze studiedelen behoren tot het derde jaar van het voltijds modeltraject bachelor (Bachelor 3). Bij een eerste inschrijving in de bacheloropleiding is het niet toegelaten reeds in te schrijven voor studiedelen uit deze module. Studenten mogen pas inschrijven voor studiedelen uit 'Jaar 3 van het voltijds modeltraject BA IR – EIT Computerwetenschappen' indien zij reeds de credits verworven hebben voor het technologieproject 'Informatie en communicatietechnologie' en ten minste één van de 3 andere technologieprojecten (Leefmilieu en duurzame materialen of Werktuigkunde en Elektrotechniek of Informatie en communicatietechnologie) uit de module ‘Technologieprojecten in opleidingsateliers' van 'Jaar 2 van het modeltraject BA IR' of voor deze 2 technologieprojecten inschrijven samen met de studiedelen uit de afstudeerrichtingsmodule. Studenten moeten voldoen aan de aan elk van de studiedelen verbonden specifieke inschrijvingsvereisten."
-   :mandatory ["1004483BNR", "1007156ANR", "1000447ANR", "1001673BNR", "1015259ANR"]
-   :optional [""]})
+   :mandatory ["1004483BNR", "1007156ANR", "1000447ANR", "1001673BNR"] ;; SE, Inl. DB, Grondsl.1, TELE
+   :optional ["1015259ANR", "1018725AER"]})  ;; A&D I, Soc. Psych
 
 ;; Persons
 ;; =======
