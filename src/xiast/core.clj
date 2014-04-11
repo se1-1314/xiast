@@ -226,15 +226,36 @@
                                 (query/courses *mock-data*)))
                  (t/translate-nodes)))))
 
-(defsnippet profile-body "templates/profile.html" [:div#page-content]
+(defsnippet profile-student-body "templates/profile-student.html" [:div#page-content]
+  []
+  identity)
+(defsnippet profile-titular-body "templates/profile-titular.html" [:div#page-content]
+  []
+  identity)
+(defsnippet profile-program-manager-body "templates/profile-program-manager.html" [:div#page-content]
   []
   identity)
 
+   [:div#student] (if (contains? (set (:user-functions *session*)) :student)
+                  identity
+                   nil)
+    ;[:div#titular] (if (contains? (set (:user-functions *session*)) :titular)
+     ;              identity
+      ;             nil)
+    ;[:div#program-manager] (if (contains? (set (:user-functions *session*)) :program-manager)
+     ;       identity
+      ;      nil)
+      
+      
 (defroutes profile-routes
   (GET "/profile" []
-       (base (-> (profile-body)
+       (base (-> 
+                 (cond 
+                   (contains? (set (:user-functions *session*)) :student) (profile-student-body)
+                   (contains? (set (:user-functions *session*)) :titular) (profile-titular-body)
+                   (contains? (set (:user-functions *session*)) :program-manager) (profile-program-manager-body)
+                   :else nil)
                  (t/translate-nodes)))))
-
 
 (defroutes language-routes
   (GET "/lang/:locale" [locale]
