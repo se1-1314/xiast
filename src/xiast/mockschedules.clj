@@ -39,6 +39,14 @@
       (union (gen-activity-schedule-blocks [fromweek tillweek] day-hoc [fromslot-hoc tillslot-hoc] (first scheduled-course-activities) (room-hoc :id))
         (gen-activity-schedule-blocks [fromweek tillweek] day-wpo [fromslot-wpo tillslot-wpo] (last scheduled-course-activities) (room-wpo :id))))))
 
+;; FIXME: Dirty: needed for testcases scheduler clashes:mandatory<|> mandatory, mandatory <|> optional, optional <|> optional, no clash (more information: aleijnse) (lavholsb)
+(defn gen-course-schedule-blocks-hoc-only [course [fromweek tillweek] day-hoc [fromslot-hoc tillslot-hoc] room-hoc]
+  "Generates scheduleblocks for a course given start/endweek, day, start/endslot roomid, ONLY FOR THE HOC!"
+  (let
+    [scheduled-course-activities (course-to-scheduled-course-activities course)]
+    (set
+      (gen-activity-schedule-blocks [fromweek tillweek] day-hoc [fromslot-hoc tillslot-hoc] (first scheduled-course-activities) (room-hoc :id)))))
+
 ;; -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 (def ba_cw1_schedule
@@ -58,3 +66,13 @@
     (gen-course-schedule-blocks xmps/social-psychology [2 6] 4 [13 16] xmps/D0-03 4 [17 20] xmps/D0-03)))
 
 
+(def mandatory1 (gen-course-schedule-blocks-hoc-only xmps/introduction-to-databases [2 2] 1 [5 8] xmps/F4-412)) ;; mandatory -> overlap 1
+(def mandatory2 (gen-course-schedule-blocks-hoc-only xmps/foundations-of-informatics1 [2 2] 1 [7 10] xmps/F5-403)) ;; mandatory -> overlap 1, 2
+(def optional1 (gen-course-schedule-blocks-hoc-only xmps/social-psychology [2 2] 1 [9 12] xmps/D0-03)) ;; optional -> overlap 2
+(def optional2 (gen-course-schedule-blocks-hoc-only xmps/algorithms-and-datastructures1 [2 2] 1 [11 14] xmps/E0-05)) ;; optional  -> no overlap
+(def check-overlap-results #{{:type :mandatory-course-overlap
+                              :concerning #{mandatory1 mandatory2}}
+                             {:type :elective-course-overlap
+                              :concerning #{mandatory2 optional1}}})
+(def ba_IRCW3
+  (union mandatory1 mandatory2 optional1 optional2))
