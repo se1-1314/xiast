@@ -119,16 +119,27 @@ html, body, .wrapper {
 }
 
 .listing{
-  height: 75%;
-  width: 80%;
+  height: 500px;
+  width: 90%;
   overflow-y: auto;
 }
 
 .list-item{
-  background-color: #2CF506;
+  background-color: #0101DF;
+  color: #999;
   margin-top: 5px;
   margin-bottom: 5px;
-  width: 100%;
+  width: 95%;
+}
+
+.program-item.active{
+  background-color: #FFBF00;
+  color: #101010;
+}
+
+.course-item.active{
+  background-color: #FFBF00;
+  color: #101010;
 }
 
 #program-search{
