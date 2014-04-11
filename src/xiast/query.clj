@@ -43,10 +43,15 @@
         ((comp :netid first)
          (select course-instructor
                  (where {:course-activity (:id course-activity)})))]
-    {:type (val (find course-activity-types (:type course-activity)))
+    {:id (:id course-activity)
+     :type (val (find course-activity-types (:type course-activity)))
      :semester (:semester course-activity)
      :week (:week course-activity)
      :contact-time-hours (:contact-time-hours course-activity)
+     :facilities (set (map #(get room-facilities (:facility %))
+                           (select course-activity-facility
+                                   (where {:course-activity
+                                           (:id course-activity)}))))
      :instructor instructor-id}))
 
 (defn course->sCourse
@@ -233,7 +238,10 @@
   "Add a new activity to a course."
   (let [course (select course (where {:course-code course-code}))]
     (if (not (empty? course))
-      (let [key
+      (let [facilities
+            (map #(% (map-invert room-facilities))
+                 (:facilities activity))
+            key
             (:GENERATED_KEY
              (insert course-activity
                      (values {:course-code course-code
@@ -247,8 +255,10 @@
                 (values {:course-activity key
                          :netid (person-create!
                                  (:instructor activity))}))
-        ;; Return newly created course-activity map.
-        (assoc activity :id key)))))
+        (doseq [facility facilities]
+          (insert course-activity-facility
+                  (values {:course-activity key
+                           :facility facility})))))))
 
 (s/defn course-add! :- s/Any
   [new-course :- xs/Course]
@@ -293,6 +303,14 @@
     (if (not (empty? course))
       (course->sCourse (first course))
       nil)))
+
+(s/defn course-activity-get :- xs/CourseActivity
+  [id :- s/Int]
+  (let [result (select course-activity
+                       (where {:id id}))]
+    (if (empty? result)
+      nil
+      (course-activity->sCourseActivity (first result)))))
 
 (s/defn course-list :- [xs/Course]
   []
