@@ -11,7 +11,6 @@
             [schema.utils :as utils]
             [schema.coerce :as coerce]))
 
-;; TODO: Write some API docs (nvgeele)
 ;; TODO: Define standard error message + HTTP error code (nvgeele)
 ;; TODO: Return correct json on empty returns (nvgeele)
 
