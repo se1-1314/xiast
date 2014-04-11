@@ -135,6 +135,19 @@ function list_programs(divID, keyword){
 	}
 }
 
+
+function find_programs(divID){
+	console.log(divID);
+	var form = $("#program-search")[0];
+	var keyword = form.keyword.value;
+	form.keyword.value = "";
+	console.log(keyword);
+
+	list_programs(divID, keyword);
+
+	return false;
+}
+
 $("#programs").on("mousedown", ".program-item", function (){
 	console.log(this.id);
 	//console.log(this);
@@ -143,3 +156,6 @@ $("#programs").on("mousedown", ".program-item", function (){
 	list_courses_by_program("#courses", this.id);
 })
 
+$("#search_button").click(function(){
+	console.log($("#program-search"));
+})

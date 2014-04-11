@@ -8,11 +8,11 @@
 		<div class="col-md-4">
 			<h2 msg="program-edit/programs">Programs</h2>
 
-			<form class="form-inline" id="program-search" role="search">
+			<form class="form-inline" id="program-search" role="search" onSubmit="return find_programs('#PE-program-list')">
 				<div class="form-group">
-					<input type="text" class="form-control" placeholder="Search">
+					<input id="keyword" name="keyword" type="text" class="form-control" placeholder="Search">
 				</div>
-				<button type="submit" class="btn btn-default">Submit</button>
+				<button id="search_button" class="btn btn-success">Submit</button>
 			</form>
 			<div id="PE-program-list">
 				<ul class="listing">
@@ -60,6 +60,8 @@
 	<script src="/js/programAPI.js" type="text/javascript"></script>
 	<script src="/js/semi-schedulingAPI.js" type="text/javascript"></script>
 	<script src="/js/program-editAPI.js" type="text/javascript"></script>
-
+	<script type="text/javascript">
+		list_programs("#PE-program-list");
+	</script>
 </div>
 </html>

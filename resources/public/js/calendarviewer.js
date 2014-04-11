@@ -11,6 +11,7 @@ $(document).ready(function() {
 	$('#schedule-content').fullCalendar({
 		aspectRatio: 2,
 		defaultView: 'agendaWeek',
+		eventDurationEditable: false,
 		header: {
 			left: 'prev,next today',
 			center: 'title',
