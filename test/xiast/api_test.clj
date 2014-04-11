@@ -85,3 +85,9 @@
               (fact (api/program-add program-add-request) => {:result "OK"}
                     (provided
                      (query/program-add! irrelevant) => nil))))
+
+(fact "Enrollment API"
+      (fact (binding [*session* {:user "testuser"}]
+              (api/enrollment-student)) => {:enrollments nil}
+            (provided
+             (query/enrollments-student irrelevant) => nil)))

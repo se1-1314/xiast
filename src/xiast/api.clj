@@ -187,8 +187,12 @@
 ;; Enrollment API
 
 (defn enrollment-student
-  [id]
-  {:enrollments (query/enrollments-student id)})
+  ([]
+     (if (:user *session*)
+       {:enrollments (query/enrollments-student (:user *session*))}
+       []))
+  ([id]
+     {:enrollments (query/enrollments-student id)}))
 
 (defn enrollment-course
   [id]
@@ -197,6 +201,8 @@
 (defroutes enrollment-routes
   (GET "/" []
        "Invalid request")
+  (GET "/student" []
+       ((wrap-api-function enrollment-student)))
   (GET "/student/:id" [id]
        ((wrap-api-function enrollment-student) id))
   (GET "/course/:id" [id]
