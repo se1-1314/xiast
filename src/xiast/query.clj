@@ -43,7 +43,8 @@
         ((comp :netid first)
          (select course-instructor
                  (where {:course-activity (:id course-activity)})))]
-    {:type (val (find course-activity-types (:type course-activity)))
+    {:id (:id course-activity)
+     :type (val (find course-activity-types (:type course-activity)))
      :semester (:semester course-activity)
      :week (:week course-activity)
      :contact-time-hours (:contact-time-hours course-activity)
@@ -293,6 +294,14 @@
     (if (not (empty? course))
       (course->sCourse (first course))
       nil)))
+
+(s/defn course-activity-get :- xs/CourseActivity
+  [id :- s/Int]
+  (let [result (select course-activity
+                       (where {:id id}))]
+    (if (empty? result)
+      nil
+      (course-activity->sCourseActivity (first result)))))
 
 (s/defn course-list :- [xs/Course]
   []
