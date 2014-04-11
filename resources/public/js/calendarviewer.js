@@ -20,15 +20,15 @@ $(document).ready(function() {
 		events: [
 				{
 					coursecode: '1000330ANR',
-					title: 'Vak',
+					title: 'Vak1',
 					start: new Date(y, m, d, 10, 30),
 					allDay: false,
 				}
 				,
 								{
 					coursecode: '1000332ANR',
-					title: 'Vak',
-					start: new Date(y, m, d, 18, 30),
+					title: 'Vak2',
+					start: new Date(y, m, d, 15, 30),
 					allDay: false,
 				}
 				],

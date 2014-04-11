@@ -34,10 +34,9 @@ function show_facilities_course(divID)
 {
 	return function(data)
 	{
-		$("#beamer").prop("checked","false");
-		$("#overhead-projector").prop("checked","false");
-		$("#speakers").prop("checked","false");
-		
+		$("#beamer").prop('checked', false);
+		$("#overhead-projector").prop('checked', false);
+		$("#speakers").prop('checked', false);
 		$.each(data, function(key, val) 
 		{
 			if (key === 'activities')
@@ -46,26 +45,26 @@ function show_facilities_course(divID)
 				{
 					$.each(val, function(key, val)
 					{
-							if (key == 'facilities')
+						if (key == 'facilities')
+						{
+							var i;
+							var l = val.length;
+							for ( i = 0; i < l; ++i) 
 							{
-								var i;
-								var l = val.length;
-								for ( i = 0; i < l; ++i) 
+								if(val[i] == 'beamer')
 								{
-									if(val[i] == 'beamer')
-									{
-										$("#beamer").prop("checked","true");
-									}
-									else if(val[i] == 'overhead-projector')
-									{
-										$("#overhead-projector").prop("checked","true");
-									}
-									else if(val[i] == 'speakers')
-									{
-										$("#speakers").prop("checked","true");
-									}
+									$("#beamer").prop('checked', true);
+								}
+								else if(val[i] == 'overhead-projector')
+								{
+									$("#overhead-projector").prop('checked', true);
+								}
+								else if(val[i] == 'speakers')
+								{
+									$("#speakers").prop('checked', true);
 								}
 							}
+						}
 					});
 				});
 			}
