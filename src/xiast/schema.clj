@@ -21,7 +21,7 @@
   {:netid PersonID
    :first-name s/Str
    :last-name s/Str
-   :locale s/Str})
+   :locale s/Str})    ;; TODO: ?? maybe ENUM is better  (lavholsb)
 (def StudyActivityType (s/enum :HOC :WPO))
 (def Degree (s/enum :ma :ba :manama :schakel :voorbereiding))
 (def SessionSemester (s/enum :1 :2 :1+2))
@@ -33,18 +33,19 @@
 (def CourseActivityType (s/enum :HOC :WPO))
 (def CourseActivity {(s/optional-key :activity-id) s/Int
                      :type CourseActivityType
-                     :semester s/Int
+                     :semester s/Int   ;; TODO: ?? maybe using sessionsemester (lavholsb)
                      :week s/Int
                      :contact-time-hours s/Int
                      ;; TODO: fix support for multiple instructors/activity (nvgeele)
                      ;; TODO: course facility requirements (nvgeele)
+                     :facilities #{RoomFacility}
                      :instructor PersonID})
 (def Course {:course-code CourseCode
              :title s/Str
              :description s/Str
-             :titular-id PersonID
+             :titular PersonID
              (s/optional-key :instructors) #{PersonID}
-             :department DepartmentName
+             :department DepartmentName   ;; TODO: ?? maybe using DepartmentID? WE <> DINF? (lavholsb)
              :grade (s/enum :ba :ma)
              (s/optional-key :activities) #{CourseActivity}})
 (def ProgramID s/Int)
@@ -54,6 +55,8 @@
               (s/optional-key :manager) PersonID
               :mandatory [CourseCode]
               :optional [CourseCode]})
+(def Enrollment {:course CourseCode
+                 :netid PersonID})
 (def Subscription {:person-id PersonID
                    :course-code CourseCode})
 (def AcademicWeek (s/one s/Int "Week on the academic calendar: 1-52"))

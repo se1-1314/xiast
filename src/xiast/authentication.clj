@@ -51,4 +51,6 @@
 
 (defn logout
   [session]
-  (apply dissoc session [:user :user-functions]))
+  (apply dissoc session [:user :user-functions
+                         :first-name :last-name
+                         :netid]))
