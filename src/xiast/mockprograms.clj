@@ -145,7 +145,7 @@ De inhoud van het theoretisch gedeelte:
    :titular-id "0062333"
    :instructors #{"0062333"} ;; Van der Straeten
    :department "DINF"
-   :grade :ba:
+   :grade :ba
    :activities (union (gencourseactivities :HOC 3 [2 36] 2 "0062333"))
    })
 (def teleprocessing
@@ -315,5 +315,3 @@ Inschrijven voor de bachelorproef kan indien het een inschrijving betreft waarbi
                     :first-name "Frank"
                     :last-name "Van Overwalle"
                     :locale "Dutch"})
-
-
