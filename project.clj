@@ -16,11 +16,12 @@
                  [korma "0.3.0-RC6"]
                  [org.xerial/sqlite-jdbc "3.7.2"]
                  [mysql/mysql-connector-java "5.1.25"]
-                 [slingshot "0.10.3"]
+                 [org.clojure/math.combinatorics "0.0.7"]
                  [clj-time "0.6.0"]
+                 [slingshot "0.10.3"]
                  [midje "1.6.3"]]
   :plugins [[lein-ring "0.8.8"]
-            [lein-midje "3.1.1"]]
+            [lein-midje "3.1.3"]]
   :main ^:skip-aot xiast.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}
