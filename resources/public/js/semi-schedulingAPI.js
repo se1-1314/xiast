@@ -34,7 +34,10 @@ function show_facilities_course(divID)
 {
 	return function(data)
 	{
-		var facilities = [];
+		$("#beamer").prop("checked","false");
+		$("#overhead-projector").prop("checked","false");
+		$("#speakers").prop("checked","false");
+		
 		$.each(data, function(key, val) 
 		{
 			if (key === 'activities')
@@ -45,23 +48,28 @@ function show_facilities_course(divID)
 					{
 							if (key == 'facilities')
 							{
-									var i;
-									var l = val.length;
-									for ( i = 0; i < l; ++i) {
-										facilities.push('<li>' + val[i] + '</li>');
+								var i;
+								var l = val.length;
+								for ( i = 0; i < l; ++i) 
+								{
+									if(val[i] == 'beamer')
+									{
+										$("#beamer").prop("checked","true");
 									}
+									else if(val[i] == 'overhead-projector')
+									{
+										$("#overhead-projector").prop("checked","true");
+									}
+									else if(val[i] == 'speakers')
+									{
+										$("#speakers").prop("checked","true");
+									}
+								}
 							}
 					});
 				});
 			}
 		});
-				$(divID).empty();
-				$(divID).append("<ul id='facilities-list'></ul>");
-	
-				$.each(facilities, function(index, value) 
-				{
-					$("#facilities-list").append(value);
-				});
 	};	
 }
 
