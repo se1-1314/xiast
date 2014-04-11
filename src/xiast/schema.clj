@@ -27,9 +27,9 @@
 (def SessionSemester (s/enum :1 :2 :1+2))
 (def CourseCode s/Str)
 (def DepartmentName s/Str)
-(def Department {:id s/Int
+(def Department {(s/optional-key :id) s/Int
                  :name DepartmentName
-                 (s/optional-key :faculty) s/Str})
+                 :faculty s/Str})
 (def CourseActivityType (s/enum :HOC :WPO))
 (def CourseActivity {(s/optional-key :id) s/Int
                      :type CourseActivityType

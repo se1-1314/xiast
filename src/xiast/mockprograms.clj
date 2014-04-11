@@ -36,7 +36,7 @@ gebruiken van  wiskundig formalisme."
    :instructors #{"1000127", "0084047"} ;; Jespers, Thumas
    :department "DINF"
    :grade :ba
-   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 2 :instructor "100127" :facilities #{}}
+   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 2 :instructor "1000127" :facilities #{}}
                  {:type :WPO :semester 1 :week 0 :contact-time-hours 2 :instructor "0084047" :facilities #{}}}
    })
 (def foundations-of-informatics1
@@ -224,7 +224,7 @@ Les 9: Hoofdstuk 7 - Attitudes: Resistance, Behavior & Advertising"
    :instructors #{"3596346"} ;; Van Overwalle (random)
    :department "EXTO"
    :grade :ba
-   :activities #{{:type :HOC :semester 1 :weel 0 :contact-time-hours 3 :instructor "3596346" :facilities #{}}}
+   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 3 :instructor "3596346" :facilities #{}}}
    })
 
 ;; Programs
@@ -351,9 +351,9 @@ Inschrijven voor de bachelorproef kan indien het een inschrijving betreft waarbi
              :facilities #{:beamer :overhead-projector}
              })
 (def E0-04 {:id {:building "E", :floor 0, :number 04}
-             :capacity 100
-             :facilities #{:beamer :overhead-projector}
-             })
+            :capacity 100
+            :facilities #{:beamer :overhead-projector}
+            })
 (def E0-05 {:id {:building "E", :floor 0, :number 05}
             :capacity 80
             :facilities #{:beamer :overhead-projector}
@@ -362,3 +362,16 @@ Inschrijven voor de bachelorproef kan indien het een inschrijving betreft waarbi
             :capacity 80
             :facilities #{:beamer :overhead-projector}
             })
+
+;; Departments
+;; ===========
+(def DINF {:name "DINF"
+           :faculty "WE"})
+(def DWIS {:name "DWIS"
+           :faculty "WE"})
+(def ETRO {:name "ETRO"
+           :faculty "IR"})
+(def BEDR {:name "BEDR"
+           :faculty "ES"})
+(def EXTO {:name "EXTO"
+           :faculty "PE"})
