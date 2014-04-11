@@ -58,6 +58,7 @@
        "</a>"
        "<ul class=\"dropdown-menu\">"
        "<li><a href=\"/logout\">Logout</a></li>"
+       "<li><a href=\"/profile\">Profile</a></li>"
        "</ul>"
        "</li>"))
 
