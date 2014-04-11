@@ -1,4 +1,6 @@
 (ns xiast.mockprograms
+  (:import [java.awt.image AffineTransformOp]
+           [com.sun.nio.file ExtendedOpenOption])
   "This namespace provides dummydata in the shape of programs, given at the VUB university.
   More information on the internal structure of a studyprogram can be found in schema.clj"
   (:require [xiast.schema :as xs]
@@ -351,9 +353,9 @@ Inschrijven voor de bachelorproef kan indien het een inschrijving betreft waarbi
              :facilities #{:beamer :overhead-projector}
              })
 (def E0-04 {:id {:building "E", :floor 0, :number 04}
-             :capacity 100
-             :facilities #{:beamer :overhead-projector}
-             })
+            :capacity 100
+            :facilities #{:beamer :overhead-projector}
+            })
 (def E0-05 {:id {:building "E", :floor 0, :number 05}
             :capacity 80
             :facilities #{:beamer :overhead-projector}
@@ -362,3 +364,16 @@ Inschrijven voor de bachelorproef kan indien het een inschrijving betreft waarbi
             :capacity 80
             :facilities #{:beamer :overhead-projector}
             })
+
+;; Departments
+;; ===========
+(def DINF {:department "DINF"
+           :faculty "WE"})
+(def DWIS {:department "DWIS"
+           :faculty "WE"})
+(def ETRO {:department "ETRO"
+           :faculty "IR"})
+(def BEDR {:department "BEDR"
+           :faculty "ES"})
+(def EXTO {:department "EXTO"
+           :faculty "PE"})
