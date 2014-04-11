@@ -94,17 +94,24 @@
 (defroutes course-routes
   (GET "/" []
        "Invalid request")
+  ;; Returns a map with courses currently in the database:
+  ;; { {"course-code":"1000428ANR","title":"Structuur 1\r","description":null,"titular":"0006101","grade":"ba","department":"INFORMAT","activities":[{"id":20,"type":"WPO","semester":1,"week":0,"contact-time-hours":39,"facilities":[],"instructor":"0075773"},{"id":19,"type":"HOC","semester":1,"week":0,"contact-time-hours":39,"facilities":[],"instructor":null}],"instructors":[null,"0075773"]}, {...} }
   (GET "/list" []
        ((wrap-api-function course-list)))
+  ;; /get/course-code -- Returns the corrseponding course given a course-code
   (GET "/get/:course-code" [course-code]
        ((wrap-api-function course-get) course-code))
+  ;; /del/course-code -- if authorized, removes the corrseponding course given a course-code
   (DELETE "/del/:course-code" [course-code]
           ((wrap-api-function course-delete) course-code))
+   ;; /find -- expects raw JSON: searches for course-names given a keyword -- p.e.: { "keywords":["Structuur"]} -> returns all courses containing "structuur" in their name
   (POST "/find" {body :body}
         ((wrap-api-function course-find) (slurp body)))
+  ;; /add --   expects raw : adds a course to the database, given the structure defined in schema.clj -- p.e.: {"course-code":".." "title":".." "description":".." "titular":".." "department":".." "grade":".."}
   (POST "/add" {body :body}
         ((wrap-api-function course-add) (slurp body)))
   ;; TODO: add activity by API, maybe
+  ;;  /activity/get/id -- return a course activity given its id -- p.e. http://localhost:3000/api/course/activity/get/10 -> {"id":10,"type":"WPO","semester":1,"week":0,"contact-time-hours":32,"facilities":[],"instructor":null}
   (GET "/activity/get/:id" [id]
        ((wrap-api-function course-activity-get) id)))
 
