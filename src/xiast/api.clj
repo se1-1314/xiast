@@ -96,14 +96,14 @@
     activity
     []))
 
-;; TODO: security + testing! (nvgeele)
+;; TODO: security; check if program manager! (nvgeele)
 (defn course-activity-put
   [id body]
   (try+ (let [request (coerce-as CourseActivityAPI body)
               activity (assoc (dissoc request :facilities)
                          :facilities (set (:facilities request)))]
           (let [new-id (query/course-activity-update! (assoc activity :id id))]
-            {:result new-id}))
+            {:id new-id}))
         (catch [:type :coercion-error] e
           {:result "Invalid JSON"})
         (catch Exception e
