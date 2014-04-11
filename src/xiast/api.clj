@@ -85,6 +85,12 @@
         (catch Exception e
           {:result "Error"})))
 
+(defn course-activity-get
+  [id]
+  (if-let [activity (query/course-activity-get id)]
+    activity
+    []))
+
 (defroutes course-routes
   (GET "/" []
        "Invalid request")
@@ -97,7 +103,10 @@
   (POST "/find" {body :body}
         ((wrap-api-function course-find) (slurp body)))
   (POST "/add" {body :body}
-        ((wrap-api-function course-add) (slurp body))))
+        ((wrap-api-function course-add) (slurp body)))
+  ;; TODO: add activity by API, maybe
+  (GET "/activity/get/:id" [id]
+       ((wrap-api-function course-activity-get) id)))
 
 ;; Program API
 
