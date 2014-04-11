@@ -20,23 +20,24 @@
 (defmacro bind-entities
   [f & ents]
   `(binding [~@(mapcat identity
-                       (for [ent ents]
+                       (for [ent (eval (first ents))]
                          [ent `(-> (create-entity ~(name ent))
                                    (database test-db))]))]
      (~f)))
 
+(def tables
+  '(room room-facility course course-activity course-activity-facility
+         course-enrollment course-instructor department person program
+         program-choice-course program-mandatory-course room room-facility
+         subscription session))
+
 (defn wrap-with-test-database
   [f]
-  (bind-entities
-   f room room-facility course course-activity course-activity-facility
-   course-enrollment course-instructor department person program
-   program-choice-course program-mandatory-course room room-facility
-   subscription session))
+  (bind-entities f tables))
 
 (defn reset-schema
   []
-  (doseq [sql [ "DELETE FROM `room-facility`;"
-                "DELETE FROM `room`;"]]
+  (doseq [sql (map #(format "DELETE FROM `%s`;" %) tables)]
     (exec-raw test-db sql)))
 
 (def test-rooms
