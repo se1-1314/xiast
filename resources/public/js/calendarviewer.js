@@ -19,14 +19,14 @@ $(document).ready(function() {
 		editable: true,
 		events: [
 				{
-					coursecode: '1000330ANR',
+					course_activity_id: '7',
 					title: 'Vak1',
 					start: new Date(y, m, d, 10, 30),
 					allDay: false,
 				}
 				,
 								{
-					coursecode: '1000332ANR',
+					course_activity_id: '8',
 					title: 'Vak2',
 					start: new Date(y, m, d, 15, 30),
 					allDay: false,
@@ -35,7 +35,7 @@ $(document).ready(function() {
 		eventClick:  
 		function(calEvent, jsEvent, view) 
 		{
-        	get_facilities_course(calEvent.coursecode);
+        	get_facilities_course(calEvent.course_activity_id);
         }
 	});
 });
