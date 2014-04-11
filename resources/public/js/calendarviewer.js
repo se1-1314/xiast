@@ -35,7 +35,7 @@ $(document).ready(function() {
 		eventClick:  
 		function(calEvent, jsEvent, view) 
 		{
-        	get_facilities_course('#facilities', calEvent.coursecode);
+        	get_facilities_course(calEvent.coursecode);
         }
 	});
 });

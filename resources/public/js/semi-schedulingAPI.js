@@ -30,10 +30,11 @@ Returns: a string (or array) containing the selected facilities
 Creation Date: 10/04/2014
 !We gaan hier vanuit dat we vakken kunnen selecteren en dus de bijhorende courseid kunnen opvragen!
 */
-function show_facilities_course(divID)
+function show_facilities_course()
 {
 	return function(data)
 	{
+		alert(coursecode);
 		$("#beamer").prop('checked', false);
 		$("#overhead-projector").prop('checked', false);
 		$("#speakers").prop('checked', false);
@@ -73,19 +74,16 @@ function show_facilities_course(divID)
 }
 
 
-function get_facilities_course(divID, course_code)
+function get_facilities_course(course_code)
 {
 	try {
-			if (typeof divID === 'undefined')
-			{
-				throw("divID undefined");
-			}
 			var url = apicourse('get/' + course_code);
+			coursecode = course_code;
 			$.ajax(
 				{
 			  		type: "GET",
 			  		url: url,
-			  		success: show_facilities_course(divID),
+			  		success: show_facilities_course(),
 			  		dataType: "JSON"
 				});	
 		}
@@ -93,4 +91,23 @@ function get_facilities_course(divID, course_code)
 		{
 			alert(error.message);
 		}
-}	
+}
+var coursecode = '';
+
+function set_facilities_course(course_code)
+{
+	try {
+			var url = apicourse('delete/' + course_code);
+			$.ajax(
+				{
+			  		type: "DELETE",
+			  		url: url,
+			  		success: show_facilities_course(),
+			  		dataType: "JSON"
+				});	
+		}
+	catch(error) 
+		{
+			alert(error.message);
+		}
+}
