@@ -59,8 +59,6 @@ function process_JSON_program(divID, key){
 			$(divID).empty();
 			$(divID).append("<ul id='program-list' class='listing'></ul>");
 
-			$("#program-list").append("<h2>Programs</h2>");
-
 			$.each(programs, function(index, value) {
 				$("#program-list").append(value);
 			});
@@ -148,6 +146,42 @@ function find_programs(divID){
 	return false;
 }
 
+function create_program_success(data){
+	console.log(data);
+}
+
+function create_program(){
+	
+	var form = $("#program-creation")[0];
+
+	var title = form.title.value;
+	var description = form.description.value;
+
+	var data = new Object();
+	data.title = title;
+	data.description = description;
+	data.mandatory = [];
+	data.optional = []
+	data = JSON.stringify(data);
+
+	url = apiprogram("add");
+
+	$.ajax({
+			type: "POST",
+			url: url,
+		  	data: data, 
+		  	processData: false,
+		  	contentType: "application/json",
+		  	success: create_program_success,
+		  	dataType: "JSON",
+
+	});
+
+	console.log(data);
+
+	return false;
+}
+
 $("#programs").on("mousedown", ".program-item", function (){
 	console.log(this.id);
 	//console.log(this);
@@ -156,6 +190,10 @@ $("#programs").on("mousedown", ".program-item", function (){
 	list_courses_by_program("#courses", this.id);
 })
 
-$("#search_button").click(function(){
-	console.log($("#program-search"));
+$("#PE-program-list").on("mousedown", ".program-item", function (){
+	console.log(this.id);
+	//console.log(this);
+	$('.program-item').removeClass('active');
+	$(this).addClass('active');
+	list_courses_by_program("#PE-course-list", this.id);
 })
