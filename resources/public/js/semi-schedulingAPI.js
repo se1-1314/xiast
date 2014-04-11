@@ -43,26 +43,14 @@ function show_facilities_course(divID)
 				{
 					$.each(val, function(key, val)
 					{
-						if (key == 'course_facility_requirements')
-						{
-							$.each(val, function(key, val)
+							if (key == 'facilities')
 							{
-								if (key == 'facilities')
-								{
-									$.each(val, function(key, val)
-									{
-										if (key == 'enum')
-										{
-											
-											$.each(val, function(key, val)
-											{
-												facilities.push("<li>" +  val + "</li>");
-											});
-										}
-									});
-								}
-							});
-						}
+									var i;
+									var l = val.length;
+									for ( i = 0; i < l; ++i) {
+										facilities.push('<li>' + val[i] + '</li>');
+									}
+							}
 					});
 				});
 			}
@@ -72,10 +60,11 @@ function show_facilities_course(divID)
 	
 				$.each(facilities, function(index, value) 
 				{
-					$("#facilities").append(value);
+					$("#facilities-list").append(value);
 				});
 	};	
 }
+
 
 function get_facilities_course(divID, course_code)
 {
@@ -100,5 +89,5 @@ function get_facilities_course(divID, course_code)
 }	
 
 $("#test").click(function(){
-	get_facilities_course('facilities','1000330ANR');
+	get_facilities_course('#facilities','1000330ANR');
 });
