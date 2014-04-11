@@ -29,7 +29,8 @@
         ((comp :netid first)
          (select course-instructor
                  (where {:course-activity (:id course-activity)})))]
-    {:type (val (find course-activity-types (:type course-activity)))
+    {:id (:id course-activity)
+     :type (val (find course-activity-types (:type course-activity)))
      :semester (:semester course-activity)
      :week (:week course-activity)
      :contact-time-hours (:contact-time-hours course-activity)
@@ -99,9 +100,18 @@
 ;; PUBLIC API
 
 (s/defn room-list :- [xs/Room]
-  []
-  "Get a list of all of rooms"
-  (map room->sRoom (select room)))
+  ([]
+     "Get a list of all of rooms"
+     (map room->sRoom (select room)))
+  ([building]
+     "Get a list of all rooms in a building"
+     (map room->sRoom (select room
+                              (where {:building building}))))
+  ([building floor]
+     "Get a list of all rooms on a floor in a building"
+     (map room->sRoom (select room
+                              (where {:building building
+                                      :floor floor})))))
 
 (s/defn room-add! :- s/Any
   [new-room :- xs/Room]
@@ -110,7 +120,7 @@
         (map #(% (map-invert room-facilities))
              (:facilities new-room))
         room-id
-        (:id new-room)
+        (dissoc (:id new-room) :id)
         vals
         (merge {:capacity (:capacity new-room)}
                room-id)
@@ -124,11 +134,11 @@
                        :facility facility})))))
 
 (s/defn room-delete! :- s/Any
-  [room-id :- s/Int]
+  [room-id :- xs/RoomID]
   "Delete a room from the database."
   ;; Do we need to check if the room exists first or not? (nvgeele)
   (delete room
-          (where {:id room-id})))
+          (where room-id)))
 
 (s/defn room-get :- xs/Room
   [room-id :- xs/RoomID]
@@ -214,7 +224,10 @@
   "Add a new activity to a course."
   (let [course (select course (where {:course-code course-code}))]
     (if (not (empty? course))
-      (let [key
+      (let [facilities
+            (map #(% (map-invert room-facilities))
+                 (:facilities activity))
+            key
             (:GENERATED_KEY
              (insert course-activity
                      (values {:course-code course-code
@@ -228,8 +241,10 @@
                 (values {:course-activity key
                          :netid (person-create!
                                  (:instructor activity))}))
-        ;; Return newly created course-activity map.
-        (assoc activity :id key)))))
+        (doseq [facility facilities]
+          (insert course-activity-facility
+                  (values {:course-activity key
+                           :facility facility})))))))
 
 (s/defn course-add! :- s/Any
   [new-course :- xs/Course]
@@ -242,11 +257,11 @@
             (values
              (merge
               (dissoc new-course
-                      :instructors :department :grade :activities :titular-id)
+                      :instructors :department :grade :activities :titular)
               {:grade ((:grade new-course)
                        (map-invert course-grades))
                :department department
-               :titular-id (person-create! (:titular-id new-course))})))
+               :titular-id (person-create! (:titular new-course))})))
     (if (:activities new-course)
       (doseq [activity (:activities new-course)]
         (course-add-activity! (:course-code new-course)
@@ -292,6 +307,14 @@
   (set (map #(get room-facilities (:facility %))
             (select course-activity-facility
                     (where {:course-activity activity-code})))))
+
+(s/defn course-activity-get :- xs/CourseActivity
+  [id :- s/Int]
+  (let [result (select course-activity
+                       (where {:id id}))]
+    (if (empty? result)
+      nil
+      (course-activity->sCourseActivity (first result)))))
 
 (s/defn course-list :- [xs/Course]
   []
@@ -370,17 +393,31 @@
   (delete program
           (where {:id id})))
 
-;; TODO: Implement enrollment stuff (nvgeele)
-(s/defn student-enrollments :- [s/Any]
+(s/defn enrollments-student :- [xs/Enrollment]
   [student-id :- xs/PersonID]
   "Get a list of all enrollments from a student."
-  nil)
+  (map (fn [en]
+         {:course (:course-code en)
+          :netid (:netid en)})
+       (select course-enrollment
+               (where {:netid student-id}))))
 
 (s/defn enroll-student! :- s/Any
   [student-id :- xs/PersonID
    course-code :- xs/CourseCode]
   "Add a new enrollment to the database."
-  nil)
+  (insert course-enrollment
+          (values {:course-code course-code
+                   :netid student-id})))
+
+(s/defn enrollments-course :- [xs/Enrollment]
+  [course-code :- xs/CourseCode]
+  "Get a list of all enrollments for a certain course."
+  (map (fn [en]
+         {:course (:course-code en)
+          :netid (:netid en)})
+       (select course-enrollment
+               (where {:course-code course-code}))))
 
 (s/defn department-list :- [xs/Department]
   []

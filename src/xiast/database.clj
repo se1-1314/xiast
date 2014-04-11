@@ -51,11 +51,16 @@
 (defentity program-mandatory-course
   (database db))
 
-(defentity room
-  (database db))
+(def ^:dynamic room
+  (-> (create-entity "room")
+      (database db)))
 
-(defentity room-facility
-  (database db))
+(def ^:dynamic room-facility
+  (-> (create-entity "room-facility")
+      (database db)))
 
 (defentity subscription
+  (database db))
+
+(defentity session
   (database db))

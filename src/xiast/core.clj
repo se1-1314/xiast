@@ -1,7 +1,7 @@
 (ns xiast.core
   (:use compojure.core
         [xiast.mock :only [*mock-data*]]
-        [xiast.session :only [*alert* *session* wrap-with-session]]
+        [xiast.session :only [*session* *alert* session-store wrap-with-session]]
         [xiast.authentication :as auth]
         [xiast.config :only [config]]
         [xiast.api :only [api-routes]]
@@ -58,6 +58,7 @@
        "</a>"
        "<ul class=\"dropdown-menu\">"
        "<li><a href=\"/logout\">Logout</a></li>"
+       "<li><a href=\"/profile\">Profile</a></li>"
        "</ul>"
        "</li>"))
 
@@ -225,6 +226,16 @@
                                 (query/courses *mock-data*)))
                  (t/translate-nodes)))))
 
+(defsnippet profile-body "templates/profile.html" [:div#page-content]
+  []
+  identity)
+
+(defroutes profile-routes
+  (GET "/profile" []
+       (base (-> (profile-body)
+                 (t/translate-nodes)))))
+
+
 (defroutes language-routes
   (GET "/lang/:locale" [locale]
     (assoc (resp/redirect "/")
@@ -243,11 +254,11 @@
   semi-scheduling-routes
   program-edit-routes
   classroom-edit-routes
+  profile-routes
   (route/not-found "Not found!"))
 
 
 (def app
-  ;; TODO: get cookie-store secret key out of a config file or something
   (-> main-routes
       wrap-with-session
       wrap-keyword-params
@@ -256,6 +267,6 @@
       wrap-multipart-params
       wrap-flash
       (tower.ring/wrap-tower-middleware :fallback-locale :en :tconfig t/tower-config)
-      (wrap-session {:store (cookie-store {:key "Kn4pHR5jxnuo3Bmc"})})
+      (wrap-session {:store (session-store)})
       (wrap-resource "public")
       (wrap-file-info)))

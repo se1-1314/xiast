@@ -16,6 +16,7 @@
                  [org.xerial/sqlite-jdbc "3.7.2"]
                  [mysql/mysql-connector-java "5.1.25"]
                  [org.clojure/math.combinatorics "0.0.7"]
+                 [clj-time "0.6.0"]
                  [slingshot "0.10.3"]
                  [midje "1.6.3"]]
   :plugins [[lein-ring "0.8.8"]
