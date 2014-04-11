@@ -56,21 +56,29 @@
               :optional [CourseCode]})
 (def Subscription {:person-id PersonID
                    :course-code CourseCode})
-(def AcademicWeek (s/one s/Int "Week on the academic calendar: 1-52"))
-(def DayNumber (s/one s/Int "Day of the week: 1-7"))
-(def ScheduleSlot (s/one s/Int "Half-hour time slots from 07:00 through 23:30"))
-(def ScheduledItem {:type CourseActivityType
-                    :title s/Str
-                    :id (s/one s/Str "e.g. course code")})
+(def AcademicWeek (s/named s/Int "Week on the academic calendar: 1-52"))
+(def DayNumber (s/named s/Int "Day of the week: 1-7"))
+(def ScheduleSlot (s/named s/Int "Half-hour time slots from 07:00 through 23:30"))
+
+(def ScheduledCourseActivity
+  {:type CourseActivityType
+   (s/optional-key :title) (s/named s/Str "Course title")
+   :course-id CourseCode})
+(def ScheduleBlockID s/Int)
 (def ScheduleBlock
-  {(s/optional-key :id) s/Int
+  {(s/optional-key :id) ScheduleBlockID
    :week AcademicWeek
    :day DayNumber
    :first-slot ScheduleSlot
    :last-slot ScheduleSlot
-   :item ScheduledItem
+   :item ScheduledCourseActivity
    :room RoomID})
-(def Schedule [ScheduleBlock])
+(def Schedule #{ScheduleBlock})
+(def ScheduleProposal
+  {:new #{ScheduleBlock}
+   :moved #{ScheduleBlock}
+   :deleted #{ScheduleBlockID}})
+
 (def ScheduleCheckResult {:type (s/enum :mandatory-course-overlap
                                         :elective-course-overlap
                                         :room-overlap
