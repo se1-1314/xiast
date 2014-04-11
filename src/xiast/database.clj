@@ -21,35 +21,45 @@
       (sqlite3
        {:db (:database config)}))))
 
-(defentity course
-  (database db))
+(def ^:dynamic course
+  (-> (create-entity "course")
+      (database db)))
 
-(defentity course-activity
-  (database db))
+(def ^:dynamic course-activity
+  (-> (create-entity "course-activity")
+      (database db)))
 
-(defentity course-activity-facility
-  (database db))
+(def ^:dynamic course-activity-facility
+  (-> (create-entity "course-activity-facility")
+      (database db)))
 
-(defentity course-enrollment
-  (database db))
+(def ^:dynamic course-enrollment
+  (-> (create-entity "course-enrollment")
+      (database db)))
 
-(defentity course-instructor
-  (database db))
+(def ^:dynamic course-instructor
+  (-> (create-entity "course-instructor")
+      (database db)))
 
-(defentity department
-  (database db))
+(def ^:dynamic department
+  (-> (create-entity "department")
+      (database db)))
 
-(defentity person
-  (database db))
+(def ^:dynamic person
+  (-> (create-entity "person")
+      (database db)))
 
-(defentity program
-  (database db))
+(def ^:dynamic program
+  (-> (create-entity "program")
+      (database db)))
 
-(defentity program-choice-course
-  (database db))
+(def ^:dynamic program-choice-course
+  (-> (create-entity "program-choice-course")
+      (database db)))
 
-(defentity program-mandatory-course
-  (database db))
+(def ^:dynamic program-mandatory-course
+  (-> (create-entity "program-mandatory-course")
+      (database db)))
 
 (def ^:dynamic room
   (-> (create-entity "room")
@@ -59,8 +69,10 @@
   (-> (create-entity "room-facility")
       (database db)))
 
-(defentity subscription
-  (database db))
+(def ^:dynamic subscription
+  (-> (create-entity "subscription")
+      (database db)))
 
-(defentity session
-  (database db))
+(def ^:dynamic session
+  (-> (create-entity "session")
+      (database db)))
