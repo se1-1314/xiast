@@ -1,6 +1,4 @@
 (ns xiast.mockprograms
-  (:import [java.awt.image AffineTransformOp]
-           [com.sun.nio.file ExtendedOpenOption])
   "This namespace provides dummydata in the shape of programs, given at the VUB university.
   More information on the internal structure of a studyprogram can be found in schema.clj"
   (:require [xiast.schema :as xs]
@@ -38,7 +36,7 @@ gebruiken van  wiskundig formalisme."
    :instructors #{"1000127", "0084047"} ;; Jespers, Thumas
    :department "DINF"
    :grade :ba
-   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 2 :instructor "100127" :facilities #{}}
+   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 2 :instructor "1000127" :facilities #{}}
                  {:type :WPO :semester 1 :week 0 :contact-time-hours 2 :instructor "0084047" :facilities #{}}}
    })
 (def foundations-of-informatics1
@@ -226,7 +224,7 @@ Les 9: Hoofdstuk 7 - Attitudes: Resistance, Behavior & Advertising"
    :instructors #{"3596346"} ;; Van Overwalle (random)
    :department "EXTO"
    :grade :ba
-   :activities #{{:type :HOC :semester 1 :weel 0 :contact-time-hours 3 :instructor "3596346" :facilities #{}}}
+   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 3 :instructor "3596346" :facilities #{}}}
    })
 
 ;; Programs
@@ -367,13 +365,13 @@ Inschrijven voor de bachelorproef kan indien het een inschrijving betreft waarbi
 
 ;; Departments
 ;; ===========
-(def DINF {:department "DINF"
+(def DINF {:name "DINF"
            :faculty "WE"})
-(def DWIS {:department "DWIS"
+(def DWIS {:name "DWIS"
            :faculty "WE"})
-(def ETRO {:department "ETRO"
+(def ETRO {:name "ETRO"
            :faculty "IR"})
-(def BEDR {:department "BEDR"
+(def BEDR {:name "BEDR"
            :faculty "ES"})
-(def EXTO {:department "EXTO"
+(def EXTO {:name "EXTO"
            :faculty "PE"})

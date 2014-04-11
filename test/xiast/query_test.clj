@@ -40,8 +40,36 @@
   (doseq [sql (map #(format "DELETE FROM `%s`;" %) tables)]
     (exec-raw test-db sql)))
 
+(use-fixtures :each wrap-with-test-database)
+(use-fixtures :once s/validate-schemas)
+
+(reset-schema)
+
+;; TEST DATA
+
 (def test-rooms
   (list xmp/F5-403 xmp/F4-412 xmp/E0-04 xmp/G1-022))
+
+(def test-persons
+  (list xmp/ejespers xmp/dthumas xmp/odetroyer xmp/chdebruyne
+        xmp/wdemeuter xmp/ephilips xmp/bsigner xmp/phcara
+        xmp/rvanderstraeten xmp/ksteenhaut xmp/fdominguez
+        xmp/mpuwase xmp/ischeerlinck xmp/thdhondt
+        xmp/jdekoster xmp/fvanoverwalle))
+
+(def test-courses
+  (list xmp/linear-algebra xmp/foundations-of-informatics1
+        xmp/algorithms-and-datastructures1 xmp/introduction-to-databases
+        xmp/discrete-mathematics xmp/software-engineering xmp/teleprocessing
+        xmp/economics-for-business xmp/interpretation2 xmp/social-psychology))
+
+(def test-programs
+  (list xmp/ba-cw1 xmp/ba-cw3 xmp/ba-IRCW3))
+
+(def test-departments
+  (list xmp/DINF xmp/DWIS xmp/ETRO xmp/BEDR xmp/EXTO))
+
+;; TESTS
 
 ;; TODO: remove :id's from room-ids outside of database;
 ;; They can still be used as primary keys for relations
@@ -76,10 +104,26 @@
           (query/room-delete! (:id test-room))) => irrelevant
           (query/room-list) => []))
 
-(s/deftest person-test
-  (fact 1 => 1))
+(s/deftest person-test1
+  (fact "person-add!"
+        (is (thrown? Exception (query/person-add! {:test 0}))) => irrelevant
+        (doseq [test-person test-persons]
+          (query/person-add! test-person)) => irrelevant)
+  (let [person (rand-nth test-persons)]
+    (fact "person-get with random person"
+          (query/person-get (:netid person)) => person)))
 
-(use-fixtures :each wrap-with-test-database)
-(use-fixtures :once s/validate-schemas)
+(s/deftest department-test
+  (fact "department-add!"
+        (is (thrown? Exception (query/department-add! {:test 1})))
+        (doseq [test-department test-departments]
+          (query/department-add! test-department)) => irrelevant)
+  (fact "department-list"
+        (map #(dissoc % :id) (query/department-list)) => test-departments))
 
-(reset-schema)
+(s/deftest course-test
+  (fact "course-add! (also tests course-add-activity!)"
+        (is (thrown? Exception (query/course-add! {:test 0}))) => irrelevant
+        (is (thrown? Exception (query/course-add-activity! 0 0))) => irrelevant
+        (doseq [test-course test-courses]
+          (query/course-add! test-course)) => irrelevant))

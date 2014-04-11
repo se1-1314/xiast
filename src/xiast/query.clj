@@ -171,7 +171,7 @@
                    :surname (:last-name new-person)
                    :locale (:locale new-person)})))
 
-(s/defn person-get :- xs/Person
+(s/defn person-get :- (s/maybe xs/Person)
   [netid :- xs/PersonID]
   "Fetch person associated with a certain NetID from the database."
   (let [person
@@ -207,11 +207,11 @@
            (if student? :student)])
      nil)))
 
-(defn person-create!
+(s/defn person-create! :- xs/PersonID
   "This functions checks whether a user with the given netid exists in the
   database. If not, a new record for the person will be inserted. Returns
   netid."
-  [netid]
+  [netid :- xs/PersonID]
   ;; TODO: Standard locale (nvgeele)
   (if (empty? (person-get netid))
     (person-add! {:netid netid
@@ -457,10 +457,7 @@
 (s/defn department-add! :- s/Any
   [new-department :- xs/Department]
   "Add a new department to the database."
-  (let [dep (if (:faculty new-department)
-              new-department
-              (assoc new-department :faculty ""))]
-    (department-add! *db* dep)))
+  (insert department (values (dissoc new-department :id))))
 
 ;; Schedule queries
 
