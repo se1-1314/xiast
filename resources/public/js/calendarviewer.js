@@ -19,14 +19,14 @@ $(document).ready(function() {
 		editable: true,
 		events: [
 				{
-					course_activity_id: '7',
+					course_activity_id: '9',
 					title: 'Vak1',
 					start: new Date(y, m, d, 10, 30),
 					allDay: false,
 				}
 				,
-								{
-					course_activity_id: '8',
+				{
+					course_activity_id: '10',
 					title: 'Vak2',
 					start: new Date(y, m, d, 15, 30),
 					allDay: false,

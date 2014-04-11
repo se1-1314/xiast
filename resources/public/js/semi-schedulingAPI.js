@@ -32,11 +32,13 @@ comment:		new api features were added to directly recieve the requirements inste
 				to update in the future
 */
 var course_activity_id;
+var json_var;
 
 function show_facilities_course()
 {
 	return function(data)
 	{
+		json_var = data;
 		$("#beamer").prop('checked', false);
 		$("#overhead-projector").prop('checked', false);
 		$("#speakers").prop('checked', false);
@@ -85,3 +87,61 @@ function get_facilities_course(caID)
 			alert(error.message);
 		}
 }
+
+function update_course_activity_id()
+{
+	return function(data)
+	{
+		course_activity_id = data.id;
+		$('#schedule-content').fullCalendar(
+		{
+		    eventClick: function(event, element) 
+		    {
+		        event.course_activity_id = course_activity_id;
+		    }
+		});
+	};
+}
+
+function set_facilities_course()
+{
+	try {
+			var url = apicourse('activity/' + course_activity_id);
+			var facilities = [];
+			if($("#beamer").prop('checked'))
+			{
+			facilities.push("beamer");
+			}
+			if($("#overhead-projector").prop('checked'))
+			{
+			facilities.push("overhead-projector");
+			}
+			if($("#speakers").prop('checked'))
+			{
+			facilities.push("speakers");
+			}
+			json_var.facilities = facilities;
+			json_var.instructor = "0";
+			var data = new Object();
+			data = JSON.stringify(json_var);
+			alert(data);
+			$.ajax(
+				{
+			  		type: "PUT",
+			  		url: url,
+			  		contentType: "application/json",
+			  		data: data, 
+		  			processData: false,
+		  			success: update_course_activity_id(),
+			  		dataType: "JSON"
+				});	
+		}
+	catch(error) 
+		{
+			alert(error.message);
+		}
+}
+
+$("#save_facilities").click(function(){
+	set_facilities_course();
+});
