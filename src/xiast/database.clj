@@ -27,6 +27,9 @@
 (defentity course-activity
   (database db))
 
+(defentity course-activity-facility
+  (database db))
+
 (defentity course-enrollment
   (database db))
 

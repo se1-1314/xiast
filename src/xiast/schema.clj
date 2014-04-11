@@ -38,6 +38,7 @@
                      :contact-time-hours s/Int
                      ;; TODO: fix support for multiple instructors/activity (nvgeele)
                      ;; TODO: course facility requirements (nvgeele)
+                     :facilities #{RoomFacility}
                      :instructor PersonID})
 (def Course {:course-code CourseCode
              :title s/Str
