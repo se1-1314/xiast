@@ -54,6 +54,7 @@
     (gen-course-schedule-blocks xmps/software-engineering [2 36] 3 [7 10] xmps/F4-412 2 [23 24] xmps/E0-05)
     (gen-course-schedule-blocks xmps/teleprocessing [2 14] 3 [13 19] xmps/E0-06 4 [13 20] xmps/E0-06)
     (gen-course-schedule-blocks xmps/economics-for-business [2 14] 5 [3 6] xmps/D0-05 5 [7 8] xmps/D0-05)
-    (gen-course-schedule-blocks xmps/interpretation2 [2 14] ))
+    (gen-course-schedule-blocks xmps/interpretation2 [2 14] 2 [13 18] xmps/E0-04 2 [19 22] xmps/E0-04)
+    (gen-course-schedule-blocks xmps/social-psychology [2 6] 4 [13 16] xmps/D0-03 4 [17 20] xmps/D0-03)))
 
 
