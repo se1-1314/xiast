@@ -17,6 +17,7 @@
 
 (defn coerce-as
   [schema str]
+  (println str)
   (let [json (read-str str :key-fn keyword)
         coercer (coerce/coercer schema coerce/json-coercion-matcher)
         res (coercer json)]
