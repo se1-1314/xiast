@@ -32,12 +32,12 @@ in deze cursus te bewijzen. Aangezien het voor vele studenten de eerste
 wiskundecursus in hun curriculum is, heeft deze cursus naaste de specifieke
 wiskunde inhoud als extra pedagogisch doel het vertrouwd raken met en leren
 gebruiken van  wiskundig formalisme."
-   :titular-id "1000127" ;; Jespers
+   :titular "1000127" ;; Jespers
    :instructors #{"1000127", "0084047"} ;; Jespers, Thumas
    :department "DINF"
    :grade :ba
-   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 2 :titular-id "100127"}
-                 {:type :WPO :semester 1 :week 0 :contact-time-hours 2 :titular-id "0084047"}}
+   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 2 :instructor "1000127" :facilities #{}}
+                 {:type :WPO :semester 1 :week 0 :contact-time-hours 2 :instructor "0084047" :facilities #{}}}
    })
 (def foundations-of-informatics1
   {:course-code "1000447ANR"
@@ -50,12 +50,12 @@ De volgende onderwerpen komen daarbij aan bod:
 - Propositielogica: syntaxis en semantiek, logisch gevolg en semantische tableaus, afleidingen (natuurlijke deductie, axiomatisch afleiden), adequaatheid en volledigheid.
 - Predicaatlogica: syntaxis en semantiek, logisch gevolg en semantische tableaus, afleidingen (natuurlijke deductie, axiomatisch afleiden), adequaatheid en volledigheid theorieën en normaalvormen.
 Het derde gedeelte is een inleiding tot de lambda-calculus. Hier ligt de nadruk op het verband met de functionele programmeertaal Scheme (die gebruikt wordt als inleidende programmeertaal in de bachelor opleiding Computerwetenschappen): oorsprong, lambda-expressies, currying, vrije en gebonden variabelen, substitutie, reductie, Church-getallen, lambda-defineerbaarheid, fixpunten en recursieve definities. lambda-calculus als een programmeertaal."
-   :titular-id "0008275" ;; De Troyer
+   :titular "0008275" ;; De Troyer
    :instructors #{"0008275", "0081560"} ;; De Troyer, Debruyne
    :department "DINF"
    :grade :ba
-   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 2 :titular-id "0008275"}
-                 {:type :WPO :semester 1 :week 0 :contact-time-hours 2 :titular-id "0081560"}}
+   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 2 :instructor "0008275" :facilities #{}}
+                 {:type :WPO :semester 1 :week 0 :contact-time-hours 2 :instructor "0081560" :facilities #{}}}
    })
 (def algorithms-and-datastructures1
   {:course-code "1015259ANR"
@@ -79,12 +79,12 @@ Het derde gedeelte is een inleiding tot de lambda-calculus. Hier ligt de nadruk 
 - Gerichte Graafproblemen: Topologisch Sorteren van DAGs, Sterk samenhangendheid, Bereikbaarheid en kortste paden in Grafen (Bellman-Ford, Dijkstra, Floyd-Warshall, Lawler)
 - Geheugenbeheertechnieken: taxonomie van de problematiek, first-fit systemen, best-fit systemen, buddy allocators
 - Garbagecollectie: stop-and-copy, mark-and-sweep, Deutsch-Schorr-Waite algoritme voor blokken van vaste lengte en blokken van variabele lengte."
-   :titular-id "0033825"
+   :titular "0033825"
    :instructors #{"0033825", "0075773"} ;; De Meuter, Philips (no other assistants could be found)
    :department "DINF"
    :grade :ba
-   :activities #{{:type :HOC :semester 3 :week 0 :contact-time-hours 3 :titular-id "0033825"}
-                 { :type :WPO :semester 3 :week 0 :contact-time-hours 4 :titular-id "0075773"}}
+   :activities #{{:type :HOC :semester 3 :week 0 :contact-time-hours 3 :instructor "0033825" :facilities #{}}
+                 { :type :WPO :semester 3 :week 0 :contact-time-hours 4 :instructor "0075773" :facilities #{}}}
    })
 (def introduction-to-databases
   {:course-code "1007156ANR"
@@ -98,12 +98,12 @@ Het derde gedeelte is een inleiding tot de lambda-calculus. Hier ligt de nadruk 
 - Concurrency control
 - Opslag- en toegangsstructuren
 - Alternatieve gegevensmodellen"
-   :titular-id "1000454"
+   :titular "1000454"
    :instructors #{"1000454", "0081560"} ;; Signer, Debruyne
    :department "DINF"
    :grade :ba
-   :activities #{{:type :HOC :semester 2 :week 0 :contact-time-hours 2 :titular-id "1000454"}
-                 {:type :WPO :semester 2 :week 0 :contact-time-hours 2 :titular-id "0081560"}}
+   :activities #{{:type :HOC :semester 2 :week 0 :contact-time-hours 2 :instructor "1000454" :facilities #{}}
+                 {:type :WPO :semester 2 :week 0 :contact-time-hours 2 :instructor "0081560" :facilities #{}}}
    })
 (def discrete-mathematics
   {:course-code "1007132ANR"
@@ -116,12 +116,12 @@ Priemgetallen, factorisatie en modulaire rekenkunde
 Graffen en bomen
 Genererende functies
 Recurrentievergelijkingen"
-   :titular-id "0040941"
+   :titular "0040941"
    :instructors #{"0040941", "0084047"} ;; Cara, Thumas
    :department "DWIS"
    :grade :ba
-   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 3 :titular-id "0040941"}
-                 {:type :WPO :semester 1 :week 0 :contact-time-hours 2 :titular-id "0084047"}}
+   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 3 :instructor "0040941" :facilities #{}}
+                 {:type :WPO :semester 1 :week 0 :contact-time-hours 2 :instructor "0084047" :facilities #{}}}
    })
 ;; 3e bach CW
 ;; ----------
@@ -147,24 +147,24 @@ De inhoud van het theoretisch gedeelte:
 - kwaliteit: metrieken, formele methoden, inspecties, testen, CMM
 - management: haalbaarheid, kostenraming, planning, risicobeheer, rapportering
 - documentbeheer"
-   :titular-id "0062333"
+   :titular "0062333"
    :instructors #{"0062333"} ;; Van der Straeten
    :department "DINF"
    :grade :ba
-   :activities #{{:type :HOC :semester 3 :week 0 :contact-time-hours 2 :titular-id "0062333"}}
+   :activities #{{:type :HOC :semester 3 :week 0 :contact-time-hours 2 :instructor "0062333" :facilities #{}}}
    })
 (def teleprocessing
   {:course-code  "1001673BNR"
    :title "Tele-Informatica"
    :description "In a first part, the basic concepts of datacommunications and their evolution are introduced. In a second and a third part, the concepts introduced previously are illustrated by means of descriptions of actual circuit switching and packet switching networks. In the fourth part, finally, it is shown how the described networks can be combined into a single internet.
     The lab sessions are subdivided in two parts: the first demonstrates the basic concepts of Wireless transmission by means of the deployment of  Wireless Sensor Nodes. With these nodes  several small network topologies are built. The second part consists in building and interconnecting small local area networks based upon switches and routers."
-   :titular-id  "1234567"
+   :titular "1234567"
    :instructors #{"1234567", "5389644", "4264924"} ;; Steenhaut(random), Dominguez (random), Uwase (random)
    :department "ETRO"
    :grade :ba
-   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 3 :titular-id "1234567"}
-                 {:type :WPO :semester 1 :week 0 :contact-time-hours 4 :titular-id "5389644"}
-                 {:type :WPO :semester 1 :week 0 :contact-time-hours 4 :titular-id "4264924"}}
+   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 3 :instructor "1234567" :facilities #{}}
+                 {:type :WPO :semester 1 :week 0 :contact-time-hours 4 :instructor "5389644" :facilities #{}}
+                 {:type :WPO :semester 1 :week 0 :contact-time-hours 4 :instructor "4264924" :facilities #{}}}
    })
 (def economics-for-business
   {:course-code "1001714AER"
@@ -183,11 +183,11 @@ De inhoud van het theoretisch gedeelte:
         Geld, bankwezen en monetair beleid
         Geaggregeerde vraag, geaggregeerd aanbod en inflatie
         Wisselkoersen"
-   :titular-id "0025867"
+   :titular "0025867"
    :instructors #{"0025867"} ;; Scheerlick (random)
    :department "BEDR"
    :grade :ba
-   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 2 :titular-id "0025867"}}
+   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 2 :instructor "0025867" :facilities #{}}}
    })
 (def interpretation2
   {:course-code "1005176BNR"
@@ -201,12 +201,12 @@ Ingebouwde functies voor Pico
 De API van Pico
 Threads in Pico
 Optimalisatie van de virtuele machine"
-   :titular-id "0000585"
+   :titular "0000585"
    :instructors #{"0000585","1568634" } ; D'Hondt, De Koster (random)
    :department "DINF"
    :grade :ba
-   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 2 :titular-id "0000585"}
-                 {:type :WPO :semester 1 :week 0 :contact-time-hours 2 :titular-id "1568634"}}
+   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 2 :instructor "0000585" :facilities #{}}
+                 {:type :WPO :semester 1 :week 0 :contact-time-hours 2 :instructor "1568634" :facilities #{}}}
    })
 (def social-psychology
   {:course-code "1018725AER"
@@ -220,11 +220,11 @@ Les 6: Hoofdstuk 5 - Self-Knowledge
 Les 7: Hoofdstuk 6 - Self-justification
 Les 8: Hoofdstuk 7 - Attitudes: Nature & Change of Attitudes
 Les 9: Hoofdstuk 7 - Attitudes: Resistance, Behavior & Advertising"
-   :titular-id "3596346"
+   :titular "3596346"
    :instructors #{"3596346"} ;; Van Overwalle (random)
    :department "EXTO"
    :grade :ba
-   :activities #{{:type :HOC :semester 1 :weel 0 :contact-time-hours 3 :titular-id "3596346"}}
+   :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 3 :instructor "3596346" :facilities #{}}}
    })
 
 ;; Programs
@@ -251,7 +251,7 @@ Inschrijven voor de bachelorproef kan indien het een inschrijving betreft waarbi
 
 ;; Persons
 ;; =======
-(def ejespers {:netid "100127"
+(def ejespers {:netid "1000127"
                :first-name "Eric"
                :last-name "Jespers"
                :locale "Dutch"
@@ -266,7 +266,7 @@ Inschrijven voor de bachelorproef kan indien het een inschrijving betreft waarbi
                 :last-name "De Troyer"
                 :locale "Dutch"
                 })
-(def chdebruyne {:netid "0008275"
+(def chdebruyne {:netid "0081560"
                  :first-name "Christophe"
                  :last-name "Debruyne"
                  :locale "Dutch"
@@ -328,40 +328,50 @@ Inschrijven voor de bachelorproef kan indien het een inschrijving betreft waarbi
 ;; =====
 (def D0-05 {:id {:building "D", :floor 0, :number 05}
             :capacity 200
-            :facilities {:beamer :overhead-projector}
+            :facilities #{:beamer :overhead-projector}
             })
 (def D0-03 {:id {:building "D", :floor 0, :number 03}
             :capacity 200
-            :facilities {:beamer :overhead-projector}
+            :facilities #{:beamer :overhead-projector}
             })
 (def G1-022 {:id {:building "G", :floor 1, :number 022}
              :capacity 100
-             :facilities {:beamer :overhead-projector}
+             :facilities #{:beamer :overhead-projector}
              })
 (def G1-023 {:id {:building "G", :floor 1, :number 023}
              :capacity 150
-             :facilities {:beamer :overhead-projector}
+             :facilities #{:beamer :overhead-projector}
              })
 (def F5-403 {:id {:building "F", :floor 5, :number 403}
              :capacity 70
-             :facilities {:beamer :overhead-projector}
+             :facilities #{:beamer :overhead-projector}
              })
-(def F4-412 {:id {:building "F", :floor 5, :number 412}
+(def F4-412 {:id {:building "F", :floor 4, :number 412}
              :capacity 20
-             :facilities {:beamer :overhead-projector}
+             :facilities #{:beamer :overhead-projector}
              })
 (def E0-04 {:id {:building "E", :floor 0, :number 04}
-             :capacity 100
-             :facilities {:beamer :overhead-projector}
-             })
+            :capacity 100
+            :facilities #{:beamer :overhead-projector}
+            })
 (def E0-05 {:id {:building "E", :floor 0, :number 05}
             :capacity 80
-            :facilities {:beamer :overhead-projector}
+            :facilities #{:beamer :overhead-projector}
             })
 (def E0-06 {:id {:building "E", :floor 0, :number 06}
             :capacity 80
-            :facilities {:beamer :overhead-projector}
+            :facilities #{:beamer :overhead-projector}
             })
 
-
-
+;; Departments
+;; ===========
+(def DINF {:name "DINF"
+           :faculty "WE"})
+(def DWIS {:name "DWIS"
+           :faculty "WE"})
+(def ETRO {:name "ETRO"
+           :faculty "IR"})
+(def BEDR {:name "BEDR"
+           :faculty "ES"})
+(def EXTO {:name "EXTO"
+           :faculty "PE"})

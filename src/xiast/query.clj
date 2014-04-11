@@ -8,10 +8,12 @@
         [xiast.schema :only [room-facilities course-grades course-activity-types]]
         [xiast.database]
         [korma.db]
-        [korma.core]))
+        [korma.core]
+        [slingshot.slingshot :only [throw+ try+]]))
 
 
 ;; TODO: replace all find's with get's (nvgeele)
+;; TODO: replace-keys can make code cleaner (nvgeele)
 
 ;; Functions for converting database records to Schema data.
 
@@ -169,7 +171,7 @@
                    :surname (:last-name new-person)
                    :locale (:locale new-person)})))
 
-(s/defn person-get :- xs/Person
+(s/defn person-get :- (s/maybe xs/Person)
   [netid :- xs/PersonID]
   "Fetch person associated with a certain NetID from the database."
   (let [person
@@ -205,11 +207,11 @@
            (if student? :student)])
      nil)))
 
-(defn person-create!
+(s/defn person-create! :- xs/PersonID
   "This functions checks whether a user with the given netid exists in the
   database. If not, a new record for the person will be inserted. Returns
   netid."
-  [netid]
+  [netid :- xs/PersonID]
   ;; TODO: Standard locale (nvgeele)
   (if (empty? (person-get netid))
     (person-add! {:netid netid
@@ -234,7 +236,7 @@
                               :type ((:type activity)
                                      (map-invert course-activity-types))
                               :semester (:semester activity)
-                              :date (:date activity)
+                              :week (:week activity)
                               :contact-time-hours
                               (:contact-time-hours activity)})))]
         (insert course-instructor
@@ -244,7 +246,8 @@
         (doseq [facility facilities]
           (insert course-activity-facility
                   (values {:course-activity key
-                           :facility facility})))))))
+                           :facility facility})))
+        key))))
 
 (s/defn course-add! :- s/Any
   [new-course :- xs/Course]
@@ -278,6 +281,7 @@
 (s/defn course-delete-activity! :- s/Any
   [activity-code :- s/Int]
   "Delete a course's activity."
+  ;; Facilities will be deleted by cascade.
   (delete course-activity
           (where {:id activity-code})))
 
@@ -316,6 +320,16 @@
       nil
       (course-activity->sCourseActivity (first result)))))
 
+(s/defn course-activity-update! :- s/Int
+  [activity :- xs/CourseActivity]
+  (if-let [id (:id activity)]
+    (let [course-code ((comp :course-code first)
+                       (select course-activity
+                               (where {:id id})))]
+      (course-delete-activity! id)
+      (course-add-activity! course-code activity))
+    (throw+ {:error "ID required"})))
+
 (s/defn course-list :- [xs/Course]
   []
   "Fetch a list of all courses from the database."
@@ -338,10 +352,14 @@
          results)))
 
 (s/defn program-list :- [xs/Program]
-  []
-  "Returns a list of all programs."
-  (map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
-       (select program)))
+  ([]
+     "Returns a list of all programs."
+     (map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
+          (select program)))
+  ([manager :- xs/PersonID]
+     "Returns a list of all programs the manager is manager of."
+     (map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
+          (select program (where {:manager manager})))))
 
 (s/defn program-find :- [xs/Program]
   [keywords :- [s/Str]]
@@ -393,6 +411,20 @@
   (delete program
           (where {:id id})))
 
+(s/defn program-add-mandatory! :- s/Any
+  [id :- xs/ProgramID
+   course :- xs/CourseCode]
+  (insert program-mandatory-course
+          (values {:program id
+                   :course-code course})))
+
+(s/defn program-add-optional! :- s/Any
+  [id :- xs/ProgramID
+   course :- xs/CourseCode]
+  (insert program-choice-course
+          (values {:program id
+                   :course-code course})))
+
 (s/defn enrollments-student :- [xs/Enrollment]
   [student-id :- xs/PersonID]
   "Get a list of all enrollments from a student."
@@ -439,10 +471,7 @@
 (s/defn department-add! :- s/Any
   [new-department :- xs/Department]
   "Add a new department to the database."
-  (let [dep (if (:faculty new-department)
-              new-department
-              (assoc new-department :faculty ""))]
-    (department-add! *db* dep)))
+  (insert department (values (dissoc new-department :id))))
 
 ;; Schedule queries
 
