@@ -35,76 +35,191 @@
 (def parse-find-query
   (coerce/coercer FindQuery coerce/json-coercion-matcher))
 
+(defn wrap-api-function
+  [func]
+  (fn [& args]
+    (let [result (if args (apply func args) (func))]
+      (write-str result))))
+
+;; Course API
+
+(defn course-list
+  []
+  {:courses (query/course-list)})
+
+(defn course-get
+  [course-code]
+  (let [result (query/course-get course-code)]
+    (if result
+      result
+      "[]")))
+
+(defn course-delete
+  [course-code]
+  (if-let [course (query/course-get course-code)]
+    (if (= (:titular course) (:user *session*))
+      (do (query/course-delete! course-code)
+          {:result "OK"})
+      {:result "Not authorized"})
+    {:result "Course not found"}))
+
+(defn course-find
+  [body]
+  (try+ (let [request (coerce-as FindQuery body)
+              result (query/course-find (:keywords request))]
+          {:result result})
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result "Error"})))
+
+(defn course-add
+  [body]
+  (try+ (let [request (coerce-as xs/Course body)]
+          (if (some #{:program-manager} (:user-functions *session*))
+            (do (query/course-add! request)
+                {:result "OK"})
+            {:result "Not authorized"}))
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result "Error"})))
+
+(defn course-activity-get
+  [id]
+  (if-let [activity (query/course-activity-get id)]
+    activity
+    []))
+
 (defroutes course-routes
-  (GET "/" [] "Invalid request")
+  (GET "/" []
+       "Invalid request")
   (GET "/list" []
-       (write-str {:courses (query/course-list *db*)}))
+       ((wrap-api-function course-list)))
   (GET "/get/:course-code" [course-code]
-       (let [result (query/course-get course-code)]
-         (if result
-           (write-str result)
-           "[]")))
+       ((wrap-api-function course-get) course-code))
   (DELETE "/del/:course-code" [course-code]
-          (if (query/course-get course-code)
-            (if-let [course (query/course-delete! course-code)]
-              (if (= (:titular-id course) (:user *session*))
-                (do (query/course-delete! course-code)
-                    (write-str {:result "OK"}))
-                (write-str {:result "Not authorized"}))
-              (write-str {:result "Course not found"}))))
+          ((wrap-api-function course-delete) course-code))
   (POST "/find" {body :body}
-        (try+ (let [request (coerce-as FindQuery (slurp body))
-                    result (query/course-find (:keywords request))]
-                (write-str {:result result}))
-              (catch [:type :coercion-error] e
-                "Malformed request")))
+        ((wrap-api-function course-find) (slurp body)))
   (POST "/add" {body :body}
-        (if (some #{:program-manager} (:user-functions *session*))
-          (try+ (let [request (coerce-as xs/Course (slurp body))]
-                  (query/course-add! request)
-                  (write-str {:result "OK"}))
-                (catch [:type :coercion-error] e
-                  "Malformed request")
-                (catch Exception e
-                  (write-str {:result "ERROR"})))
-          (write-str {:result "Not authorized"}))))
+        ((wrap-api-function course-add) (slurp body)))
+  ;; TODO: add activity by API, maybe
+  (GET "/activity/get/:id" [id]
+       ((wrap-api-function course-activity-get) id)))
+
+;; Program API
+
+(defn program-list
+  []
+  {:programs (query/program-list)})
+
+(defn program-get
+  [id]
+  (let [result (query/program-get id)]
+    (if result
+      result
+      "[]")))
+
+(defn program-delete
+  [id]
+  (if-let [program (query/program-get id)]
+    (if (= (:manager program) (:user *session*))
+      (do (query/program-delete! id)
+          {:result "OK"})
+      {:result "Not authorized"})
+    {:result "Program not found"}))
+
+(defn program-find
+  [body]
+  (try+ (let [request (coerce-as FindQuery body)
+              result (query/program-find (:keywords request))]
+          {:result result})
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result "Error"})))
+
+;; TODO: everyone can add programs now! We need some kind of admin role!
+(defn program-add
+  [body]
+  (try+ (let [request (coerce-as xs/Program body)]
+          (query/program-add! request)
+          {:result "OK"})
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result "Error"})))
 
 (defroutes program-routes
-  (GET "/" [] "Invalid request")
+  (GET "/" []
+       "Invalid request")
   (GET "/list" []
-       (write-str {:programs (query/program-list)}))
+       ((wrap-api-function program-list)))
   (GET "/get/:id" [id]
-       (let [result (query/program-get id)]
-         (if result
-           (write-str result)
-           "[]")))
+       ((wrap-api-function program-get) id))
   (DELETE "/del/:id" [id]
-          (if (query/program-get id)
-            (do (query/program-delete! id)
-                (write-str {:result "OK"}))
-            (write-str {:result "ERROR"})))
+          ((wrap-api-function program-delete) id))
   (POST "/find" {body :body}
-        (try+ (let [request (coerce-as FindQuery (slurp body))
-                    result (query/program-find (:keywords request))]
-                (write-str {:result result}))
-              (catch [:type :coercion-error] e
-                "Malformed request")))
+        ((wrap-api-function program-find) (slurp body)))
   (POST "/add" {body :body}
-        (try+ (let [request (coerce-as xs/Program (slurp body))]
-                (query/program-add! request)
-                (write-str {:result "OK"}))
-              (catch [:type :coercion-error] e
-                "Malformed request")
-              (catch Exception e
-                (write-str {:result "ERROR"})))))
+        ((wrap-api-function program-add) (slurp body))))
+
+;; Room API
+
+(defn room-list
+  ([building floor]
+     {:rooms (query/room-list building floor)})
+  ([building]
+     {:rooms (query/room-list building)})
+  ([]
+     {:rooms (query/room-list)}))
+
+(defn room-get
+  [building floor number]
+  (query/room-get {:building building
+                   :floor floor
+                   :number number}))
 
 (defroutes room-routes
-  (GET "/" [] "Invalid request")
+  (GET "/" []
+       "Invalid request")
+  (GET "/list/:building/:floor" [building floor]
+       ((wrap-api-function room-list) building floor))
+  (GET "/list/:building" [building]
+       ((wrap-api-function room-list) building))
   (GET "/list" []
-       (write-str {:rooms (query/room-list)})))
+       ((wrap-api-function room-list)))
+  (GET "/get/:building/:floor/:number" [building floor number]
+       ((wrap-api-function room-get) building floor number)))
+
+;; Enrollment API
+
+(defn enrollment-student
+  ([]
+     (if (:user *session*)
+       {:enrollments (query/enrollments-student (:user *session*))}
+       []))
+  ([id]
+     {:enrollments (query/enrollments-student id)}))
+
+(defn enrollment-course
+  [id]
+  {:enrollments (query/enrollments-course id)})
+
+(defroutes enrollment-routes
+  (GET "/" []
+       "Invalid request")
+  (GET "/student" []
+       ((wrap-api-function enrollment-student)))
+  (GET "/student/:id" [id]
+       ((wrap-api-function enrollment-student) id))
+  (GET "/course/:id" [id]
+       ((wrap-api-function enrollment-course) id)))
 
 (defroutes api-routes
   (GET "/" [] "Invalid request")
   (context "/course" [] course-routes)
   (context "/program" [] program-routes)
-  (context "/room" [] room-routes))
+  (context "/room" [] room-routes)
+  (context "/enrollment" [] enrollment-routes))
