@@ -352,10 +352,14 @@
          results)))
 
 (s/defn program-list :- [xs/Program]
-  []
-  "Returns a list of all programs."
-  (map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
-       (select program)))
+  ([]
+     "Returns a list of all programs."
+     (map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
+          (select program)))
+  ([manager :- xs/PersonID]
+     "Returns a list of all programs the manager is manager of."
+     (map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
+          (select program (where {:manager manager})))))
 
 (s/defn program-find :- [xs/Program]
   [keywords :- [s/Str]]

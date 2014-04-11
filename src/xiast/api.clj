@@ -255,9 +255,20 @@
   (GET "/course/:id" [id]
     ((wrap-api-function enrollment-course) id)))
 
+(defn program-manager-programs
+  []
+  (if (some #{:program-manager} (:user-functions *session*))
+    {:programs (query/program-list (:user *session*))}
+    {:programs []}))
+
+(defroutes program-manager-routes
+  (GET "/programs" []
+       ((wrap-api-function program-manager-programs))))
+
 (defroutes api-routes
   (GET "/" [] "Invalid request")
   (context "/course" [] course-routes)
   (context "/program" [] program-routes)
   (context "/room" [] room-routes)
-  (context "/enrollment" [] enrollment-routes))
+  (context "/enrollment" [] enrollment-routes)
+  (context "/program-manager" [] program-manager-routes))

@@ -107,3 +107,10 @@
               (api/enrollment-student)) => {:enrollments nil}
             (provided
              (query/enrollments-student irrelevant) => nil)))
+
+(facts "Program-manager API"
+      (fact (api/program-manager-programs) => {:programs []})
+      (fact (binding [*session* {:user-functions #{:program-manager}}]
+              (api/program-manager-programs)) => {:programs :ok}
+            (provided
+             (query/program-list irrelevant) => :ok)))
