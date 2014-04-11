@@ -5,29 +5,17 @@
   (:require [schema.core :as s]
             [xiast.schema :as xs])
   (:use [clojure.set :only [map-invert]]
+        [xiast.schema :only [room-facilities course-grades course-activity-types]]
         [xiast.database]
         [korma.db]
-        [korma.core]))
+        [korma.core]
+        [slingshot.slingshot :only [throw+ try+]]))
 
 
 ;; TODO: replace all find's with get's (nvgeele)
+;; TODO: replace-keys can make code cleaner (nvgeele)
 
-
-(def room-facilities
-  {0 :beamer
-   1 :overhead-projector
-   2 :speakers})
-
-(def course-grades
-  {0 :ba
-   1 :ma
-   2 :manama
-   3 :schakel
-   4 :voorbereiding})
-
-(def course-activity-types
-  {0 :HOC
-   1 :WPO})
+;; Functions for converting database records to Schema data.
 
 (defn person->sPerson
   [person]
@@ -48,11 +36,11 @@
      :semester (:semester course-activity)
      :week (:week course-activity)
      :contact-time-hours (:contact-time-hours course-activity)
+     :instructor instructor-id
      :facilities (set (map #(get room-facilities (:facility %))
                            (select course-activity-facility
                                    (where {:course-activity
-                                           (:id course-activity)}))))
-     :instructor instructor-id}))
+                                           (:id course-activity)}))))}))
 
 (defn course->sCourse
   [course]
@@ -183,7 +171,7 @@
                    :surname (:last-name new-person)
                    :locale (:locale new-person)})))
 
-(s/defn person-get :- xs/Person
+(s/defn person-get :- (s/maybe xs/Person)
   [netid :- xs/PersonID]
   "Fetch person associated with a certain NetID from the database."
   (let [person
@@ -219,11 +207,11 @@
            (if student? :student)])
      nil)))
 
-(defn person-create!
+(s/defn person-create! :- xs/PersonID
   "This functions checks whether a user with the given netid exists in the
   database. If not, a new record for the person will be inserted. Returns
   netid."
-  [netid]
+  [netid :- xs/PersonID]
   ;; TODO: Standard locale (nvgeele)
   (if (empty? (person-get netid))
     (person-add! {:netid netid
@@ -248,7 +236,7 @@
                               :type ((:type activity)
                                      (map-invert course-activity-types))
                               :semester (:semester activity)
-                              :date (:date activity)
+                              :week (:week activity)
                               :contact-time-hours
                               (:contact-time-hours activity)})))]
         (insert course-instructor
@@ -258,7 +246,8 @@
         (doseq [facility facilities]
           (insert course-activity-facility
                   (values {:course-activity key
-                           :facility facility})))))))
+                           :facility facility})))
+        key))))
 
 (s/defn course-add! :- s/Any
   [new-course :- xs/Course]
@@ -292,6 +281,7 @@
 (s/defn course-delete-activity! :- s/Any
   [activity-code :- s/Int]
   "Delete a course's activity."
+  ;; Facilities will be deleted by cascade.
   (delete course-activity
           (where {:id activity-code})))
 
@@ -304,6 +294,24 @@
       (course->sCourse (first course))
       nil)))
 
+(s/defn course-programs :- #{xs/ProgramID}
+  [course-code :- xs/CourseCode]
+  "Return seq of program-ids for programs which contain course with
+  course-id"
+  (let [m-ids (map :program
+                   (select program-mandatory-course
+                           (where {:course-code course-code})))
+        o-ids (map :program
+                   (select program-choice-course
+                           (where {:course-code course-code})))]
+    (set (conj m-ids o-ids))))
+
+(s/defn course-activity-facilities :- #{xs/RoomFacility}
+  [activity-code :- s/Int]
+  (set (map #(get room-facilities (:facility %))
+            (select course-activity-facility
+                    (where {:course-activity activity-code})))))
+
 (s/defn course-activity-get :- xs/CourseActivity
   [id :- s/Int]
   (let [result (select course-activity
@@ -311,6 +319,16 @@
     (if (empty? result)
       nil
       (course-activity->sCourseActivity (first result)))))
+
+(s/defn course-activity-update! :- s/Int
+  [activity :- xs/CourseActivity]
+  (if-let [id (:id activity)]
+    (let [course-code ((comp :course-code first)
+                       (select course-activity
+                               (where {:id id})))]
+      (course-delete-activity! id)
+      (course-add-activity! course-code activity))
+    (throw+ {:error "ID required"})))
 
 (s/defn course-list :- [xs/Course]
   []
@@ -334,10 +352,14 @@
          results)))
 
 (s/defn program-list :- [xs/Program]
-  []
-  "Returns a list of all programs."
-  (map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
-       (select program)))
+  ([]
+     "Returns a list of all programs."
+     (map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
+          (select program)))
+  ([manager :- xs/PersonID]
+     "Returns a list of all programs the manager is manager of."
+     (map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
+          (select program (where {:manager manager})))))
 
 (s/defn program-find :- [xs/Program]
   [keywords :- [s/Str]]
@@ -389,6 +411,20 @@
   (delete program
           (where {:id id})))
 
+(s/defn program-add-mandatory! :- s/Any
+  [id :- xs/ProgramID
+   course :- xs/CourseCode]
+  (insert program-mandatory-course
+          (values {:program id
+                   :course-code course})))
+
+(s/defn program-add-optional! :- s/Any
+  [id :- xs/ProgramID
+   course :- xs/CourseCode]
+  (insert program-choice-course
+          (values {:program id
+                   :course-code course})))
+
 (s/defn enrollments-student :- [xs/Enrollment]
   [student-id :- xs/PersonID]
   "Get a list of all enrollments from a student."
@@ -435,32 +471,35 @@
 (s/defn department-add! :- s/Any
   [new-department :- xs/Department]
   "Add a new department to the database."
-  (let [dep (if (:faculty new-department)
-              new-department
-              (assoc new-department :faculty ""))]
-    (department-add! *db* dep)))
+  (insert department (values (dissoc new-department :id))))
 
-;;(defprotocol Schedules
-;;  (course-schedule
-;;    [this course-code]
-;;    [this course-code timespan]
-;;    "Return a list of schedule blocks for a course, optionally using a
-;;    timespan to limit results.")
-;;  (student-schedule
-;;    [this student-id]
-;;    [this student-id timespan]
-;;    "Return a list of schedule blocks for a student, optionally using
-;;    a timespan to limit results.")
-;;  (room-schedule
-;;    [this room-id]
-;;    [this room-id timespan]
-;;    "Return a list of schedule blocks for a room, optionally using a
-;;    timespan to limit results.")
-;;  (program-schedule
-;;    [this program-id]
-;;    [this program-id timespan]
-;;    "Return a list of schedule blocks for a whole program, optionally
-;;    using a timespan to limit results."))
+;; Schedule queries
+
+(s/defn course-schedule :- xs/Schedule
+  [course-code :- xs/CourseCode
+   timespan :- xs/TimeSpan]
+  "Returns the schedule for a certain course in the provided timespan."
+  nil)
+
+(s/defn student-schedule :- xs/Schedule
+  [student-id :- xs/PersonID
+   timespan :- xs/TimeSpan]
+  "Returns the schedules for courses a certain student is enrolled in the
+   provided timespan."
+  nil)
+
+(s/defn room-schedule :- xs/Schedule
+  [room-id :- xs/RoomID
+   timespan :- xs/TimeSpan]
+  "Returns the schedule for a certain room in the provided timespan."
+  nil)
+
+(s/defn program-schedule :- xs/Schedule
+  [program-id :- xs/ProgramID
+   timespan :- xs/TimeSpan]
+  "Returns the schedules for all courses in a certain program in the provided
+   timespan."
+  nil)
 
 ;; TODO: Remove mockdata. (nvgeele)
 (defprotocol XiastQuery
@@ -485,15 +524,3 @@ a timespan to limit results.")
     [this room-id timespan]
     "Return a list of schedule blocks for a room, optionally using a
 timespan to limit results."))
-
-(defn- in-range? [num range]
-  (<= (first range) num (second range)))
-
-(defn schedule-block-in-timespan? [block timespan]
-  ;; FIXME ew (aleijnse)
-  (and (every? true?
-               (map in-range?
-                    (map block [:week :day])
-                    (map timespan [:weeks :days])))
-       (or (in-range? (:start-time block) (:time timespan))
-           (in-range? (:end-time block) (:time timespan)))))
