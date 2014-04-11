@@ -40,20 +40,9 @@
     (exec-raw test-db sql)))
 
 (def test-rooms
-  {:room1 {:id {:building "F" :floor 1 :number 1}
-           :capacity 100
-           :facilities #{}}
-   :room2 {:id {:building "F" :floor 2 :number 1}
-           :capacity 100
-           :facilities #{}}
-   :room3 {:id {:building "G" :floor 1 :number 1}
-           :capacity 100
-           :facilities #{}}
-   :room4 {:id {:building "B" :floor 2 :number 1}
-           :capacity 100
-           :facilities #{}}})
+  (list xmp/F5-403 xmp/F4-412 xmp/E0-04 xmp/G1-022))
 
-;; TODO: remove id's from rooms outside of database;
+;; TODO: remove :id's from room-ids outside of database;
 ;; They can still be used as primary keys for relations
 ;; in the database, but (building, floor, number) is
 ;; also unique.
@@ -62,27 +51,27 @@
         ;; Fails if Schema is not validating
         (is (thrown? Exception (query/room-add! {:test 0}))) => irrelevant
         ;; Add some rooms for testing to the database
-        (doseq [test-room (vals test-rooms)]
+        (doseq [test-room test-rooms]
           (query/room-add! test-room)) => irrelevant)
   (facts "room-list"
          (fact "List all rooms"
                (map #(assoc % :id (dissoc (:id %) :id))
                     (query/room-list))
-               => (vals test-rooms))
+               => test-rooms)
          (fact "List all rooms in building F"
                (set (map #(assoc % :id (dissoc (:id %) :id))
                          (query/room-list "F")))
-               => (set (vals (select-keys test-rooms [:room1 :room2]))))
-         (fact "List all rooms in building F, floor 2"
-               (let [room (first (query/room-list "F" 2))]
+               => (set (list xmp/F5-403 xmp/F4-412)))
+         (fact "List all rooms in building F, floor 4"
+               (let [room (first (query/room-list "F" 4))]
                  (assoc room :id (dissoc (:id room) :id)))
-               => (:room2 test-rooms)))
+               => xmp/F4-412))
   (fact "room-get"
-        (let [room (query/room-get (:id (:room1 test-rooms)))]
+        (let [room (query/room-get (:id (first test-rooms)))]
           (assoc room :id (dissoc (:id room) :id)))
-        => (:room1 test-rooms))
+        => (first test-rooms))
   (fact "room-delete!"
-        (doseq [test-room (vals test-rooms)]
+        (doseq [test-room test-rooms]
           (query/room-delete! (:id test-room))) => irrelevant
           (query/room-list) => []))
 

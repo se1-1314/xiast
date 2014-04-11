@@ -328,37 +328,37 @@ Inschrijven voor de bachelorproef kan indien het een inschrijving betreft waarbi
 ;; =====
 (def D0-05 {:id {:building "D", :floor 0, :number 05}
             :capacity 200
-            :facilities {:beamer :overhead-projector}
+            :facilities #{:beamer :overhead-projector}
             })
 (def D0-03 {:id {:building "D", :floor 0, :number 03}
             :capacity 200
-            :facilities {:beamer :overhead-projector}
+            :facilities #{:beamer :overhead-projector}
             })
 (def G1-022 {:id {:building "G", :floor 1, :number 022}
              :capacity 100
-             :facilities {:beamer :overhead-projector}
+             :facilities #{:beamer :overhead-projector}
              })
 (def G1-023 {:id {:building "G", :floor 1, :number 023}
              :capacity 150
-             :facilities {:beamer :overhead-projector}
+             :facilities #{:beamer :overhead-projector}
              })
 (def F5-403 {:id {:building "F", :floor 5, :number 403}
              :capacity 70
-             :facilities {:beamer :overhead-projector}
+             :facilities #{:beamer :overhead-projector}
              })
-(def F4-412 {:id {:building "F", :floor 5, :number 412}
+(def F4-412 {:id {:building "F", :floor 4, :number 412}
              :capacity 20
-             :facilities {:beamer :overhead-projector}
+             :facilities #{:beamer :overhead-projector}
              })
 (def E0-04 {:id {:building "E", :floor 0, :number 04}
              :capacity 100
-             :facilities {:beamer :overhead-projector}
+             :facilities #{:beamer :overhead-projector}
              })
 (def E0-05 {:id {:building "E", :floor 0, :number 05}
             :capacity 80
-            :facilities {:beamer :overhead-projector}
+            :facilities #{:beamer :overhead-projector}
             })
 (def E0-06 {:id {:building "E", :floor 0, :number 06}
             :capacity 80
-            :facilities {:beamer :overhead-projector}
+            :facilities #{:beamer :overhead-projector}
             })
