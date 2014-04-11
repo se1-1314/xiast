@@ -18,7 +18,7 @@ Parameters: 	divID: The id where the information should be displayed
 returns: 		function to be used as a callback in the AJAX call
 
  *****************************************/
-function process_JSON_program(divID, root_key){
+function process_JSON_program(divID, key){
 
 	return function(data){
 	console.log(data);
