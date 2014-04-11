@@ -294,9 +294,9 @@
 (defroutes program-manager-routes
   (GET "/programs" []
        ((wrap-api-function program-manager-programs)))
-  (GET "/program/optional" {body :body}
+  (POST "/program/optional" {body :body}
        ((wrap-api-function program-manager-add-optional) (slurp body)))
-  (GET "/program/mandatory" {body :body}
+  (POST "/program/mandatory" {body :body}
        ((wrap-api-function program-manager-add-mandatory) (slurp body))))
 
 (defroutes api-routes
