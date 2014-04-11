@@ -37,7 +37,8 @@ gebruiken van  wiskundig formalisme."
    :department "DINF"
    :grade :ba
    :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 2 :titular-id "100127"}
-   {:type :WPO :semester 1 :week 0 :contact-time-hours 2 :titular-id "0084047"))})
+                 {:type :WPO :semester 1 :week 0 :contact-time-hours 2 :titular-id "0084047"}}
+   })
 (def foundations-of-informatics1
   {:course-code "1000447ANR"
    :title "Grondslagen van de informatica I"
@@ -163,7 +164,7 @@ De inhoud van het theoretisch gedeelte:
    :grade :ba
    :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 3 :titular-id "1234567"}
                  {:type :WPO :semester 1 :week 0 :contact-time-hours 4 :titular-id "5389644"}
-                  {:type :WPO :semester 1 :week 0 :contact-time-hours 4 :titular-id "4264924"}}
+                 {:type :WPO :semester 1 :week 0 :contact-time-hours 4 :titular-id "4264924"}}
    })
 (def economics-for-business
   {:course-code "1001714AER"
@@ -206,7 +207,7 @@ Optimalisatie van de virtuele machine"
    :grade :ba
    :activities #{{:type :HOC :semester 1 :week 0 :contact-time-hours 2 :titular-id "0000585"}
                  {:type :WPO :semester 1 :week 0 :contact-time-hours 2 :titular-id "1568634"}}
-    })
+   })
 (def social-psychology
   {:course-code "1018725AER"
    :title "Sociale Psychologie"
@@ -224,7 +225,7 @@ Les 9: Hoofdstuk 7 - Attitudes: Resistance, Behavior & Advertising"
    :department "EXTO"
    :grade :ba
    :activities #{{:type :HOC :semester 1 :weel 0 :contact-time-hours 3 :titular-id "3596346"}}
-    })
+   })
 
 ;; Programs
 ;; ========
@@ -303,9 +304,9 @@ Inschrijven voor de bachelorproef kan indien het een inschrijving betreft waarbi
                  :last-name "Dominguez"
                  :locale "English"})
 (def mpuwase {:netid "4264924"
-             :first-name "Marie-Paule"
-             :last-name "Uwase"
-             :locale "English"})
+              :first-name "Marie-Paule"
+              :last-name "Uwase"
+              :locale "English"})
 (def ischeerlinck {:netid "0025867"
                    :first-name "Ilse"
                    :last-name "Scheerlinck"
@@ -322,5 +323,45 @@ Inschrijven voor de bachelorproef kan indien het een inschrijving betreft waarbi
                     :first-name "Frank"
                     :last-name "Van Overwalle"
                     :locale "Dutch"})
+
+;; Rooms
+;; =====
+(def D0-05 {:id {:building "D", :floor 0, :number 05}
+            :capacity 200
+            :facilities {:beamer :overhead-projector}
+            })
+(def D0-03 {:id {:building "D", :floor 0, :number 03}
+            :capacity 200
+            :facilities {:beamer :overhead-projector}
+            })
+(def G1-022 {:id {:building "G", :floor 1, :number 022}
+             :capacity 100
+             :facilities {:beamer :overhead-projector}
+             })
+(def G1-023 {:id {:building "G", :floor 1, :number 023}
+             :capacity 150
+             :facilities {:beamer :overhead-projector}
+             })
+(def F5-403 {:id {:building "F", :floor 5, :number 403}
+             :capacity 70
+             :facilities {:beamer :overhead-projector}
+             })
+(def F4-412 {:id {:building "F", :floor 5, :number 412}
+             :capacity 20
+             :facilities {:beamer :overhead-projector}
+             })
+(def E0-04 {:id {:building "E", :floor 0, :number 04}
+             :capacity 100
+             :facilities {:beamer :overhead-projector}
+             })
+(def E0-05 {:id {:building "E", :floor 0, :number 05}
+            :capacity 80
+            :facilities {:beamer :overhead-projector}
+            })
+(def E0-06 {:id {:building "E", :floor 0, :number 06}
+            :capacity 80
+            :facilities {:beamer :overhead-projector}
+            })
+
 
 

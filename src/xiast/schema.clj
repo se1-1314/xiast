@@ -8,7 +8,7 @@
              :building s/Str
              :floor s/Int
              :number s/Int})
-(def RoomFacility (s/enum :beamer :overhead-projector))
+(def RoomFacility (s/enum :beamer :overhead-projector))  ;; TODO: adding PANOPTO?
 (def Room {:id RoomID
            :capacity s/Int
            :facilities #{RoomFacility}})
