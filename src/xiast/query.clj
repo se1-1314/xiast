@@ -411,6 +411,20 @@
   (delete program
           (where {:id id})))
 
+(s/defn program-add-mandatory! :- s/Any
+  [id :- xs/ProgramID
+   course :- xs/CourseCode]
+  (insert program-mandatory-course
+          (values {:program id
+                   :course-code course})))
+
+(s/defn program-add-optional! :- s/Any
+  [id :- xs/ProgramID
+   course :- xs/CourseCode]
+  (insert program-choice-course
+          (values {:program id
+                   :course-code course})))
+
 (s/defn enrollments-student :- [xs/Enrollment]
   [student-id :- xs/PersonID]
   "Get a list of all enrollments from a student."

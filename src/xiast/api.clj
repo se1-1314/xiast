@@ -45,6 +45,10 @@
   (assoc (dissoc xs/CourseActivity [:facilities :instructor])
     :facilities [xs/RoomFacility]))
 
+(def CourseAddQuery
+  {:program xs/ProgramID
+   :course xs/CourseCode})
+
 ;; Course API
 
 (defn course-list
@@ -261,9 +265,39 @@
     {:programs (query/program-list (:user *session*))}
     {:programs []}))
 
+(defn program-manager-add-optional
+  [body]
+  (try+ (let [request (coerce-as CourseAddQuery body)]
+          ;; TODO: Check if user is manager of program itself or not? (nvgeele)
+          (if (some #{:program-manager} (:user-functions *session*))
+            (do (query/program-add-optional! (:program request) (:course request))
+                {:result "OK"})
+            {:result "Not authorized"}))
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result "Error"})))
+
+(defn program-manager-add-mandatory
+  [body]
+  (try+ (let [request (coerce-as CourseAddQuery body)]
+          ;; TODO: Check if user is manager of program itself or not? (nvgeele)
+          (if (some #{:program-manager} (:user-functions *session*))
+            (do (query/program-add-mandatory! (:program request) (:course request))
+                {:result "OK"})
+            {:result "Not authorized"}))
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result "Error"})))
+
 (defroutes program-manager-routes
   (GET "/programs" []
-       ((wrap-api-function program-manager-programs))))
+       ((wrap-api-function program-manager-programs)))
+  (GET "/program/optional" {body :body}
+       ((wrap-api-function program-manager-add-optional) (slurp body)))
+  (GET "/program/mandatory" {body :body}
+       ((wrap-api-function program-manager-add-mandatory) (slurp body))))
 
 (defroutes api-routes
   (GET "/" [] "Invalid request")
