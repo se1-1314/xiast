@@ -17,11 +17,12 @@
 
 (defn coerce-as
   [schema str]
-  (println str)
   (let [json (read-str str :key-fn keyword)
         coercer (coerce/coercer schema coerce/json-coercion-matcher)
         res (coercer json)]
     (if (schema.utils/error? res)
+      #_(do (println res)
+            (throw+ {:type :coercion-error}))
       (throw+ {:type :coercion-error})
       res)))
 
@@ -29,17 +30,21 @@
   [str]
   (read-str str :key-fn keyword))
 
-(def FindQuery
-  {:keywords [s/Str]})
-
-(def parse-find-query
-  (coerce/coercer FindQuery coerce/json-coercion-matcher))
-
 (defn wrap-api-function
   [func]
   (fn [& args]
     (let [result (if args (apply func args) (func))]
       (write-str result))))
+
+;; Request Schema's
+
+(def FindQuery
+  {:keywords [s/Str]})
+
+(def CourseActivityAPI
+  ;; Schema can not (yet) coerce a JSON array (clojure vector) as a set...
+  (assoc (dissoc xs/CourseActivity [:facilities :instructor])
+    :facilities [xs/RoomFacility]))
 
 ;; Course API
 
@@ -91,6 +96,19 @@
     activity
     []))
 
+;; TODO: security; check if program manager! (nvgeele)
+(defn course-activity-put
+  [id body]
+  (try+ (let [request (coerce-as CourseActivityAPI body)
+              activity (assoc (dissoc request :facilities)
+                         :facilities (set (:facilities request)))]
+          (let [new-id (query/course-activity-update! (assoc activity :id id))]
+            {:id new-id}))
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result "Error"})))
+
 (defroutes course-routes
   (GET "/" []
        "Invalid request")
@@ -106,7 +124,9 @@
         ((wrap-api-function course-add) (slurp body)))
   ;; TODO: add activity by API, maybe
   (GET "/activity/get/:id" [id]
-       ((wrap-api-function course-activity-get) id)))
+       ((wrap-api-function course-activity-get) id))
+  (PUT "/activity/:id" [id :as {body :body}]
+       ((wrap-api-function course-activity-put) id (slurp body))))
 
 ;; Program API
 
