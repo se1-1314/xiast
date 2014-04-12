@@ -41,7 +41,7 @@ function show_facilities_course()
 		json_var = data;
 		$("#beamer").prop('checked', false);
 		$("#overhead-projector").prop('checked', false);
-		$("#speakers").prop('checked', false);
+		//$("#speakers").prop('checked', false);
 		$.each(data, function(key, val) 
 		{
 			if (key === 'facilities')
@@ -59,10 +59,10 @@ function show_facilities_course()
 					{
 						$("#overhead-projector").prop('checked', true);
 					}
-					else if(val[i] == 'speakers')
-					{
-						$("#speakers").prop('checked', true);
-					}
+					//else if(val[i] == 'speakers')
+					//{
+						//$("#speakers").prop('checked', true);
+					//}
 				}
 			}
 		});
@@ -88,19 +88,18 @@ function get_facilities_course(caID)
 		}
 }
 
-function update_course_activity_id()
+function update_course_activity_id(data)
 {
-	return function(data)
+	console.log(data);
+	course_activity_id = data.id;
+	alert(course_activity_id);
+	/*$('#schedule-content').fullCalendar(
 	{
-		course_activity_id = data.id;
-		$('#schedule-content').fullCalendar(
-		{
-		    eventClick: function(event, element) 
-		    {
-		        event.course_activity_id = course_activity_id;
-		    }
-		});
-	};
+	    eventClick: function(event, element) 
+	    {
+	        event.course_activity_id = course_activity_id;
+	    }
+	});*/
 }
 
 function set_facilities_course()
@@ -116,15 +115,21 @@ function set_facilities_course()
 			{
 			facilities.push("overhead-projector");
 			}
-			if($("#speakers").prop('checked'))
-			{
-			facilities.push("speakers");
-			}
+			//if($("#speakers").prop('checked'))
+			//{
+			//facilities.push("speakers");
+			//}
 			json_var.facilities = facilities;
 			json_var.instructor = "0";
 			var data = new Object();
+			
 			data = JSON.stringify(json_var);
-			alert(data);
+			if (typeof data === 'undefined'){
+				// Do nothing
+			}
+			else{
+			//alert(data);
+			console.log(data);
 			$.ajax(
 				{
 			  		type: "PUT",
@@ -132,9 +137,10 @@ function set_facilities_course()
 			  		contentType: "application/json",
 			  		data: data, 
 		  			processData: false,
-		  			success: update_course_activity_id(),
+		  			success: update_course_activity_id,
 			  		dataType: "JSON"
-				});	
+				});
+				}	
 		}
 	catch(error) 
 		{

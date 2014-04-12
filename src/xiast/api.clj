@@ -43,7 +43,7 @@
 
 (def CourseActivityAPI
   ;; Schema can not (yet) coerce a JSON array (clojure vector) as a set...
-  (assoc (dissoc xs/CourseActivity [:facilities :instructor])
+  (assoc (dissoc xs/CourseActivity [:facilities])
     :facilities [xs/RoomFacility]))
 
 ;; Course API
