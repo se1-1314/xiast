@@ -65,6 +65,7 @@
 (def ScheduledCourseActivity
   {:type CourseActivityType
    (s/optional-key :title) (s/named s/Str "Course title")
+   :course-activity s/Int
    :course-id CourseCode})
 (def ScheduleBlockID s/Int)
 (def ScheduleBlock

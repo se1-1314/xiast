@@ -475,11 +475,51 @@
 
 ;; Schedule queries
 
+(s/defn schedule-block-add! :- xs/ScheduleBlockID
+  [block :- xs/ScheduleBlock]
+  (let [course-activity (:course-activity (:item block))
+        room-id (:id (first (select room (where (:room block)))))
+        key (insert schedule-block
+                    (values {:week (:week block)
+                             :day (:day block)
+                             :first-slot (:first-slot block)
+                             :last-slot (:last-slot block)
+                             :room room-id
+                             :course-activity course-activity}))]
+    (:GENERATED_KEY key)))
+
+;;(val (find course-activity-types (:type course-activity)))
+
+(s/defn schedule-block->sScheduleBlock
+  [block]
+  (assoc (dissoc block [:room :course-activity])
+    :item (let [activity
+                (first (select course-activity
+                               (where {:id (:course-activity block)})))]
+            {:type (get course-activity-types (:type activity))
+             :course-activity (:id activity)
+             :course-code (:course-code activity)})
+    :room (first (select room
+                         (where {:id (:room block)})
+                         (fields :building :floor :number)))))
+
 (s/defn course-schedule :- xs/Schedule
   [course-code :- xs/CourseCode
    timespan :- xs/TimeSpan]
   "Returns the schedule for a certain course in the provided timespan."
-  nil)
+  (let [activities (select course-activity
+                           (where {:course-code course-code})
+                           (fields :id))
+        blocks (map #(select schedule-block
+                             (where {:course-activity %
+                                     :week [>= (first (:weeks timespan)) (second (:weeks timespan))]
+                                     ;;:week [<= (second (:weeks timespan))]
+                                     :days [>= (first (:days timespan)) (second (:days timespan))]
+                                     ;;:days [<= (second (:days timespan))]
+                                     :first-slot [<= (first (:slots timespan))]
+                                     :last-slot [<= (second (:slots timespan))]}))
+                    activities)]
+    (mapcat schedule-block->sScheduleBlock blocks)))
 
 (s/defn student-schedule :- xs/Schedule
   [student-id :- xs/PersonID
