@@ -494,6 +494,12 @@
   "Returns the schedule for a certain room in the provided timespan."
   nil)
 
+(s/defn room-schedules :- xs/Schedule
+  [room-ids :- [xs/RoomID]
+   timespan :- xs/TimeSpan]
+  "Return the schedule for multiple rooms in the provided timespan"
+  (apply clojure.set/union (map #(room-schedule % timespan) room-ids)))
+
 (s/defn program-schedule :- xs/Schedule
   [program-id :- xs/ProgramID
    timespan :- xs/TimeSpan]
