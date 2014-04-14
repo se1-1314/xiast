@@ -31,6 +31,11 @@
     :mandatory []
     :optional []}))
 
+(def program-add-course-request
+  (write-str
+   {:program 0
+    :course "test"}))
+
 (facts "Course API functions work"
        (fact "course-get works"
              (api/course-get nil) => []
@@ -61,8 +66,8 @@
               (api/course-add course-add-request) => {:result "Not authorized"}
               (fact (binding [*session* {:user-functions #{:program-manager}}]
                       (api/course-add course-add-request)) => {:result "OK"}
-                    (provided
-                     (query/course-add! irrelevant) => nil)))
+                      (provided
+                       (query/course-add! irrelevant) => nil)))
        (facts "course-activity-put"
               (api/course-activity-put 0 "") => {:result "Error"}
               (api/course-activity-put 0 "[]") => {:result "Invalid JSON"}
@@ -82,13 +87,13 @@
                     (query/program-get nil) => nil))
              (fact (binding [*session* {:user "testuser"}]
                      (api/program-delete nil)) => {:result "Not authorized"}
-                   (provided
-                    (query/program-get nil) => {:program "not-testuser"}))
+                     (provided
+                      (query/program-get nil) => {:program "not-testuser"}))
              (fact (binding [*session* {:user "testuser"}]
                      (api/program-delete nil)) => {:result "OK"}
-                   (provided
-                    (query/program-get nil) => {:manager "testuser"}
-                    (query/program-delete! nil) => nil)))
+                     (provided
+                      (query/program-get nil) => {:manager "testuser"}
+                      (query/program-delete! nil) => nil)))
        (fact "program-find works"
              (api/program-find "fubar") => {:result "Error"}
              (api/program-find "{\"keywrds\":[\"test\"]}") => {:result "Invalid JSON"}
@@ -96,14 +101,45 @@
              (provided
               (query/program-find ["test"]) => []))
        (fact "program-add works"
-              (api/program-add "test") => {:result "Error"}
-              (api/program-add "{\"test\":0}") => {:result "Invalid JSON"}
-              (fact (api/program-add program-add-request) => {:result "OK"}
-                    (provided
-                     (query/program-add! irrelevant) => nil))))
+             (api/program-add "test") => {:result "Error"}
+             (api/program-add "{\"test\":0}") => {:result "Invalid JSON"}
+             (fact (api/program-add program-add-request) => {:result "OK"}
+                   (provided
+                    (query/program-add! irrelevant) => nil))))
 
 (fact "Enrollment API"
       (fact (binding [*session* {:user "testuser"}]
               (api/enrollment-student)) => {:enrollments nil}
-            (provided
-             (query/enrollments-student irrelevant) => nil)))
+              (provided
+               (query/enrollments-student irrelevant) => nil)))
+
+(facts "Program-manager API"
+       (fact (api/program-manager-programs) => {:programs []})
+       (fact (binding [*session* {:user-functions #{:program-manager}}]
+               (api/program-manager-programs)) => {:programs :ok}
+               (provided
+                (query/program-list irrelevant) => :ok))
+       (fact "program-manager-add-optional"
+             (api/program-manager-add-optional "test")
+             => {:result "Error"}
+             (api/program-manager-add-optional "[]")
+             => {:result "Invalid JSON"}
+             (api/program-manager-add-optional program-add-course-request)
+             => {:result "Not authorized"}
+             (binding [*session* {:user-functions #{:program-manager}}]
+               (api/program-manager-add-optional program-add-course-request))
+             => {:result "OK"}
+             (provided
+              (query/program-add-optional! irrelevant irrelevant) => []))
+       (fact "program-manager-add-mandatory"
+             (api/program-manager-add-mandatory "test")
+             => {:result "Error"}
+             (api/program-manager-add-mandatory "[]")
+             => {:result "Invalid JSON"}
+             (api/program-manager-add-mandatory program-add-course-request)
+             => {:result "Not authorized"}
+             (binding [*session* {:user-functions #{:program-manager}}]
+               (api/program-manager-add-mandatory program-add-course-request))
+             => {:result "OK"}
+             (provided
+              (query/program-add-mandatory! irrelevant irrelevant) => [])))
