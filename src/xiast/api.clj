@@ -292,6 +292,8 @@
           {:result "Error"})))
 
 (defroutes program-manager-routes
+  (GET "/" []
+       "Invalid request")
   (GET "/programs" []
        ((wrap-api-function program-manager-programs)))
   (POST "/program/optional" {body :body}
@@ -299,10 +301,65 @@
   (POST "/program/mandatory" {body :body}
        ((wrap-api-function program-manager-add-mandatory) (slurp body))))
 
+(defn schedule-student-get
+  [timespan]
+  (if (:user *session*)
+    {:schedule (query/student-schedule (:user *session*) timespan)}
+    {:error "Not logged in"}))
+
+(defn schedule-instructor-get
+  [timespan]
+  (cond
+   (not (:user *session*))
+   {:error "Not logged in"}
+   (not (some #{:instructor} (:user-functions *session*)))
+   {:error "Not an instructor"}
+   :else
+   {:schedule (query/instructor-schedule (:user *session*) timespan)}))
+
+(defn schedule-course-get
+  [course-code timespan]
+  {:schedule (query/course-schedule course-code timespan)})
+
+(defn schedule-program-get
+  [program-id timespan]
+  {:schedule (query/program-schedule program-id timespan)})
+
+(defroutes schedule-routes
+  (GET "/" []
+       "Invalid request")
+  (GET "/student/:w1/:w2/:d1/:d2/:s1/:s2"
+       [w1 w2 d1 d2 s1 s2]
+       ((wrap-api-function schedule-student-get)
+        {:weeks [w1 w2]
+         :days [d1 d2]
+         :slots [s1 s2]}))
+  (GET "/instructor/:w1/:w2/:d1/:d2/:s1/:s2"
+       [w1 w2 d1 d2 s1 s2]
+       ((wrap-api-function schedule-instructor-get)
+        {:weeks [w1 w2]
+         :days [d1 d2]
+         :slots [s1 s2]}))
+  (GET "/course/:course-code/:w1/:w2/:d1/:d2/:s1/:s2"
+       [course-code w1 w2 d1 d2 s1 s2]
+       ((wrap-api-function schedule-course-get)
+        course-code
+        {:weeks [w1 w2]
+         :days [d1 d2]
+         :slots [s1 s2]}))
+  (GET "/program/:id/:w1/:w2/:d1/:d2/:s1/:s2"
+       [id w1 w2 d1 d2 s1 s2]
+       ((wrap-api-function schedule-program-get)
+        id
+        {:weeks [w1 w2]
+         :days [d1 d2]
+         :slots [s1 s2]})))
+
 (defroutes api-routes
   (GET "/" [] "Invalid request")
   (context "/course" [] course-routes)
   (context "/program" [] program-routes)
   (context "/room" [] room-routes)
   (context "/enrollment" [] enrollment-routes)
-  (context "/program-manager" [] program-manager-routes))
+  (context "/program-manager" [] program-manager-routes)
+  (context "/schedule" [] schedule-routes))

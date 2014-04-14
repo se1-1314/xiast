@@ -488,6 +488,20 @@
 
 ;; Schedule queries
 
+(defn- schedule-blocks-in-timespan
+  ([timespan]
+     (schedule-blocks-in-timespan timespan {}))
+  ([timespan constraints]
+     (select schedule-block
+             (where (merge constraints
+                           {:course-activity course-activity
+                            :week [>= (first (:weeks timespan)) (second (:weeks timespan))]
+                            ;;:week [<= (second (:weeks timespan))]
+                            :days [>= (first (:days timespan)) (second (:days timespan))]
+                            ;;:days [<= (second (:days timespan))]
+                            :first-slot [<= (first (:slots timespan))]
+                            :last-slot [<= (second (:slots timespan))]})))))
+
 (s/defn schedule-block-add! :- xs/ScheduleBlockID
   [block :- xs/ScheduleBlock]
   (let [course-activity (:course-activity (:item block))
@@ -516,14 +530,7 @@
   (let [activities (select course-activity
                            (where {:course-code course-code})
                            (fields :id))
-        blocks (map #(select schedule-block
-                             (where {:course-activity %
-                                     :week [>= (first (:weeks timespan)) (second (:weeks timespan))]
-                                     ;;:week [<= (second (:weeks timespan))]
-                                     :days [>= (first (:days timespan)) (second (:days timespan))]
-                                     ;;:days [<= (second (:days timespan))]
-                                     :first-slot [<= (first (:slots timespan))]
-                                     :last-slot [<= (second (:slots timespan))]}))
+        blocks (map #(schedule-blocks-in-timespan timespan {:course-activity %})
                     activities)]
     (mapcat schedule-block->sScheduleBlock blocks)))
 
@@ -543,14 +550,7 @@
    timespan :- xs/TimeSpan]
   "Returns the schedule for a certain room in the provided timespan."
   (let [room-id (:id (first (select room (where room-id))))
-        blocks (select schedule-block
-                       (where {:room room-id
-                               :week [>= (first (:weeks timespan))(second (:weeks timespan))]
-                               ;;:week [<= (second (:weeks timespan))]
-                               :days [>= (first (:days timespan)) (second (:days timespan))]
-                               ;;:days [<= (second (:days timespan))]
-                               :first-slot [<= (first (:slots timespan))]
-                               :last-slot [<= (second (:slots timespan))]}))]
+        blocks (schedule-blocks-in-timespan timespan {:room room-id})]
     blocks))
 
 (s/defn program-schedule :- xs/Schedule
@@ -562,10 +562,21 @@
                              (select program-choice-course
                                      (where {:program program-id})))
                         (map :course-code
-                             (select program-mandator-course
+                             (select program-mandatory-course
                                      (where {:program program-id}))))
         schedules (map #(course-schedule % timespan) courses)]
     (mapcat identity schedules)))
+
+(s/defn instructor-schedule :- xs/Schedule
+  [instructor-id :- xs/PersonID
+   timespan :- xs/TimeSpan]
+  (let [activities (map :course-activity
+                        (select course-instructor
+                                (where {:netid instructor-id})
+                                (fields :course-activity)))
+        blocks (map #(schedule-blocks-in-timespan timespan {:course-activity %})
+                    activities)]
+    (mapcat identity blocks)))
 
 ;; TODO: Remove mockdata. (nvgeele)
 (defprotocol XiastQuery

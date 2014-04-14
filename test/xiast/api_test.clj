@@ -36,6 +36,11 @@
    {:program 0
     :course "test"}))
 
+(def timespan
+  {:weeks [0 1]
+   :days [0 1]
+   :slots [0 1]})
+
 (facts "Course API functions work"
        (fact "course-get works"
              (api/course-get nil) => []
@@ -143,3 +148,23 @@
              => {:result "OK"}
              (provided
               (query/program-add-mandatory! irrelevant irrelevant) => [])))
+
+(facts "Schedule API"
+       (facts "student schedule"
+              (api/schedule-student-get timespan) => {:error "Not logged in"}
+              (fact (binding [*session* {:user "testuser"}]
+                      (api/schedule-student-get timespan)) => {:schedule []}
+                      (provided
+                       (query/student-schedule irrelevant irrelevant) => [])))
+       (facts "instructor schedule"
+              (api/schedule-instructor-get timespan)
+              => {:error "Not logged in"}
+              (binding [*session* {:user "testuser"}]
+                (api/schedule-instructor-get timespan))
+              => {:error "Not an instructor"}
+              (fact (binding [*session* {:user "testuser"
+                                         :user-functions #{:instructor}}]
+                      (api/schedule-instructor-get timespan))
+                    => {:schedule []}
+                    (provided
+                     (query/instructor-schedule irrelevant irrelevant) => []))))
