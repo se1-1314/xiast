@@ -84,7 +84,20 @@
 					<h4 class="modal-title" id="Create_course">Create course</h4>
 				</div>
 				<div class="modal-body">
-					Course
+					<form>
+						<div class="form-group">
+							<label class="control-label" for="CourseCode">Course Code</label>
+							<input id="CourseCode" name="CourseCode" type="text" class="form-control" placeholder="1001812ANR" required>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="title">Title</label>
+							<input id="title" name="title" type="text" class="form-control" placeholder="Title" required>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="description">Description</label>
+							<textarea id="description" name="description" class="form-control" row="10" placeholder="Blah blah blah oh yeah, so fucking cool" required>
+						</div>
+					</form>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Close this shit</button>
