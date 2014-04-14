@@ -6,6 +6,7 @@ $(document).ready(function() {
 	var m = date.getMonth();
 	var y = date.getFullYear();
 
+
 	console.log(m);
 
 	$('#schedule-content').fullCalendar({
@@ -19,14 +20,15 @@ $(document).ready(function() {
 		editable: true,
 		events: [
 				{
-					course_activity_id: '13',
+					course_activity_id: '11',
 					title: 'Vak1',
 					start: new Date(y, m, d, 10, 30),
 					allDay: false,
+					
 				}
 				,
 				{
-					course_activity_id: '16',
+					course_activity_id: '15',
 					title: 'Vak2',
 					start: new Date(y, m, d, 15, 30),
 					allDay: false,
@@ -35,7 +37,7 @@ $(document).ready(function() {
 		eventClick:  
 		function(calEvent, jsEvent, view) 
 		{
-        	get_facilities_course(calEvent.course_activity_id);
+        	get_facilities_course(calEvent);
         }
 	});
 });

@@ -7,22 +7,6 @@ Description:	API handels user request for the semi-scheduling.
 
 
 /*
-Name: 			get_facilities
-Author: 		Anders Deliens & Youssef Boudiba
-Arguments:	 	none
-Returns: 		a string (or array) containing the selected facilities
-Creation Date: 	10/04/2014
-*/
-function get_facilities()
-{
-	$("#save_facilities").click(function(){
-	  var result = $("#facilities input:checked").map(
-	     function () {return this.value;}).get().join(', ');
-		return result;
-	});
-}
-
-/*
 Name: 			get_facilities_course
 Author: 		Anders Deliens & Youssef Boudiba
 Arguments: 		none
@@ -31,8 +15,10 @@ Creation Date: 	10/04/2014
 comment:		new api features were added to directly recieve the requirements instead of going through course
 				to update in the future
 */
-var course_activity_id;
+
 var json_var;
+var calendarEvent;
+
 
 function show_facilities_course()
 {
@@ -69,11 +55,12 @@ function show_facilities_course()
 	};	
 }
 
-function get_facilities_course(caID)
+function get_facilities_course(calEvent)
 {
 	try {
-			var url = apicourse('activity/get/' + caID);
-			course_activity_id = caID;
+			var url = apicourse('activity/get/' + calEvent.course_activity_id);
+			//calenderEvent variable is used to save calEvent for use in future PUT requests.
+			calendarEvent = calEvent;
 			$.ajax(
 				{
 			  		type: "GET",
@@ -90,22 +77,13 @@ function get_facilities_course(caID)
 
 function update_course_activity_id(data)
 {
-	console.log(data);
-	course_activity_id = data.id;
-	alert(course_activity_id);
-	/*$('#schedule-content').fullCalendar(
-	{
-	    eventClick: function(event, element) 
-	    {
-	        event.course_activity_id = course_activity_id;
-	    }
-	});*/
+	calendarEvent.course_activity_id = data.id;
 }
 
 function set_facilities_course()
 {
 	try {
-			var url = apicourse('activity/' + course_activity_id);
+			var url = apicourse('activity/' + calendarEvent.course_activity_id);
 			var facilities = [];
 			if($("#beamer").prop('checked'))
 			{
