@@ -53,12 +53,7 @@
        (map #(set %))
        set))
 ;; Work on seqs of schedule blocks
-(s/defn mandatory-blocks :- Schedule
-  [blocks :- Schedule
-   program-id :- ProgramID]
-  (filter #(mandatory-course? (-> % :item :course-id)
-                              program-id)
-          blocks))
+
 (s/defn blocks-by-program-ids :- {ProgramID Schedule}
   [schedule :- Schedule]
   "Return a map of ProgramIDS to Schedules. The programs are those to
@@ -118,29 +113,32 @@
              :days init-range
              :slots init-range}
             schedule)))
-(s/defn electives-schedule :- Schedule
-  [program-id :- ProgramID
-   schedule :- Schedule]
-  (filter #(elective-course? (-> % :item :course-id) program-id)
-          schedule))
-
 ;; Checks
 ;;-------
 
-(s/defn check-room-overlaps :- [ScheduleCheckResult]
+(s/defn check-room-overlaps :- #{ScheduleCheckResult}
   [proposal :- ScheduleProposal]
-  (->> (-> (q/room-schedules (map :room (proposal-new&moved proposal))
-                             (schedule-timespan
-                              (proposal-new&moved proposal)))
+  (->> (-> (q/room-schedules
+            (map :room (proposal-new&moved proposal))
+            (schedule-timespan (proposal-new&moved proposal)))
            (apply-proposal-to-schedule proposal)
-           (overlapping-schedule-blocks proposed))
+           (overlapping-schedule-blocks (proposal-new&moved proposal)))
        (filter #(= (:room (first %))
                    (:room (second %))))
-       (map (fn [block]
+       (map (fn [block-pair]
               {:type :room-overlap
+               :concerning block-pair}))
+       set))
+(defn check-instructor-availabilities :- #{ScheduleCheckResult}
+  [proposed :- ScheduleProposal]
+  (->> proposed
+       (filter #(not (instructor-available? (:instructor (:item %))
+                                            (:timespan %))))
+       (map (fn [block]
+              {:type :instructor-unavailable
                :concerning #{block}}))))
 (comment
-  (s/defn check-mandatory&optional :- [ScheduleCheckResult]
+  (s/defn check-mandatory&optional :- #{ScheduleCheckResult}
     [proposal :- ScheduleProposal]
     "Checks if there are overlaps in time for mandatory course
    activities."
@@ -166,13 +164,6 @@
                              :concerning (set blocks)})))))))
          (apply concat)
          set))
-  (defn check-instructor-availabilities [proposed]
-    (->> proposed
-         (filter #(not (instructor-available? (:instructor (:item %))
-                                              (:timespan %))))
-         (map (fn [block]
-                {:type :instructor-unavailable
-                 :concerning [block]}))))
   (defn check-weekly-activity [proposed]
     "Check if activities occur more than once per week"
     (->> proposed
