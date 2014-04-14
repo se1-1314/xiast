@@ -1,84 +1,80 @@
 /*****************************************
 Name: 			profile-titularAPI.js
-Creation Date: 	10/04/2014
+Creation Date: 	14/04/2014
 Author: 		Anders Deliens & Youssef Boudiba
-Description:	
+Description:	API handels user request for the titular profile.
 *****************************************/
 
 /*
-Global Variables
+Name: 			show_assigned_course
 Author: 		Anders Deliens & Youssef Boudiba
-Creation Date: 	14/04/2014
-Last modified: 	/04/2014	
-*/
-
-var json_var;		//contains result of a get request and is used in several functions as a way to retrieve information  without making additional get requests.
-var calendarEvent;	//contains selected calendar event.
-
-/*
-Name: 			show_facilities_course
-Author: 		Anders Deliens & Youssef Boudiba
-Arguments: 		none
+Arguments: 		divID (used as a placeholder)
 Returns: 		none
-Creation Date: 	10/04/2014
-Last modified: 	14/04/2014
+Creation Date: 	14/04/2014
 */
 
-function show_facilities_course()
+function show_assigned_courses(divID)
 {
 	return function(data)
 	{
-		json_var = data;
-		$("#beamer").prop('checked', false);
-		$("#overhead-projector").prop('checked', false);
-		//$("#speakers").prop('checked', false);
+		var assigned_courses = [];
+		//courses:
 		$.each(data, function(key, val) 
 		{
-			if (key === 'facilities')
+			var course_title;
+			var course_code;
+			//[]
+			$.each(data, function(key, val) 
 			{
-				var i;
-				var l = val.length;
-				for ( i = 0; i < l; ++i) 
+				//{}
+				$.each(val, function(key, val) 
 				{
-					if(val[i] == 'beamer')
+					//key-value pairs
+					$.each(val, function(key, val) 
 					{
-						$("#beamer").prop('checked', true);
-					}
-					else if(val[i] == 'overhead-projector')
-					{
-						$("#overhead-projector").prop('checked', true);
-					}
-					//else if(val[i] == 'speakers')
-					//{
-						//$("#speakers").prop('checked', true);
-					//}
-				}
-			}
+						if (key === 'course-code')
+						{
+							course_code = val;
+						}
+						else if (key === 'title')
+						{
+							course_title = val;
+						}
+						else if (key === 'titular' && val === '0000585')
+						{
+							//class may be more suitable.
+							assigned_courses.push("<li id ='" + course_code + "' class='list-item btn course-item'>" + course_title + "</li>");
+						}	
+					});
+				});			
+			});
+		});
+		$(divID).empty();
+		$(divID).append('<ul id="assigned_course_list" class="listing"></ul>');
+		$.each(assigned_courses,function(index, value)
+		{
+			$("#assigned_course_list").append(value);
 		});
 	};	
 }
 
 /*
-Name: 			get_facilities_course
+Name: 			get_assigned_courses
 Author: 		Anders Deliens & Youssef Boudiba
-Arguments: 		Calendar event
+Arguments: 		divID
 Returns: 		none (callback function handles additional work).
-Creation Date: 	10/04/2014
-Last modified: 	14/04/2014
-Note: 			Triggered by clicking on calendar event (see calenderviewer.js);
+Creation Date: 	14/04/2014
 */
 
-function get_facilities_course(calEvent)
+function get_assigned_courses(divID)
 {
 	try {
-			var url = apicourse('activity/get/' + calEvent.course_activity_id);
-			//calenderEvent variable is used to save calEvent for use in future PUT requests.
-			calendarEvent = calEvent;
+			var url = apicourse('list');
 			$.ajax(
 				{
 			  		type: "GET",
 			  		url: url,
-			  		success: show_facilities_course(),
+			  		success: show_assigned_courses(divID),
 			  		dataType: "JSON"
 				});	
 		}
@@ -87,11 +83,3 @@ function get_facilities_course(calEvent)
 			alert(error.message);
 		}
 }
-
-/*
-jQuery selectors to trigger the corresponding functions:
-*/
-
-$("#save_facilities").click(function(){
-	set_facilities_course();
-});
