@@ -584,26 +584,3 @@
                     activities)]
     (mapcat identity blocks)))
 
-;; TODO: Remove mockdata. (nvgeele)
-(defprotocol XiastQuery
-  (courses
-    [this]
-    [this title-kw]
-    "Return a list of {:title \"Course title\" :id \"Course ID\"},
-optionally using a search keyword for the name of the course (case
-insensitive).")
-  (course-schedule
-    [this course-id]
-    [this course-id timespan]
-    "Return a list of schedule blocks for a course, optionally using a
-timespan to limit results.")
-  (student-schedule
-    [this student-id]
-    [this student-id timespan]
-    "Return a list of schedule blocks for a student, optionally using
-a timespan to limit results.")
-  (room-schedule
-    [this room-id]
-    [this room-id timespan]
-    "Return a list of schedule blocks for a room, optionally using a
-timespan to limit results."))
