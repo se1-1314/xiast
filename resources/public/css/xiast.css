@@ -23,6 +23,11 @@ html, body, .wrapper {
   height: 100%;
 }
 
+.footer {
+  display: block;
+  height: 15px;
+}
+
 /* move the toggle button to the left and give it
    some breathing room */
 .navbar-toggle {

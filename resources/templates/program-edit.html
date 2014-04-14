@@ -9,11 +9,11 @@
 			<div class="col-md-4">
 				<h2 msg="program-edit/programs">Programs</h2>
 				<form class="form-inline" id="program-search" role="search" onsubmit="return find_programs('#PE-program-list')">
-				<div class="form-group">
-					<input id="keyword" name="keyword" type="text" class="form-control" placeholder="Search">
-				</div>
-				<button id="search_button" class="btn btn-success">Submit</button>
-			</form>
+					<div class="form-group">
+						<input id="keyword" name="keyword" type="text" class="form-control" placeholder="Search">
+					</div>
+					<button id="search_button" class="btn btn-success">Submit</button>
+				</form>
 			</div>
 			<div class="col-md-4">
 				<h2 msg="program-edit/courses">Courses</h2>
@@ -31,14 +31,15 @@
 				<img src="/img/loading/loading.gif" class="img-responsive">
 			</div>
 			<!-- <button id="add-program" type="button" class="btn btn-primary">Add Program</button> -->
-			 <a data-toggle="modal" href="#NewProgram" class="btn btn-primary btn-lg" id="AddProgram">Add Program</a>
+			<a data-toggle="modal" href="#NewProgram" class="btn btn-primary btn-lg" id="AddProgram">Add Program</a>
 		</div>
 
 		<div class="col-md-4">
 			<div id="PE-course-list">
 				<h2>Select a Program</h2>
 			</div>
-			<button type="button" class="btn btn-primary">Add/Remove Course</button>
+			<!-- <button type="button" class="btn btn-primary">Add/Remove Course</button> -->
+			<a data-toggle="modal" href="#NewCourse" class="btn btn-primary btn-lg" id="AddCourse">Add Course</a>
 		</div>
 
 		<div class="col-md-4">
@@ -48,32 +49,51 @@
 	</div>
 
 	<div class="modal fade" id="NewProgram" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  		<div class="modal-dialog">
-    		<div class="modal-content">
-    		  <div class="modal-header">
-        		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        			<h4 class="modal-title" id="myModalLabel">Add program</h4>
-      		  </div>
-      		  <div class="modal-body">
-        		<form class="form" id="program-creation" onsubmit="return create_program()">
-				<div class="form-group">
-					<label class="control-label" for="title">Title</label>
-					<input id="title" name="title" type="text" class="form-control" placeholder="Title" required>
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="myModalLabel">Create program</h4>
 				</div>
-				<div class="form-group">
-					<label class="control-label" for="description">description</label>
-					<textarea id="description" name="description" class="form-control" row="10" placeholder="Description" required>
+				<div class="modal-body">
+					<form class="form" id="program-creation" onsubmit="return create_program()">
+						<div class="form-group">
+							<label class="control-label" for="title">Title</label>
+							<input id="title" name="title" type="text" class="form-control" placeholder="Title" required>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="description">description</label>
+							<textarea id="description" name="description" class="form-control" row="10" placeholder="Description" required>
+						</div>
+						<button type="button" id="CreateProgram" class="btn btn-primary">Create Tha Program</button>
+					</form>
 				</div>
-       			<button type="button" id="CreateProgram" class="btn btn-primary">Create Tha Program</button>
-			</form>
-      		  </div>
-      		  <div class="modal-footer">
-        		<button type="button" class="btn btn-default" data-dismiss="modal">Close this shit</button>
-      		  </div>
-    		</div>
-  		</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close this shit</button>
+				</div>
+			</div>
+		</div>
 
 	</div>
+
+	<div class="modal fade" id="NewCourse" tabindex="-1" role="dialog" aria-labelledby="Create_course" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="Create_course">Create course</h4>
+				</div>
+				<div class="modal-body">
+					Course
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close this shit</button>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
 
 	<script src="/js/jquery.js" type="text/javascript"></script>
 	<script src="/js/jquery-ui.js" type="text/javascript"></script>
@@ -84,7 +104,7 @@
 	<script src="/js/program-editAPI.js" type="text/javascript"></script>
 	<script src="/js/modalclick.js" type="text/javascript"></script>
 	<script type="text/javascript">
-		list_programs("#PE-program-list");
+	list_programs("#PE-program-list");
 	</script>
 </div>
 </html>
