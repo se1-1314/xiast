@@ -75,8 +75,7 @@
 
 (def test-schedules
   (list xms/ba_cw1_schedule
-        xms/ba_cw3_schedule
-        xms/ba_IRCW3))
+        xms/ba_cw3_schedule))
 
 (def test-schedule-blocks
   (mapcat identity test-schedules))
