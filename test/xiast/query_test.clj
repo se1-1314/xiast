@@ -4,7 +4,8 @@
             [xiast.query :as query]
             [xiast.schema :as xs]
             [schema.test :as s]
-            [xiast.mockprograms :as xmp])
+            [xiast.mockprograms :as xmp]
+            [xiast.mockschedules :as xms])
   (:use [korma.db]
         [korma.core]
         [xiast.config :only [config]]
@@ -29,7 +30,7 @@
   '(room room-facility course course-activity course-activity-facility
          course-enrollment course-instructor department person program
          program-choice-course program-mandatory-course room room-facility
-         subscription session))
+         subscription session schedule-block))
 
 (defn wrap-with-test-database
   [f]
@@ -48,7 +49,10 @@
 ;; TEST DATA
 
 (def test-rooms
-  (list xmp/F5-403 xmp/F4-412 xmp/E0-04 xmp/G1-022))
+  (list xmp/D0-05 xmp/D0-03
+        xmp/G1-022 xmp/G1-023
+        xmp/F5-403 xmp/F4-412
+        xmp/E0-04 xmp/E0-05 xmp/E0-06))
 
 (def test-persons
   (list xmp/ejespers xmp/dthumas xmp/odetroyer xmp/chdebruyne
@@ -68,6 +72,13 @@
 
 (def test-departments
   (list xmp/DINF xmp/DWIS xmp/ETRO xmp/BEDR xmp/EXTO))
+
+(def test-schedules
+  (list xms/ba_cw1_schedule
+        xms/ba_cw3_schedule))
+
+(def test-schedule-blocks
+  (mapcat identity test-schedules))
 
 ;; TESTS
 
@@ -99,10 +110,11 @@
         (let [room (query/room-get (:id (first test-rooms)))]
           (assoc room :id (dissoc (:id room) :id)))
         => (first test-rooms))
-  (fact "room-delete!"
-        (doseq [test-room test-rooms]
-          (query/room-delete! (:id test-room))) => irrelevant
-          (query/room-list) => []))
+  ;; TODO: put delete tests somewhere else (nvgeele)
+  #_(fact "room-delete!"
+          (doseq [test-room test-rooms]
+            (query/room-delete! (:id test-room))) => irrelevant
+            (query/room-list) => []))
 
 (s/deftest person-test1
   (fact "person-add!"
@@ -127,3 +139,9 @@
         (is (thrown? Exception (query/course-add-activity! 0 0))) => irrelevant
         (doseq [test-course test-courses]
           (query/course-add! test-course)) => irrelevant))
+
+(s/deftest schedule-test
+  (fact "schedule-block-add!"
+        (is (thrown? Exception (query/schedule-block-add! {:test 1}))) => irrelevant
+        (doseq [schedule-block test-schedule-blocks]
+          (query/schedule-block-add! schedule-block)) => irrelevant))
