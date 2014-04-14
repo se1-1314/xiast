@@ -114,9 +114,11 @@ sb2.room.number = 7;
 
 // testing
 
+/*
 var c = create_calendar();
 var f = populate_calendar(c);
 f(sb1);
 f(sb2);
 
 render_calendar("#schedule-content", c);
+*/
