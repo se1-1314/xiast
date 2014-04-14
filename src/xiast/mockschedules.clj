@@ -64,15 +64,3 @@
     (gen-course-schedule-blocks xmps/economics-for-business [2 14] 5 [3 6] xmps/D0-05 5 [7 8] xmps/D0-05)
     (gen-course-schedule-blocks xmps/interpretation2 [2 14] 2 [13 18] xmps/E0-04 2 [19 22] xmps/E0-04)
     (gen-course-schedule-blocks xmps/social-psychology [2 6] 4 [13 16] xmps/D0-03 4 [17 20] xmps/D0-03)))
-
-
-(def mandatory1 (gen-course-schedule-blocks-hoc-only xmps/introduction-to-databases [2 2] 1 [5 8] xmps/F4-412)) ;; mandatory -> overlap 1
-(def mandatory2 (gen-course-schedule-blocks-hoc-only xmps/foundations-of-informatics1 [2 2] 1 [7 10] xmps/F5-403)) ;; mandatory -> overlap 1, 2
-(def optional1 (gen-course-schedule-blocks-hoc-only xmps/social-psychology [2 2] 1 [9 12] xmps/D0-03)) ;; optional -> overlap 2
-(def optional2 (gen-course-schedule-blocks-hoc-only xmps/algorithms-and-datastructures1 [2 2] 1 [11 14] xmps/E0-05)) ;; optional  -> no overlap
-(def check-overlap-results #{{:type :mandatory-course-overlap
-                              :concerning #{mandatory1 mandatory2}}
-                             {:type :elective-course-overlap
-                              :concerning #{mandatory2 optional1}}})
-(def ba_IRCW3
-  (union mandatory1 mandatory2 optional1 optional2))
