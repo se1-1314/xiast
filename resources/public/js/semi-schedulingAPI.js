@@ -5,20 +5,24 @@ Author: 		Anders Deliens & Youssef Boudiba
 Description:	API handels user request for the semi-scheduling.
 *****************************************/
 
-
 /*
-Name: 			get_facilities_course
+Global Variables
 Author: 		Anders Deliens & Youssef Boudiba
-Arguments: 		none
-Returns: 		a string (or array) containing the selected facilities
 Creation Date: 	10/04/2014
-comment:		new api features were added to directly recieve the requirements instead of going through course
-				to update in the future
+Last modified: 	14/04/2014	
 */
 
-var json_var;
-var calendarEvent;
+var json_var;		//contains result of a get request and is used in several functions as a way to retrieve information  without making additional get requests.
+var calendarEvent;	//contains selected calendar event.
 
+/*
+Name: 			show_facilities_course
+Author: 		Anders Deliens & Youssef Boudiba
+Arguments: 		none
+Returns: 		none
+Creation Date: 	10/04/2014
+Last modified: 	14/04/2014
+*/
 
 function show_facilities_course()
 {
@@ -32,7 +36,6 @@ function show_facilities_course()
 		{
 			if (key === 'facilities')
 			{
-
 				var i;
 				var l = val.length;
 				for ( i = 0; i < l; ++i) 
@@ -55,6 +58,16 @@ function show_facilities_course()
 	};	
 }
 
+/*
+Name: 			get_facilities_course
+Author: 		Anders Deliens & Youssef Boudiba
+Arguments: 		Calendar event
+Returns: 		none (callback function handles additional work).
+Creation Date: 	10/04/2014
+Last modified: 	14/04/2014
+Note: 			Triggered by clicking on calendar event (see calenderviewer.js);
+*/
+
 function get_facilities_course(calEvent)
 {
 	try {
@@ -75,10 +88,29 @@ function get_facilities_course(calEvent)
 		}
 }
 
+/*
+Name: 			update_course_activity_id
+Author: 		Anders Deliens & Youssef Boudiba
+Arguments: 		data (JSON result of a PUT request)
+Returns: 		none (set course_activity_id to the new created one).
+Creation Date: 	10/04/2014
+Last modified: 	14/04/2014
+Note: 			Silly function but AJAX calls require a succes function.
+*/
+
 function update_course_activity_id(data)
 {
 	calendarEvent.course_activity_id = data.id;
 }
+
+/*
+Name: 			set_facilities_course
+Author: 		Anders Deliens & Youssef Boudiba
+Arguments: 		none
+Returns: 		none (callback function handles additional work).
+Creation Date: 	10/04/2014
+Last modified: 	14/04/2014
+*/
 
 function set_facilities_course()
 {
@@ -87,27 +119,20 @@ function set_facilities_course()
 			var facilities = [];
 			if($("#beamer").prop('checked'))
 			{
-			facilities.push("beamer");
+				facilities.push("beamer");
 			}
 			if($("#overhead-projector").prop('checked'))
 			{
-			facilities.push("overhead-projector");
+				facilities.push("overhead-projector");
 			}
 			//if($("#speakers").prop('checked'))
 			//{
-			//facilities.push("speakers");
+			//	facilities.push("speakers");
 			//}
 			json_var.facilities = facilities;
 			json_var.instructor = "0";
-			var data = new Object();
-			
+			var data = new Object();	
 			data = JSON.stringify(json_var);
-			if (typeof data === 'undefined'){
-				// Do nothing
-			}
-			else{
-			//alert(data);
-			console.log(data);
 			$.ajax(
 				{
 			  		type: "PUT",
@@ -117,14 +142,17 @@ function set_facilities_course()
 		  			processData: false,
 		  			success: update_course_activity_id,
 			  		dataType: "JSON"
-				});
-				}	
+				});			
 		}
 	catch(error) 
 		{
 			alert(error.message);
 		}
 }
+
+/*
+jQuery selectors to trigger the corresponding functions:
+*/
 
 $("#save_facilities").click(function(){
 	set_facilities_course();
