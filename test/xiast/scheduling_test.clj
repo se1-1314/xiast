@@ -3,7 +3,9 @@
         xiast.schema)
   (:require [xiast.scheduling :as sched]
             [xiast.query :as q]
-            [schema.core :as s]))
+            [schema.core :as s]
+            [xiast.mockschedules :as mocksched]
+            [xiast.mockprograms :as mockprog]))
 
 (def b1 {:id 1
          :week 1 :day 1 :first-slot 1 :last-slot 2
@@ -81,7 +83,49 @@
  "Total timespan calculation for schedule blocks"
  (sched/schedule-timespan s1-after-p1) => s1-after-p1-timespan)
 
+
+(def mandatory1
+  (mocksched/gen-course-schedule-blocks-hoc-only
+   mockprog/introduction-to-databases [2 2] 1 [5 8] mockprog/F4-412))
+;; overlaps with mandatory1
+(def mandatory2
+  (mocksched/gen-course-schedule-blocks-hoc-only
+   mockprog/foundations-of-informatics1 [2 2] 1 [7 10] mockprog/F5-403))
+;; overlaps with mandatory2
+(def optional1
+  (mocksched/gen-course-schedule-blocks-hoc-only
+   mockprog/social-psychology [2 2] 1 [9 12] mockprog/D0-03))
+;; no overlaps
+(def optional2
+  (mocksched/gen-course-schedule-blocks-hoc-only
+   mockprog/algorithms-and-datastructures1 [2 2] 1 [13 16] mockprog/E0-05))
+
+(def man&opt-overlap-results #{{:type :mandatory-course-overlap
+                                :concerning #{mandatory1 mandatory2}}
+                               {:type :elective-course-overlap
+                                :concerning #{mandatory2 optional1}}})
+(def man&opt-overlap-check-schedule #{})
+(def man&opt-overlap-check-proposal
+  {:new (union mandatory1 mandatory2 optional1 optional2)})
+
 (fact
  "Check mandatory courses"
- (sched/check-mandatory-courses #{b1 b2})
- (provided (q/)))
+ (sched/check-mandatory&optional overlap-test-proposal)
+ => check-overlap-results
+ (provided
+  (sched/blocks-by-programs irrelevant)
+  => {mockprog/ba-cw1 #{mocksched/mandatory1
+                        mocksched/mandatory2
+                        mocksched/optional2}
+      mockprog/ba-cw3 #{mocksched/optional1}
+      mockprog/ba-IRCW3 #{mocksched/mandatory1
+                          mocksched/mandatory2
+                          mocksched/optional2}}
+  (q/program-schedule irrelevant irrelevant)
+  => #{}))
+
+
+(def room-overlap-test-schedule)
+(fact
+ "Check room overlaps"
+ (sched/check-room-overlaps #{b1 b}))

@@ -126,40 +126,46 @@
 
 ;; Checks
 ;;-------
-(s/defn check-mandatory&optional :- [ScheduleCheckResult]
-  [proposal :- ScheduleProposal]
-  "Checks if there are overlaps in time for mandatory course
-   activities."
-  (->> (for [[program prop-schedule]
-             (blocks-by-programs (proposal-new&moved proposal))]
-         (let [mandatory-courses (:mandatory program)]
-           (-> (:id program)
-               (q/program-schedule (schedule-timespan prop-schedule))
-               (remove-deleted&moved proposal)
-               (overlapping-schedule-blocks prop-schedule)
-               (->>
-                (map (fn [[b1 b2 :as blocks]]
-                       {:type (if (and (contains? mandatory-courses
-                                                  (-> b1 :item :course-id))
-                                       (contains? mandatory-courses
-                                                  (-> b2 :item :course-id)))
-                                :mandatory-course-overlap
-                                :elective-course-overlap)
-                        :concerning blocks}))))))
-       (apply concat)))
-(comment
-  (defn check-room-overlaps [proposed]
-    (->> (-> schedule
-             (blocks-for-rooms (map :room proposed)
-                               (blocks-timespan proposed))
-             (remove-moves proposed)
-             (overlapping-schedule-blocks proposed))
-         (filter #(= (:room (first %))
-                     (:room (second %))))
-         (map (fn [block]
-                {:type :room-overlap
-                 :concerning [block]}))))
 
+(s/defn check-room-overlaps :- [ScheduleCheckResult]
+  [proposal :- ScheduleProposal]
+  (->> (-> (q/room-schedules (map :room (proposal-new&moved proposal))
+                             (schedule-timespan
+                              (proposal-new&moved proposal)))
+           (apply-proposal-to-schedule proposal)
+           (overlapping-schedule-blocks proposed))
+       (filter #(= (:room (first %))
+                   (:room (second %))))
+       (map (fn [block]
+              {:type :room-overlap
+               :concerning #{block}}))))
+(comment
+  (s/defn check-mandatory&optional :- [ScheduleCheckResult]
+    [proposal :- ScheduleProposal]
+    "Checks if there are overlaps in time for mandatory course
+   activities."
+    (println (blocks-by-programs (proposal-new&moved proposal)))
+    (->> (for [[program prop-schedule]
+               (blocks-by-programs (proposal-new&moved proposal))]
+           (do(println (:id program))
+              (let [mandatory-courses (:mandatory program)]
+                (println mandatory-courses)
+                (println prop-schedule)
+                (-> (:id program)
+                    (q/program-schedule (schedule-timespan prop-schedule))
+                    (remove-deleted&moved proposal)
+                    (overlapping-schedule-blocks prop-schedule)
+                    (->>
+                     (map (fn [[b1 b2 :as blocks]]
+                            {:type (if (and (contains? mandatory-courses
+                                                       (-> b1 :item :course-id))
+                                            (contains? mandatory-courses
+                                                       (-> b2 :item :course-id)))
+                                     :mandatory-course-overlap
+                                     :elective-course-overlap)
+                             :concerning (set blocks)})))))))
+         (apply concat)
+         set))
   (defn check-instructor-availabilities [proposed]
     (->> proposed
          (filter #(not (instructor-available? (:instructor (:item %))
