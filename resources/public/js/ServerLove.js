@@ -14,7 +14,8 @@ To prevent the use of hard coded urls for api call, This library has been create
 var api_root = "/api/";
 var courses = api_root.concat("course/");
 var programs = api_root.concat("program/");
-var enrollment = api_root.concat("enrollment/")
+var enrollment = api_root.concat("enrollment/");
+var schedule = api_root.concat("/schedule");
 
 /*
 Creation Date: 21/03/2014
@@ -43,4 +44,8 @@ function apiprogram(command){
 
 function apienrollment(command){
 	return apiURL(enrollment, command);
+}
+
+function apischedule(command){
+	return apiURL(schedule, command);
 }
