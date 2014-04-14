@@ -76,3 +76,7 @@
 (def ^:dynamic session
   (-> (create-entity "session")
       (database db)))
+
+(def ^:dynamic schedule-block
+  (-> (create-entity "schedule-block")
+      (database db)))
