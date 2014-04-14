@@ -77,9 +77,9 @@
    :room RoomID})
 (def Schedule #{ScheduleBlock})
 (def ScheduleProposal
-  {:new #{ScheduleBlock}
-   :moved #{ScheduleBlock}
-   :deleted #{ScheduleBlockID}})
+  {(s/optional-key :new) #{ScheduleBlock}
+   (s/optional-key :moved) #{ScheduleBlock}
+   (s/optional-key :deleted) #{ScheduleBlockID}})
 
 (def ScheduleCheckResult {:type (s/enum :mandatory-course-overlap
                                         :elective-course-overlap
