@@ -11,11 +11,23 @@ var start_date = "09/16/2013"
 /*
 
 */
-function VUB_standardTOstandard_time(week, day){
+function VUB_standardTOstandard_time(week, day, timeslot){
 
 	var days_to_add = (7 * (week - 1)) + day -1;
 	var start = new Date(start_date);
-	return  new Date(start.setDate(start.getDate() + days_to_add));
+	var time = TimeslotToTime(timeslot);
+
+	var date = new Date(start.setDate(start.getDate() + days_to_add));
+
+	if (isInt(time)){
+		date.setHours(time);
+	} else {
+		date.setMinutes(30);
+		time = time - 0.5;
+		date.setHours(time);
+	}
+
+	return date;
 
 }
 
@@ -39,5 +51,25 @@ function standard_timeTOVUB_standard(date){
 	console.info("Kwinten is awesome"); // 8h30 coding session taking its toll
 
 	return [week_counter, day]
+
+}
+
+function isOdd(num) { return num % 2 === 1;}
+
+function isInt(n) {
+   return n % 1 === 0;
+}
+
+function TimeslotToTime(timeslot){
+	timeslot = timeslot - 1;
+	var first_slot = 7;
+
+	if (isOdd(timeslot)){
+		return first_slot + (timeslot / 2);
+	} else{
+		return first_slot + ((timeslot - 1) / 2) + 0.5;
+	}
+
+
 
 }

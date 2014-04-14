@@ -99,6 +99,19 @@
                          (select room-facility
                                  (where {:room (:id room)}))))})
 
+(s/defn schedule-block->sScheduleBlock
+  [block]
+  (assoc (dissoc block [:room :course-activity])
+    :item (let [activity
+                (first (select course-activity
+                               (where {:id (:course-activity block)})))]
+            {:type (get course-activity-types (:type activity))
+             :course-activity (:id activity)
+             :course-code (:course-code activity)})
+    :room (first (select room
+                         (where {:id (:room block)})
+                         (fields :building :floor :number)))))
+
 ;; PUBLIC API
 
 (s/defn room-list :- [xs/Room]
@@ -475,52 +488,99 @@
 
 ;; Schedule queries
 
+(defn- schedule-blocks-in-timespan
+  ([timespan]
+     (schedule-blocks-in-timespan timespan {}))
+  ([timespan constraints]
+     (select schedule-block
+             (where (merge constraints
+                           {:course-activity course-activity
+                            :week [>= (first (:weeks timespan)) (second (:weeks timespan))]
+                            ;;:week [<= (second (:weeks timespan))]
+                            :days [>= (first (:days timespan)) (second (:days timespan))]
+                            ;;:days [<= (second (:days timespan))]
+                            :first-slot [<= (first (:slots timespan))]
+                            :last-slot [<= (second (:slots timespan))]})))))
+
+(s/defn schedule-block-add! :- xs/ScheduleBlockID
+  [block :- xs/ScheduleBlock]
+  (let [course-activity (:course-activity (:item block))
+        room-id (:id (first (select room (where (:room block)))))
+        key (insert schedule-block
+                    (values {:week (:week block)
+                             :day (:day block)
+                             :first-slot (:first-slot block)
+                             :last-slot (:last-slot block)
+                             :room room-id
+                             :course-activity course-activity}))]
+    (:GENERATED_KEY key)))
+
+(s/defn schedule-block-get :- (s/maybe xs/ScheduleBlock)
+  [schedule-block-id :- xs/ScheduleBlockID]
+  (let [block (select schedule-block
+                      (where {:id schedule-block-id}))]
+    (if (empty? block)
+      nil
+      (schedule-block->sScheduleBlock (first block)))))
+
 (s/defn course-schedule :- xs/Schedule
   [course-code :- xs/CourseCode
    timespan :- xs/TimeSpan]
   "Returns the schedule for a certain course in the provided timespan."
-  nil)
+  (let [activities (select course-activity
+                           (where {:course-code course-code})
+                           (fields :id))
+        blocks (map #(schedule-blocks-in-timespan timespan {:course-activity %})
+                    activities)]
+    (mapcat schedule-block->sScheduleBlock blocks)))
 
 (s/defn student-schedule :- xs/Schedule
   [student-id :- xs/PersonID
    timespan :- xs/TimeSpan]
   "Returns the schedules for courses a certain student is enrolled in the
    provided timespan."
-  nil)
+  (let [courses
+        (map :course-code (enrollments-student student-id))
+        schedules
+        (map #(course-schedule % timespan) courses)]
+    (mapcat identity schedules)))
 
 (s/defn room-schedule :- xs/Schedule
   [room-id :- xs/RoomID
    timespan :- xs/TimeSpan]
   "Returns the schedule for a certain room in the provided timespan."
-  nil)
+  (let [room-id (:id (first (select room (where room-id))))
+        blocks (schedule-blocks-in-timespan timespan {:room room-id})]
+    blocks))
+
+(s/defn room-schedules :- xs/Schedule
+  [room-ids :- [xs/RoomID]
+   timespan :- xs/TimeSpan]
+  "Return the schedule for multiple rooms in the provided timespan"
+  (apply clojure.set/union (map #(room-schedule % timespan) room-ids)))
 
 (s/defn program-schedule :- xs/Schedule
   [program-id :- xs/ProgramID
    timespan :- xs/TimeSpan]
   "Returns the schedules for all courses in a certain program in the provided
    timespan."
-  nil)
+  (let [courses (concat (map :course-code
+                             (select program-choice-course
+                                     (where {:program program-id})))
+                        (map :course-code
+                             (select program-mandatory-course
+                                     (where {:program program-id}))))
+        schedules (map #(course-schedule % timespan) courses)]
+    (mapcat identity schedules)))
 
-;; TODO: Remove mockdata. (nvgeele)
-(defprotocol XiastQuery
-  (courses
-    [this]
-    [this title-kw]
-    "Return a list of {:title \"Course title\" :id \"Course ID\"},
-optionally using a search keyword for the name of the course (case
-insensitive).")
-  (course-schedule
-    [this course-id]
-    [this course-id timespan]
-    "Return a list of schedule blocks for a course, optionally using a
-timespan to limit results.")
-  (student-schedule
-    [this student-id]
-    [this student-id timespan]
-    "Return a list of schedule blocks for a student, optionally using
-a timespan to limit results.")
-  (room-schedule
-    [this room-id]
-    [this room-id timespan]
-    "Return a list of schedule blocks for a room, optionally using a
-timespan to limit results."))
+(s/defn instructor-schedule :- xs/Schedule
+  [instructor-id :- xs/PersonID
+   timespan :- xs/TimeSpan]
+  (let [activities (map :course-activity
+                        (select course-instructor
+                                (where {:netid instructor-id})
+                                (fields :course-activity)))
+        blocks (map #(schedule-blocks-in-timespan timespan {:course-activity %})
+                    activities)]
+    (mapcat identity blocks)))
+
