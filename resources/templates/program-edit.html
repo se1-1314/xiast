@@ -31,7 +31,10 @@
 				<img src="/img/loading/loading.gif" class="img-responsive">
 			</div>
 			<!-- <button id="add-program" type="button" class="btn btn-primary">Add Program</button> -->
-			<a data-toggle="modal" href="#NewProgram" class="btn btn-primary btn-lg" id="AddProgram">Add Program</a>
+			<div class="col-md-5" id="add_program_button">
+			<a data-toggle="modal" href="#NewProgram" class="btn btn-success btn-lg" id="AddProgram">Add Program</a>
+			</div>
+			<div  class="col-md-5" id="delete_program_button"></div>
 		</div>
 
 		<div class="col-md-4">
@@ -39,14 +42,16 @@
 				<h2>Select a Program</h2>
 			</div>
 			<!-- <button type="button" class="btn btn-primary">Add/Remove Course</button> -->
-			<a data-toggle="modal" href="#NewCourse" class="btn btn-primary btn-lg" id="AddCourse">Add Course</a>
+			<a data-toggle="modal" href="#NewCourse" class="btn btn-success btn-lg" id="AddCourse">Add Course</a>
 		</div>
 
 		<div class="col-md-4">
-			<button type="button" class="btn btn-primary">Update information</button>
+			<button type="button" class="btn btn-success">Update information</button>
 		</div>
 
 	</div>
+
+	<!-- Modal form Program creation -->
 
 	<div class="modal fade" id="NewProgram" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
@@ -73,8 +78,10 @@
 				</div>
 			</div>
 		</div>
-
 	</div>
+
+	<!-- modal form courses creation
+		 TODO: add course to current selected program -->
 
 	<div class="modal fade" id="NewCourse" tabindex="-1" role="dialog" aria-labelledby="create_course_title" aria-hidden="true">
 		<div class="modal-dialog">

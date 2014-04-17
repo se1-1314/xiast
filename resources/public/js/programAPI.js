@@ -189,6 +189,10 @@ function create_program(){
 	return false;
 }
 
+function delete_program(program_id){
+	console.log(program_id);
+}
+
 $("#programs").on("mousedown", ".program-item", function (){
 	console.log(this.id);
 	//console.log(this);
@@ -202,5 +206,7 @@ $("#PE-program-list").on("mousedown", ".program-item", function (){
 	//console.log(this);
 	$('.program-item').removeClass('active');
 	$(this).addClass('active');
+	$('#delete_program_button').empty()
+	$('#delete_program_button').append("<button class=\"btn btn-danger btn-lg\" onclick=\"delete_program(\'" + this.id + "\')\">Delete Program</button>")
 	list_courses_by_program("#PE-course-list", this.id);
 })
