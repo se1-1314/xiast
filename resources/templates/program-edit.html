@@ -63,7 +63,7 @@
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="description">description</label>
-							<textarea id="description" name="description" class="form-control" row="10" placeholder="Description" required>
+							<textarea id="description" name="description" class="form-control" row="10" placeholder="Description" required></textarea>
 						</div>
 						<button type="button" id="CreateProgram" class="btn btn-primary">Create Tha Program</button>
 					</form>
@@ -76,15 +76,15 @@
 
 	</div>
 
-	<div class="modal fade" id="NewCourse" tabindex="-1" role="dialog" aria-labelledby="Create_course" aria-hidden="true">
+	<div class="modal fade" id="NewCourse" tabindex="-1" role="dialog" aria-labelledby="create_course_title" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<h4 class="modal-title" id="Create_course">Create course</h4>
+					<h4 class="modal-title" id="create_course_title">Create course</h4>
 				</div>
 				<div class="modal-body">
-					<form>
+					<form class="form" id="create_course_form" onsubmit="return create_course">
 						<div class="form-group">
 							<label class="control-label" for="CourseCode">Course Code</label>
 							<input id="CourseCode" name="CourseCode" type="text" class="form-control" placeholder="1001812ANR" required>
@@ -95,8 +95,25 @@
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="description">Description</label>
-							<textarea id="description" name="description" class="form-control" row="10" placeholder="Blah blah blah oh yeah, so fucking cool" required>
+							<textarea id="description" name="description" class="form-control" row="10" placeholder="Blah blah blah oh yeah, so fucking cool" required></textarea>
 						</div>
+						<div class="form-group">
+							<label class="control-label" for="departement">Description</label>
+							<input id="departement" name="departement" type="text" class="form-control" placeholder="departement" required>
+						</div>
+						<div class="form-group">
+							<div class="radio">
+  								<label>
+    								<input type="radio" name="grade" id="grade" value="BA" checked>BA
+  								</label>
+							</div>
+							<div class="radio">
+  								<label>
+    								<input type="radio" name="grade" id="grade" value="MA">MA
+  								</label>
+							</div>
+						</div>
+						<button type="button" id="CreateCourse" class="btn btn-primary">MOARE COURSES!</button>
 					</form>
 				</div>
 				<div class="modal-footer">

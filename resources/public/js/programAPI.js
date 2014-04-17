@@ -157,6 +157,11 @@ function create_program(){
 	var title = form.title.value;
 	var description = form.description.value;
 
+	if ( title === '' ||  description === ''){
+		throw "form may not contain empty values";
+	}
+	form.reset();
+
 	var data = new Object();
 	data.title = title;
 	data.description = description;
@@ -176,6 +181,8 @@ function create_program(){
 		  	dataType: "JSON",
 
 	});
+
+	$("#NewProgram").modal("hide");
 
 	console.log(data);
 

@@ -150,6 +150,16 @@ function getCourseNameByCourseCode(coursecode){
 	return result;
 }
 
+function create_course(){
+	var form = $("#create_course_form")[0];
+
+	console.log(form);
+
+	
+
+	return false;
+}
+
 
 $("#courses").on("mousedown", ".course-item", function (){
 	console.log(this);

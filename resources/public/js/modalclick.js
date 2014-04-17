@@ -9,3 +9,7 @@ $("#AddProgram").click(function() {
 $("#CreateProgram").click(function(){
 	create_program();	
 })
+
+$("#CreateCourse").click(function(){
+	create_course();
+})
