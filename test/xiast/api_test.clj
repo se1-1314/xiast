@@ -168,3 +168,17 @@
                     => {:schedule []}
                     (provided
                      (query/instructor-schedule irrelevant irrelevant) => []))))
+
+(facts "Intructor API"
+       (fact (api/instructor-courses) => {:courses []})
+       (fact (binding [*session* {:user-functions #{:instructor}}]
+               (api/instructor-courses)) => {:courses :ok}
+               (provided
+                (query/instructor-course-list irrelevant) => :ok)))
+
+(facts "Titular API"
+       (fact (api/titular-courses) => {:courses []})
+       (fact (binding [*session* {:user-functions #{:titular}}]
+               (api/titular-courses)) => {:courses :ok}
+               (provided
+                (query/titular-course-list irrelevant) => :ok)))

@@ -301,6 +301,30 @@
   (POST "/program/mandatory" {body :body}
        ((wrap-api-function program-manager-add-mandatory) (slurp body))))
 
+(defn titular-courses
+  []
+  (if (some #{:titular} (:user-functions *session*))
+    {:courses (query/titular-course-list (:user *session*))}
+    {:courses []}))
+
+(defroutes titular-routes
+  (GET "/" []
+       "Invalid request")
+  (GET "/courses" []
+       ((wrap-api-function titular-courses))))
+
+(defn instructor-courses
+  []
+  (if (some #{:instructor} (:user-functions *session*))
+    {:courses (query/instructor-course-list (:user *session*))}
+    {:courses []}))
+
+(defroutes instructor-routes
+  (GET "/" []
+       "Invalid request")
+  (GET "/courses" []
+       ((wrap-api-function instructor-courses))))
+
 (defn schedule-student-get
   [timespan]
   (if (:user *session*)
@@ -362,4 +386,6 @@
   (context "/room" [] room-routes)
   (context "/enrollment" [] enrollment-routes)
   (context "/program-manager" [] program-manager-routes)
+  (context "/titular" [] titular-routes)
+  (context "/instructor" [] instructor-routes)
   (context "/schedule" [] schedule-routes))
