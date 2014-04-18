@@ -191,6 +191,14 @@ function create_program(){
 
 function delete_program(program_id){
 	console.log(program_id);
+
+	url = apiprogram("del").concat("/" + program_id);
+
+	$.ajax({
+		type: "DELETE",
+		url: url,
+		success: function (data) {console.log(data)}
+	})
 }
 
 $("#programs").on("mousedown", ".program-item", function (){
