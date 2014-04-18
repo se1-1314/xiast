@@ -18,7 +18,7 @@ Parameters: 	divID: The id where the information should be displayed
 returns: 		function to be used as a callback in the AJAX call
 
  *****************************************/
-function process_JSON_program(divID, root_key){
+function process_JSON_program(divID, key){
 
 	return function(data){
 	console.log(data);
@@ -58,8 +58,6 @@ function process_JSON_program(divID, root_key){
 			// Writing the information to the html div addressed by there given ID
 			$(divID).empty();
 			$(divID).append("<ul id='program-list' class='listing'></ul>");
-
-			$("#program-list").append("<h2>Programs</h2>");
 
 			$.each(programs, function(index, value) {
 				$("#program-list").append(value);
@@ -135,6 +133,55 @@ function list_programs(divID, keyword){
 	}
 }
 
+
+function find_programs(divID){
+	console.log(divID);
+	var form = $("#program-search")[0];
+	var keyword = form.keyword.value;
+	form.keyword.value = "";
+	console.log(keyword);
+
+	list_programs(divID, keyword);
+
+	return false;
+}
+
+function create_program_success(data){
+	console.log(data);
+}
+
+function create_program(){
+	
+	var form = $("#program-creation")[0];
+
+	var title = form.title.value;
+	var description = form.description.value;
+
+	var data = new Object();
+	data.title = title;
+	data.description = description;
+	data.mandatory = [];
+	data.optional = []
+	data = JSON.stringify(data);
+
+	url = apiprogram("add");
+
+	$.ajax({
+			type: "POST",
+			url: url,
+		  	data: data, 
+		  	processData: false,
+		  	contentType: "application/json",
+		  	success: create_program_success,
+		  	dataType: "JSON",
+
+	});
+
+	console.log(data);
+
+	return false;
+}
+
 $("#programs").on("mousedown", ".program-item", function (){
 	console.log(this.id);
 	//console.log(this);
@@ -143,3 +190,10 @@ $("#programs").on("mousedown", ".program-item", function (){
 	list_courses_by_program("#courses", this.id);
 })
 
+$("#PE-program-list").on("mousedown", ".program-item", function (){
+	console.log(this.id);
+	//console.log(this);
+	$('.program-item').removeClass('active');
+	$(this).addClass('active');
+	list_courses_by_program("#PE-course-list", this.id);
+})
