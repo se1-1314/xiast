@@ -41,6 +41,10 @@
    :days [0 1]
    :slots [0 1]})
 
+(def description
+  (write-str
+   {:description "A description"}))
+
 (facts "Course API functions work"
        (fact "course-get works"
              (api/course-get nil) => []
@@ -79,7 +83,29 @@
               (fact (api/course-activity-put 0 course-activity-put-request)
                     => {:id 1}
                     (provided
-                     (query/course-activity-update! irrelevant) => 1))))
+                     (query/course-activity-update! irrelevant) => 1)))
+       (facts "course-description-update!"
+              (api/course-description-update! "doesnotexist" description)
+              => {:result "Course does not exist"}
+              (fact (api/course-description-update! "c" description)
+                    => {:result "Not authorized"}
+                    (provided
+                     (query/course-get "c")
+                     => {:titular "test"})
+                    (binding [*session* {:user "test"}]
+                      (api/course-description-update! "c" description))
+                    => {:result "OK"}
+                    (provided
+                     (query/course-get "c")
+                     => {:titular "test"})
+                    (binding [*session* {:user-functions #{:program-manager}}]
+                      (api/course-description-update! "c" description))
+                    => {:result "OK"}
+                    (provided
+                     (query/course-get "c")
+                     => {:titular "test"}
+                     (query/course-update-description! irrelevant irrelevant)
+                     => irrelevant))))
 
 (facts "Program API functions work"
        (fact "program-get"

@@ -365,6 +365,17 @@
     (map #(select-keys % [:course-code :title])
          results)))
 
+(s/defn course-update-description! :- s/Bool
+  [course-code :- xs/CourseCode
+   description :- s/Str]
+  (if (empty? (select course
+                      (where {:course-code course-code})))
+    false
+    (do (update course
+                (set-fields {:description description})
+                (where {:course-code course-code}))
+        true)))
+
 (s/defn titular-course-list :- [xs/Course]
   [titular :- xs/PersonID]
   "Returns a list off all courses for which the user is a titular."
