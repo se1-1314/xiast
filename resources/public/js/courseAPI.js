@@ -9,8 +9,6 @@ API calls and processing of resulting JSON concerning courses
 function print_courses(divID){
 
 	return function (data){
-	console.log('optional: ' + data.optional);
-	console.log('mandatory: ' + data.mandatory);
 
 	$(divID).empty();
 	$(divID).append("<ul id='course-list' class='listing'></ul>");
@@ -63,7 +61,7 @@ function list_courses_by_program(divID, program){
 	// He may then choose to laugh or warn us about it.
 	// He / She will Probably do both
 	} catch(error) {
-	//	console.log(error);
+		console.error(error);
 	}
 
 
@@ -79,7 +77,6 @@ function get_course_info(divID, course){
 		}
 
 		var url = apicourse("get").concat("/" + course);
-		console.log(url);
 
 		$.ajax({
   				type: "GET",
@@ -100,7 +97,6 @@ function print_student_courses(divID){
 	return function(data){
 
 		var enrollments = data.enrollments;
-		console.log(enrollments);
 
 		$(divID).empty();
 		$(divID).append("<ul id='student_courses'></ul>");
@@ -120,7 +116,6 @@ function list_courses_by_current_student(divID){
 		}
 
 		var url = apienrollment("student");
-		console.log(url);
 
 		$.ajax({
   				type: "GET",
@@ -153,8 +148,6 @@ function getCourseNameByCourseCode(coursecode){
 function create_course(){
 	var form = $("#create_course_form")[0];
 
-	console.log(form);
-
 	CourseCode = form.CourseCode.value;
 	title = form.title.value;
 	titular = form.titular.value;
@@ -174,12 +167,8 @@ function create_course(){
 	course.department = departement;
 	course.grade = grade;
 
-	console.log(grade);
-
 	data = JSON.stringify(course);
-	console.log(data);
 	url = apicourse("add");
-	console.log(url);
 
 	$.ajax({
 		type : "POST",
@@ -187,18 +176,24 @@ function create_course(){
 		data : data,
 		processData: false,
 		contentType: "application/json",
-		success : function(data) {console.log(data)},
-		dataType: "SJON"
+		success : function(data) {console.log(data); form.reset();},
+		dataType: "JSON"
 	})
-	
 
 	return false;
 }
 
 
 $("#courses").on("mousedown", ".course-item", function (){
-	console.log(this);
 	$('.course-item').removeClass('active');
 	$(this).addClass('active');
+	get_course_info("#course-info", this.id);
+})
+
+$("#PE-course-list").on("mousedown", ".course-item", function (){
+	$('.course-item').removeClass('active');
+	$(this).addClass('active');
+//	$('#remove_course_button').empty()
+//	$('#remove_course_button').append("<button class=\"btn btn-danger btn-lg\" onclick=\"remove_course_from_program(\'" + this.id + "\')\">Remove course</button>")
 	get_course_info("#course-info", this.id);
 })

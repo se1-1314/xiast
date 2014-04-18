@@ -129,17 +129,16 @@ function list_programs(divID, keyword){
 	// He may then choose to laugh or warn us about it.
 	// He / She will Probably do both
 	} catch(error) {
-	//	console.log(error);
+		console.error(error);
 	}
 }
 
 
 function find_programs(divID){
-	console.log(divID);
+
 	var form = $("#program-search")[0];
 	var keyword = form.keyword.value;
 	form.keyword.value = "";
-	console.log(keyword);
 
 	list_programs(divID, keyword);
 
@@ -147,7 +146,7 @@ function find_programs(divID){
 }
 
 function create_program_success(data){
-	console.log(data);
+	console.info(data);
 }
 
 function create_program(){
@@ -161,7 +160,6 @@ function create_program(){
 	if ( title === '' ||  description === '' || manager === ''){
 		throw "form may not contain empty values";
 	}
-	form.reset();
 
 	var data = new Object();
 	data.title = title;
@@ -179,41 +177,34 @@ function create_program(){
 		  	data: data, 
 		  	processData: false,
 		  	contentType: "application/json",
-		  	success: create_program_success,
+		  	success: function (data){console.info(data); form.reset();},
 		  	dataType: "JSON",
 
 	});
 
 	$("#NewProgram").modal("hide");
 
-	console.log(data);
-
 	return false;
 }
 
 function delete_program(program_id){
-	console.log(program_id);
 
 	url = apiprogram("del").concat("/" + program_id);
 
 	$.ajax({
 		type: "DELETE",
 		url: url,
-		success: function (data) {console.log(data)}
+		success: function (data) {console.info(data)}
 	})
 }
 
 $("#programs").on("mousedown", ".program-item", function (){
-	console.log(this.id);
-	//console.log(this);
 	$('.program-item').removeClass('active');
 	$(this).addClass('active');
 	list_courses_by_program("#courses", this.id);
 })
 
 $("#PE-program-list").on("mousedown", ".program-item", function (){
-	console.log(this.id);
-	//console.log(this);
 	$('.program-item').removeClass('active');
 	$(this).addClass('active');
 	$('#delete_program_button').empty()

@@ -42,10 +42,15 @@
 				<h2>Select a Program</h2>
 			</div>
 			<!-- <button type="button" class="btn btn-primary">Add/Remove Course</button> -->
-			<a data-toggle="modal" href="#NewCourse" class="btn btn-success btn-lg" id="AddCourse">Add Course</a>
+			<div class="col-md-5" id="create_course_button">
+				<a data-toggle="modal" href="#NewCourse" class="btn btn-success btn-lg" id="AddCourse">Create course</a>
+			</div>
+			<div  class="col-md-5" id="delete_course_button"></div>
+
 		</div>
 
 		<div class="col-md-4">
+			<div id="course-info"></div>
 			<button type="button" class="btn btn-success">Update information</button>
 		</div>
 
@@ -67,7 +72,7 @@
 							<input id="title" name="title" type="text" class="form-control" placeholder="Title" required>
 						</div>
 						<div class="form-group">
-							<label class="control-label" for="manager">Title</label>
+							<label class="control-label" for="manager">Program Manager</label>
 							<input id="manager" name="manager" type="text" class="form-control" placeholder="Program manager" required>
 						</div>
 						<div class="form-group">
@@ -88,13 +93,24 @@
 		 TODO: add course to current selected program -->
 
 	<div class="modal fade" id="NewCourse" tabindex="-1" role="dialog" aria-labelledby="create_course_title" aria-hidden="true">
+
+
+
+
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<h4 class="modal-title" id="create_course_title">Create course</h4>
+					<ul class="nav nav-tabs">
+						<li class="active"><a href="#create" data-toggle="tab">Create</a></li>
+						<li><a href="#delete" data-toggle="tab">Delete</a></li>
+					</ul>
 				</div>
 				<div class="modal-body">
+					<div class="tab-content">
+						<div class="tab-pane active" id="create">
+
+
 					<form class="form" id="create_course_form" onsubmit="return create_course">
 						<div class="form-group">
 							<label class="control-label" for="CourseCode">Course Code</label>
@@ -131,10 +147,23 @@
 						<button type="button" id="CreateCourse" class="btn btn-primary">MOARE COURSES!</button>
 					</form>
 				</div>
+				<div class="tab-pane" id="delete">
+					<form class="form" id="delete_course_form" onsubmit="return create_course">
+						<div class="form-group">
+							<label class="control-label" for="course_code">Departement</label>
+							<input id="course_code" name="course_code" type="text" class="form-control" placeholder="course_code" required>
+						</div>
+						<button type="button" id="CreateCourse" class="btn btn-primary">GOOD RIDANCE!</button>
+					</form>
+				</div>
+				</div>
+				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Close this shit</button>
 				</div>
 			</div>
+
+
 		</div>
 
 	</div>
