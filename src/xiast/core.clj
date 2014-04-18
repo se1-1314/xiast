@@ -1,6 +1,5 @@
 (ns xiast.core
   (:use compojure.core
-        [xiast.mock :only [*mock-data*]]
         [xiast.session :only [*session* *alert* session-store wrap-with-session]]
         [xiast.authentication :as auth]
         [xiast.config :only [config]]
@@ -96,8 +95,7 @@
 
 (defsnippet index-body "templates/index.html" [:div#page-content]
   []
-  [:div#course-list :div] (clone-for [course (query/courses *mock-data*)]
-                                     (content (:title  course))))
+  identity)
 
 (defroutes index-routes
   (GET "/" []
@@ -187,7 +185,6 @@
          "30")))
 
 (defsnippet schedule-body "templates/schedule.html" [:div#page-content] []
-;  [schedule-blocks]
   identity
   )
 
@@ -203,28 +200,7 @@
   (GET "/schedule" []
        (base (-> (schedule-body)
                  (t/translate-nodes)))))
-;  (GET "/timetables/student/:student-id" [student-id]
-;       (schedule-page (query/student-schedule *mock-data* student-id)))
-;  (GET "/timetables/room/:room-id" [room-id]
-;       (schedule-page (query/room-schedule *mock-data* room-id)))
-;  (GET "/timetables/course/:course-id" [course-id]
-;       (schedule-page (query/course-schedule *mock-data* course-id))))
 
-(defsnippet course-body "templates/courses.html" [:div#page-content]
-  [courses]
-  [:div#course-list :div]
-  (clone-for [course courses]
-             (html-content (str "<a class=\"btn course-btn\" href=\"/schedule/course/"
-                                (:id course) "\">"
-                                (:title course)
-                                "</a>"))))
-
-(defroutes course-routes
-  (GET "/courses" [key]
-       (base (-> (course-body (if key
-                                (query/courses *mock-data* key)
-                                (query/courses *mock-data*)))
-                 (t/translate-nodes)))))
 
 (defsnippet profile-student-body "templates/profile-student.html" [:div#page-content]
   []
@@ -270,7 +246,6 @@
   login-routes
   schedule-routes
   language-routes
-  course-routes
   curriculum-info-routes
   semi-scheduling-routes
   program-edit-routes

@@ -49,8 +49,34 @@ function show_assigned_courses(divID)
 				});			
 			});
 		});
+		assigned_courses = $.unique(assigned_courses);
 		$(divID).empty();
 		$(divID).append('<ul id="assigned_course_list" class="listing"></ul>');
+		
+		//---------------------------------------------------------------
+		var seen = [];
+		$.each(assigned_courses,function(index, value)
+		{
+			var html_var = $(value);
+			var html_text = html_var.text();
+			if (seen[html_text])
+			{
+				 assigned_courses[index] = 0; 
+			}
+			else
+			{
+				seen[html_text] = true;
+			}
+		});
+		for (var i = assigned_courses.length - 1; i >= 0; i--) 
+		{
+			if (assigned_courses[i] === 0) 
+			{
+				assigned_courses.splice(i, 1);
+			}
+		}
+		//---------------------------------------------------------------
+
 		$.each(assigned_courses,function(index, value)
 		{
 			$("#assigned_course_list").append(value);
@@ -101,6 +127,7 @@ function show_course_info(divID)
 {
 	return function(data)
 	{
+		var result = [];
 		$.each(data, function(key, val) 
 		{
 			if (key === 'description')
@@ -114,33 +141,40 @@ function show_course_info(divID)
 				{
 					$.each(val, function(key, val) 
 					{
-						alert(JSON.stringify(val));
-						var type = -1;
+						var type = "";
+						var fac = [0,0];                                  
 						$.each(val, function(key, val) 
 						{
-							if(key === 'type' && val === 'HOC')
+							if(key === 'type')
 							{
-								alert('hoc');
-								type = 0;
-							}
-							else if(key === 'type' && val === 'WPO')
-							{
-								type = 1;
+								type = val;
 							}
 							else if(key === 'facilities')
 							{
-								if(type != -1)
 								{
-									alert('ok');
-									json_facilities[type] = val;
-									type = -1;
+									var i;
+									var l = val.length;
+									for ( i = 0; i < l; ++i) 
+									{
+										if(val[i] == 'beamer')
+										{
+											fac[0] = 1;
+										}
+										else if(val[i] == 'overhead-projector')
+										{
+											fac[1] = 1;
+										}
+									}
 								}
 							}
 						});
+						var facilities = [type, fac];
+						result.push(facilities);	
 					});
 				});
 			}
 		});
+		alert(result.join(',  '));
 	};	
 }
 
@@ -248,7 +282,6 @@ Creation Date: 	10/04/2014
 Last modified: 	14/04/2014	
 */
 
-var json_facilities = [];		//index 0 is used to store HOC, 1 for WPO
 
 /*
 jQuery selectors to trigger the corresponding functions:

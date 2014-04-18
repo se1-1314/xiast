@@ -135,6 +135,20 @@ function list_courses_by_current_student(divID){
 	}
 }
 
+function getCourseNameByCourseCode(coursecode){
+
+	var url = apicourse("get").concat("/" + coursecode);
+	var result = "";
+
+	$.ajax({
+		type: "GET",
+		url: url,
+		success: function(data){result = data.title},
+		async: false,
+		dataType: "JSON"
+	});
+	return result;
+}
 
 
 $("#courses").on("mousedown", ".course-item", function (){
