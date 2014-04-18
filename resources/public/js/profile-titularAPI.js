@@ -58,7 +58,6 @@ function show_assigned_courses(divID)
 		});
 		$(divID).empty();
 		$(divID).append('<ul id="assigned_course_list" class="listing"></ul>');
-		
 		//Set of actions needed to delete duplicates from course list.
 		/*var seen = [];
 		$.each(assigned_courses,function(index, value)
@@ -144,7 +143,6 @@ function show_course_info(divID)
 				$(divID).empty();
 				$(divID).text(val);
 			}
-			//--------------------------------------------------------------------------
 			else if (key === 'activities')
 			{//[]
 				$.each(val, function(key, val) 
@@ -176,7 +174,6 @@ function show_course_info(divID)
 					result.push(course_facilities);	
 				});
 			}
-			//--------------------------------------------------------------------------
 		});
 		//Set of actions needed to delete duplicates from course list.
 		var seen = [];
@@ -263,12 +260,13 @@ function get_course_info(course_code, divID)
 }
 
 /*
-Name: 			update_course_facilities
+Name: 			update_facilities
 Author: 		Anders Deliens & Youssef Boudiba
-Arguments: 		course_code
+Arguments: 		id (course activity id)
 Returns: 		none (callback function handles additional work).
-Creation Date: 	10/04/2014
+Creation Date: 	18/04/2014
 */
+
 function update_facilities(id)
 {
 	return function(data)
@@ -302,6 +300,15 @@ function update_facilities(id)
 		});
 	};		
 }
+
+/*
+Name: 			update_course_facilities
+Author: 		Anders Deliens & Youssef Boudiba
+Arguments: 		none
+Returns: 		none (callback function handles additional work).
+Creation Date: 	18/04/2014
+*/
+
 function update_course_facilities()
 {
 	return function(data)
@@ -355,11 +362,11 @@ function update_course_facilities()
 }
 
 /*
-Name: 			set_course_info
+Name: 			set_course_facilities
 Author: 		Anders Deliens & Youssef Boudiba
-Arguments: 		course_code
+Arguments: 		none
 Returns: 		none (callback function handles additional work).
-Creation Date: 	10/04/2014
+Creation Date: 	18/04/2014
 */
 
 function set_course_facilities()
@@ -382,6 +389,37 @@ function set_course_facilities()
 }
 
 /*
+Name: 			set_course_description
+Author: 		Anders Deliens & Youssef Boudiba
+Arguments: 		new_description
+Returns: 		none (callback function handles additional work).
+Creation Date: 	18/04/2014
+*/
+
+function set_course_description(new_description)
+{
+	try {
+			var url = apicourse("description/" + current_course_code);
+			var data = new Object();	
+			data = JSON.stringify("{description: " + new_description + "}");
+			$.ajax(
+			{
+		  		type: "PUT",
+		  		url: url,
+		  		contentType: "application/json",
+		  		data: data, 
+				processData: false,
+				async : false,
+		  		dataType: "JSON"
+			});
+		}
+	catch(error) 
+		{
+			alert(error.message);
+		}
+}
+
+/*
 jQuery selectors to trigger the corresponding functions:
 */
 
@@ -390,7 +428,8 @@ $("#editfacilities").click(function(event){
 	set_course_facilities();
 });
 
-//$("#facilities").on("click", "#editfacilities", function (){
-//	console.info("button pushed");
-//	set_course_facilities();
-//	});
+$("#editdescription").click(function(event){
+
+	var new_description = prompt("New description:","");
+	set_course_description(new_description);	
+});
