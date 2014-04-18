@@ -28,9 +28,9 @@
 
 (def tables
   '(room room-facility course course-activity course-activity-facility
-         course-enrollment course-instructor department person program
+         course-enrollment course-instructor department program person
          program-choice-course program-mandatory-course room room-facility
-         subscription session schedule-block))
+         subscription session schedule-block schedule-proposal-message))
 
 (defn wrap-with-test-database
   [f]
@@ -59,7 +59,11 @@
         xmp/wdemeuter xmp/ephilips xmp/bsigner xmp/phcara
         xmp/rvanderstraeten xmp/ksteenhaut xmp/fdominguez
         xmp/mpuwase xmp/ischeerlinck xmp/thdhondt
-        xmp/jdekoster xmp/fvanoverwalle))
+        xmp/jdekoster xmp/fvanoverwalle
+        {:netid "testuser"
+         :first-name "Test"
+         :last-name "User"
+         :locale "en"}))
 
 (def test-courses
   (list xmp/linear-algebra xmp/foundations-of-informatics1
@@ -68,7 +72,10 @@
         xmp/economics-for-business xmp/interpretation2 xmp/social-psychology))
 
 (def test-programs
-  (list xmp/ba-cw1 xmp/ba-cw3 xmp/ba-IRCW3))
+  (map #(assoc (dissoc % [:mandatory :optional])
+          :mandatory (vec (:mandatory %))
+          :optional (vec (:optional %)))
+       (list xmp/ba-cw1 xmp/ba-cw3 xmp/ba-IRCW3)))
 
 (def test-departments
   (list xmp/DINF xmp/DWIS xmp/ETRO xmp/BEDR xmp/EXTO))
@@ -86,7 +93,7 @@
 ;; They can still be used as primary keys for relations
 ;; in the database, but (building, floor, number) is
 ;; also unique.
-(s/deftest room-test
+(defn room-test []
   (fact "room-add"
         ;; Fails if Schema is not validating
         (is (thrown? Exception (query/room-add! {:test 0}))) => irrelevant
@@ -116,7 +123,7 @@
             (query/room-delete! (:id test-room))) => irrelevant
             (query/room-list) => []))
 
-(s/deftest person-test1
+(defn person-test1 []
   (fact "person-add!"
         (is (thrown? Exception (query/person-add! {:test 0}))) => irrelevant
         (doseq [test-person test-persons]
@@ -125,7 +132,7 @@
     (fact "person-get with random person"
           (query/person-get (:netid person)) => person)))
 
-(s/deftest department-test
+(defn department-test []
   (fact "department-add!"
         (is (thrown? Exception (query/department-add! {:test 1})))
         (doseq [test-department test-departments]
@@ -133,15 +140,57 @@
   (fact "department-list"
         (map #(dissoc % :id) (query/department-list)) => test-departments))
 
-(s/deftest course-test
+(defn course-test []
   (fact "course-add! (also tests course-add-activity!)"
         (is (thrown? Exception (query/course-add! {:test 0}))) => irrelevant
         (is (thrown? Exception (query/course-add-activity! 0 0))) => irrelevant
         (doseq [test-course test-courses]
           (query/course-add! test-course)) => irrelevant))
 
-(s/deftest schedule-test
+(defn program-test []
+  (fact "program-add!"
+        (is (thrown? Exception (query/program-add! {:test 0}))) => irrelevant
+        (doseq [test-program test-programs]
+          (query/program-add! test-program)(flush)) => irrelevant))
+
+(defn schedule-test []
   (fact "schedule-block-add!"
         (is (thrown? Exception (query/schedule-block-add! {:test 1}))) => irrelevant
         (doseq [schedule-block test-schedule-blocks]
           (query/schedule-block-add! schedule-block)) => irrelevant))
+
+(def test-proposal
+  {:new #{{:week 1
+           :day 1
+           :first-slot 0
+           :last-slot 1
+           :item {:type :HOC :course-activity 0 :course-id "nil"}
+           :room {:building "F" :floor 1 :number 1}}}})
+
+(def test-message
+  {:titular "testuser"
+   :proposal test-proposal})
+
+(defn schedule-proposal-message-test
+  []
+  (let [program-id (rand-nth (map :id (query/program-list)))]
+    (fact "schedule-proposal-message-add!"
+         (is (thrown? Exception
+                      (query/schedule-proposal-message-add! 0 0 0)))
+         => irrelevant
+         (is (thrown? Exception
+                      (query/schedule-proposal-message-add! "test" 0 {:test 1})))
+         => irrelevant
+         (query/schedule-proposal-message-add! "testuser" program-id test-proposal)
+         => irrelevant
+         (map #(dissoc % :id) (query/schedule-proposal-message-get program-id))
+         => (list (assoc test-message :program program-id)))))
+
+(s/deftest query-tests
+  (room-test)
+  (person-test1)
+  (department-test)
+  (course-test)
+  (program-test)
+  (schedule-test)
+  (schedule-proposal-message-test))

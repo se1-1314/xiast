@@ -81,7 +81,11 @@
   {(s/optional-key :new) #{ScheduleBlock}
    (s/optional-key :moved) #{ScheduleBlock}
    (s/optional-key :deleted) #{ScheduleBlockID}})
-
+(def ScheduleProposalMessage
+  {(s/optional-key :id) s/Int
+   :titular PersonID
+   :program ProgramID
+   :proposal ScheduleProposal})
 (def ScheduleCheckResult {:type (s/enum :mandatory-course-overlap
                                         :elective-course-overlap
                                         :room-overlap

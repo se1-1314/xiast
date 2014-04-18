@@ -40,6 +40,9 @@
 (def FindQuery
   {:keywords [s/Str]})
 
+(def CourseSetDescriptionQuery
+  {:description s/Str})
+
 (def CourseActivityAPI
   ;; Schema can not (yet) coerce a JSON array (clojure vector) as a set...
   (assoc (dissoc xs/CourseActivity :facilities)
@@ -112,6 +115,24 @@
         (catch Exception e
           {:result "Error"})))
 
+(defn course-description-update!
+  [id body]
+  (try+ (let [request (coerce-as CourseSetDescriptionQuery body)
+              course (query/course-get id)]
+          (cond
+           (nil? course)
+           {:result "Course does not exist"}
+           (or (some #{:program-manager} (:user-functions *session*))
+               (= (:titular course) (:user *session*)))
+           (do (query/course-update-description! id (:description body))
+               {:result "OK"})
+           :else
+           {:result "Not authorized"}))
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result "Error"})))
+
 (defroutes course-routes
   (GET "/" []
        "Invalid request")
@@ -136,7 +157,9 @@
   (GET "/activity/get/:id" [id]
        ((wrap-api-function course-activity-get) id))
   (PUT "/activity/:id" [id :as {body :body}]
-       ((wrap-api-function course-activity-put) id (slurp body))))
+       ((wrap-api-function course-activity-put) id (slurp body)))
+  (PUT "/description" [id :as {body :body}]
+       ((wrap-api-function course-description-update!) id (slurp body))))
 
 ;; Program API
 
@@ -297,9 +320,9 @@
   (GET "/programs" []
        ((wrap-api-function program-manager-programs)))
   (POST "/program/optional" {body :body}
-       ((wrap-api-function program-manager-add-optional) (slurp body)))
+        ((wrap-api-function program-manager-add-optional) (slurp body)))
   (POST "/program/mandatory" {body :body}
-       ((wrap-api-function program-manager-add-mandatory) (slurp body))))
+        ((wrap-api-function program-manager-add-mandatory) (slurp body))))
 
 (defn titular-courses
   []
@@ -379,6 +402,17 @@
          :days [d1 d2]
          :slots [s1 s2]})))
 
+(defn department-list
+  []
+  {:departments (map #(dissoc % :id)
+                     (query/department-list))})
+
+(defroutes department-routes
+  (GET "/" []
+       "Invalid request")
+  (GET "/list" []
+       ((wrap-api-function department-list))))
+
 (defroutes api-routes
   (GET "/" [] "Invalid request")
   (context "/course" [] course-routes)
@@ -388,4 +422,5 @@
   (context "/program-manager" [] program-manager-routes)
   (context "/titular" [] titular-routes)
   (context "/instructor" [] instructor-routes)
-  (context "/schedule" [] schedule-routes))
+  (context "/schedule" [] schedule-routes)
+  (context "/department" [] department-routes))
