@@ -2,7 +2,8 @@
   "This namespace provides protocols for querying and updating
   information accessible through Xiast information stores."
 
-  (:require [schema.core :as s]
+  (:require [clojure.edn :as edn]
+            [schema.core :as s]
             [xiast.schema :as xs])
   (:use [clojure.set :only [map-invert]]
         [xiast.schema :only [room-facilities course-grades course-activity-types]]
@@ -80,8 +81,8 @@
              (select program-choice-course
                      (where {:program (:id program)})))]
     (merge program
-           {:mandatory (set mandatory)
-            :optional (set choice)})))
+           {:mandatory (vec mandatory)
+            :optional (vec choice)})))
 
 (defn department->sDepartment
   [department]
@@ -364,15 +365,49 @@
     (map #(select-keys % [:course-code :title])
          results)))
 
+(s/defn course-update-description! :- s/Bool
+  [course-code :- xs/CourseCode
+   description :- s/Str]
+  (if (empty? (select course
+                      (where {:course-code course-code})))
+    false
+    (do (update course
+                (set-fields {:description description})
+                (where {:course-code course-code}))
+        true)))
+
+(s/defn titular-course-list :- [xs/Course]
+  [titular :- xs/PersonID]
+  "Returns a list off all courses for which the user is a titular."
+  (map course->sCourse
+       (select course
+               (where {:titular-id titular}))))
+
+(s/defn instructor-course-list :- [xs/Course]
+  [instructor :- xs/PersonID]
+  "Returns a list off all courses for which the user is an instructor."
+  (let [activity-ids (map (comp :course-activity first)
+                          (select course-instructor
+                                  (where {:netid instructor})))
+        activities (map #(first (select course-activity
+                                        (where {:id %})))
+                        activity-ids)]
+    (map #((comp course->sCourse first)
+           (select course
+                   (where {:course-code (:course-code %)}))))))
+
 (s/defn program-list :- [xs/Program]
   ([]
      "Returns a list of all programs."
-     (map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
-          (select program)))
+     #_(map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
+          (select program))
+     (map program->sProgram (select program)))
   ([manager :- xs/PersonID]
      "Returns a list of all programs the manager is manager of."
-     (map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
-          (select program (where {:manager manager})))))
+     #_(map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
+          (select program (where {:manager manager})))
+     (map program->sProgram (select program
+                                    (where {:manager manager})))))
 
 (s/defn program-find :- [xs/Program]
   [keywords :- [s/Str]]
@@ -584,3 +619,20 @@
                     activities)]
     (mapcat identity blocks)))
 
+(s/defn schedule-proposal-message-add! :- s/Any
+  [titular :- xs/PersonID
+   program :- xs/ProgramID
+   proposal :- xs/ScheduleProposal]
+  (insert schedule-proposal-message
+          (values {:titular titular
+                   :program program
+                   :content (pr-str proposal)})))
+
+(s/defn schedule-proposal-message-get :- [xs/ScheduleProposalMessage]
+  [to :- xs/ProgramID]
+  (let [proposals (select schedule-proposal-message
+                          (where {:program to}))]
+    (map (fn [proposal]
+           (assoc (dissoc proposal :content)
+             :proposal (edn/read-string (:content proposal))))
+         proposals)))
