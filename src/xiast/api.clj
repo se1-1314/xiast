@@ -65,7 +65,8 @@
 (defn course-delete
   [course-code]
   (if-let [course (query/course-get course-code)]
-    (if (= (:titular course) (:user *session*))
+    (if (or (some #{:program-manager} (:user-functions *session*))
+            (= (:titular course) (:user *session*)))
       (do (query/course-delete! course-code)
           {:result "OK"})
       {:result "Not authorized"})

@@ -183,6 +183,23 @@ function create_course(){
 	return false;
 }
 
+function delete_course(){
+
+	var form = $("#delete_course_form")[0];
+
+	var course_code = form.course_code.value;
+
+	url = apicourse("del").concat("/" + course_code);
+
+	$.ajax({
+		type : "DELETE",
+		url : url,
+		success : function(data) {console.info(data)}
+	})
+
+	return false;
+}
+
 
 $("#courses").on("mousedown", ".course-item", function (){
 	$('.course-item').removeClass('active');

@@ -92,10 +92,7 @@
 	<!-- modal form courses creation
 		 TODO: add course to current selected program -->
 
-	<div class="modal fade" id="NewCourse" tabindex="-1" role="dialog" aria-labelledby="create_course_title" aria-hidden="true">
-
-
-
+	<div class="modal fade" id="NewCourse" tabindex="-1" role="dialog" aria-labelledby="create_course_form" aria-hidden="true">
 
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -111,7 +108,7 @@
 						<div class="tab-pane active" id="create">
 
 
-					<form class="form" id="create_course_form" onsubmit="return create_course">
+					<form class="form" id="create_course_form" onsubmit="return create_course()">
 						<div class="form-group">
 							<label class="control-label" for="CourseCode">Course Code</label>
 							<input id="CourseCode" name="CourseCode" type="text" class="form-control" placeholder="1001812ANR" required>
@@ -148,12 +145,12 @@
 					</form>
 				</div>
 				<div class="tab-pane" id="delete">
-					<form class="form" id="delete_course_form" onsubmit="return create_course">
+					<form class="form" id="delete_course_form" onsubmit="return delete_course()">
 						<div class="form-group">
 							<label class="control-label" for="course_code">Departement</label>
 							<input id="course_code" name="course_code" type="text" class="form-control" placeholder="course_code" required>
 						</div>
-						<button type="button" id="CreateCourse" class="btn btn-primary">GOOD RIDANCE!</button>
+						<button type="button" id="DeleteCourse" class="btn btn-primary" onclick="delete_course()">GOOD RIDANCE!</button>
 					</form>
 				</div>
 				</div>
