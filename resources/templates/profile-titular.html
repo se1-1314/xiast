@@ -10,12 +10,27 @@
 	<div>
 		<h2>Course Description</h2>
 		<div id="description"></div>
+		<button type="button" class="btn btn-primary" id="editdescription">edit</button>
 	</div>
 	
 	<div>
 		<h2>Facilities</h2>
+		<button type="button" class="btn btn-primary" id="hoc">HOC</button>
+		<button type="button" class="btn btn-primary" id="wpo">WPO</button>
 		<div id="facilities">
+			<ul style="list-style: none;">
+				<li>
+					<input type="checkbox" name="beamer" value="beamer" id="beamer">
+					beamer
+				</li>
+				<li>
+					<input type="checkbox" name="overhead-projector" value="overhead-projector" id="overhead-projector">
+					overhead-projector
+				</li>
+				<!--<li><input type="checkbox" name="speakers" value="speakers" id="speakers">speakers</li>-->
+			</ul>
 		</div>
+		<button type="button" class="btn btn-primary" id="editfacilities">edit</button>
 	</div>
 	
 	<div id="availability"></div>
