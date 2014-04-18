@@ -182,3 +182,8 @@
                (api/titular-courses)) => {:courses :ok}
                (provided
                 (query/titular-course-list irrelevant) => :ok)))
+
+(facts "Department API"
+       (fact (api/department-list) => {:departments [{:a 1}]}
+             (provided
+              (query/department-list) => [{:id 0 :a 1}])))

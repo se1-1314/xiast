@@ -379,6 +379,17 @@
          :days [d1 d2]
          :slots [s1 s2]})))
 
+(defn department-list
+  []
+  {:departments (map #(dissoc % :id)
+                     (query/department-list))})
+
+(defroutes department-routes
+  (GET "/" []
+       "Invalid request")
+  (GET "/list" []
+       ((wrap-api-function department-list))))
+
 (defroutes api-routes
   (GET "/" [] "Invalid request")
   (context "/course" [] course-routes)
@@ -388,4 +399,5 @@
   (context "/program-manager" [] program-manager-routes)
   (context "/titular" [] titular-routes)
   (context "/instructor" [] instructor-routes)
-  (context "/schedule" [] schedule-routes))
+  (context "/schedule" [] schedule-routes)
+  (context "/department" [] department-routes))
