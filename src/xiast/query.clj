@@ -364,6 +364,26 @@
     (map #(select-keys % [:course-code :title])
          results)))
 
+(s/defn titular-course-list :- [xs/Course]
+  [titular :- xs/PersonID]
+  "Returns a list off all courses for which the user is a titular."
+  (map course->sCourse
+       (select course
+               (where {:titular-id titular}))))
+
+(s/defn instructor-course-list :- [xs/Course]
+  [instructor :- xs/PersonID]
+  "Returns a list off all courses for which the user is an instructor."
+  (let [activity-ids (map (comp :course-activity first)
+                          (select course-instructor
+                                  (where {:netid instructor})))
+        activities (map #(first (select course-activity
+                                        (where {:id %})))
+                        activity-ids)]
+    (map #((comp course->sCourse first)
+           (select course
+                   (where {:course-code (:course-code %)}))))))
+
 (s/defn program-list :- [xs/Program]
   ([]
      "Returns a list of all programs."
@@ -583,4 +603,3 @@
         blocks (map #(schedule-blocks-in-timespan timespan {:course-activity %})
                     activities)]
     (mapcat identity blocks)))
-
