@@ -83,6 +83,7 @@
 
 (defn course-add
   [body]
+  (println body)
   (try+ (let [request (coerce-as xs/Course body)]
           (if (some #{:program-manager} (:user-functions *session*))
             (do (query/course-add! request)

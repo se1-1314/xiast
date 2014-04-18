@@ -160,7 +160,7 @@ function create_course(){
 	titular = form.titular.value;
 	description = form.description.value;
 	departement = form.departement.value;
-	grade = form.grade.value;
+	grade = form.ba.checked ? "ba" : "ma";
 
 	if (CourseCode === '' || title === '' || description === '' || departement === '' || grade === '' || titular === ''){
 		throw "no field may not be empty"
@@ -171,8 +171,10 @@ function create_course(){
 	course.title = title;
 	course.description = description;
 	course.titular = titular;
-	course.departement = departement;
+	course.department = departement;
 	course.grade = grade;
+
+	console.log(grade);
 
 	data = JSON.stringify(course);
 	console.log(data);
