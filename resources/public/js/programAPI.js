@@ -156,8 +156,9 @@ function create_program(){
 
 	var title = form.title.value;
 	var description = form.description.value;
+	var manager = form.manager.value;
 
-	if ( title === '' ||  description === ''){
+	if ( title === '' ||  description === '' || manager === ''){
 		throw "form may not contain empty values";
 	}
 	form.reset();
@@ -165,6 +166,7 @@ function create_program(){
 	var data = new Object();
 	data.title = title;
 	data.description = description;
+	data.manager = manager
 	data.mandatory = [];
 	data.optional = []
 	data = JSON.stringify(data);
