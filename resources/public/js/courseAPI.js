@@ -155,6 +155,39 @@ function create_course(){
 
 	console.log(form);
 
+	CourseCode = form.CourseCode.value;
+	title = form.title.value;
+	titular = form.titular.value;
+	description = form.description.value;
+	departement = form.departement.value;
+	grade = form.grade.value;
+
+	if (CourseCode === '' || title === '' || description === '' || departement === '' || grade === '' || titular === ''){
+		throw "no field may not be empty"
+	}
+
+	course = new Object()
+	course["course-code"] = CourseCode;
+	course.title = title;
+	course.description = description;
+	course.titular = titular;
+	course.departement = departement;
+	course.grade = grade;
+
+	data = JSON.stringify(course);
+	console.log(data);
+	url = apicourse("add");
+	console.log(url);
+
+	$.ajax({
+		type : "POST",
+		url : url,
+		data : data,
+		processData: false,
+		contentType: "application/json",
+		success : function(data) {console.log(data)},
+		dataType: "SJON"
+	})
 	
 
 	return false;
