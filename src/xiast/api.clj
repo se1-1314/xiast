@@ -304,8 +304,8 @@
 (defn titular-courses
   []
   (if (some #{:titular} (:user-functions *session*))
-    {:programs (query/titular-course-list (:user *session*))}
-    {:programs []}))
+    {:courses (query/titular-course-list (:user *session*))}
+    {:courses []}))
 
 (defroutes titular-routes
   (GET "/" []
@@ -316,8 +316,8 @@
 (defn instructor-courses
   []
   (if (some #{:instructor} (:user-functions *session*))
-    {:programs (query/instructor-course-list (:user *session*))}
-    {:programs []}))
+    {:courses (query/instructor-course-list (:user *session*))}
+    {:courses []}))
 
 (defroutes instructor-routes
   (GET "/" []
