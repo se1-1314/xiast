@@ -339,9 +339,17 @@
   (if-let [id (:id activity)]
     (let [course-code ((comp :course-code first)
                        (select course-activity
-                               (where {:id id})))]
+                               (where {:id id})))
+          blocks (map :id
+                      (select schedule-block
+                              (where {:course-activity activity})))]
       (course-delete-activity! id)
-      (course-add-activity! course-code activity))
+      (let [id (course-add-activity! course-code activity)]
+        (doseq [block blocks]
+          (update schedule-block
+                  (set-fields {:course-activity id})
+                  (where {:id block})))
+        id))
     (throw+ {:error "ID required"})))
 
 (s/defn course-list :- [xs/Course]
@@ -400,12 +408,12 @@
   ([]
      "Returns a list of all programs."
      #_(map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
-          (select program))
+            (select program))
      (map program->sProgram (select program)))
   ([manager :- xs/PersonID]
      "Returns a list of all programs the manager is manager of."
      #_(map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
-          (select program (where {:manager manager})))
+            (select program (where {:manager manager})))
      (map program->sProgram (select program
                                     (where {:manager manager})))))
 
