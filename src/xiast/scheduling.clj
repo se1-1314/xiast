@@ -129,19 +129,33 @@
               {:type :room-overlap
                :concerning block-pair}))
        set))
-(defn check-instructor-availabilities :- #{ScheduleCheckResult}
-  [proposed :- ScheduleProposal]
-  (->> proposed
-       (filter #(not (instructor-available? (:instructor (:item %))
-                                            (:timespan %))))
-       (map (fn [block]
-              {:type :instructor-unavailable
-               :concerning #{block}}))))
+(defn proposal-checks
+    [;; check-mandatory-courses
+     ;; check-elective-courses
+     check-room-overlaps
+     ;; check-instructor-available
+     ;; check-weekly-activity
+     ;; check-room-capacities
+     ;; check-room-facilities
+     ])
+(s/defn check-proposal :- #{ScheduleCheckResult}
+  [proposal :- ScheduleProposal]
+  (->> proposal-checks
+       (map #(% proposal))
+       (apply union)))
 (comment
+  (defn check-instructor-availabilities :- #{ScheduleCheckResult}
+    [proposed :- ScheduleProposal]
+    (->> proposed
+         (filter #(not (instructor-available? (:instructor (:item %))
+                                              (:timespan %))))
+         (map (fn [block]
+                {:type :instructor-unavailable
+                 :concerning #{block}}))))
   (s/defn check-mandatory&optional :- #{ScheduleCheckResult}
     [proposal :- ScheduleProposal]
     "Checks if there are overlaps in time for mandatory course
-   activities."
+    activities."
     (println (blocks-by-programs (proposal-new&moved proposal)))
     (->> (for [[program prop-schedule]
                (blocks-by-programs (proposal-new&moved proposal))]
@@ -186,16 +200,4 @@
          (map (fn [block]
                 {:type :room-facility-unsatisfied
                  :concerning [block]}))))
-  (defn proposal-checks
-    [check-mandatory-courses
-     check-elective-courses
-     check-room-overlaps
-     check-instructor-available
-     check-weekly-activity
-     check-room-capacities
-     check-room-facilities])
-  (s/defn check-proposal :- [ScheduleCheckResult]
-    [proposal :- Schedule]
-    (->> proposal-checks
-         (map #(% proposal))
-         flatten)))
+  )
