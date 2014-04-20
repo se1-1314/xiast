@@ -9,9 +9,6 @@ API calls and processing of resulting JSON concerning courses
 function print_courses(divID){
 
 	return function (data){
-	console.log(data);
-//	console.log('optional: ' + data.optional);
-//	console.log('mandatory: ' + data.mandatory);
 
 	$(divID).empty();
 	$(divID).append("<ul id='course-list' class='listing'></ul>");
@@ -64,7 +61,7 @@ function list_courses_by_program(divID, program){
 	// He may then choose to laugh or warn us about it.
 	// He / She will Probably do both
 	} catch(error) {
-	//	console.log(error);
+		console.error(error);
 	}
 
 
@@ -80,7 +77,6 @@ function get_course_info(divID, course){
 		}
 
 		var url = apicourse("get").concat("/" + course);
-		console.log(url);
 
 		$.ajax({
   				type: "GET",
@@ -101,7 +97,6 @@ function print_student_courses(divID){
 	return function(data){
 
 		var enrollments = data.enrollments;
-		console.log(enrollments);
 
 		$(divID).empty();
 		$(divID).append("<ul id='student_courses'></ul>");
@@ -121,7 +116,6 @@ function list_courses_by_current_student(divID){
 		}
 
 		var url = apienrollment("student");
-		console.log(url);
 
 		$.ajax({
   				type: "GET",
@@ -151,10 +145,72 @@ function getCourseNameByCourseCode(coursecode){
 	return result;
 }
 
+function create_course(){
+	var form = $("#create_course_form")[0];
+
+	CourseCode = form.CourseCode.value;
+	title = form.title.value;
+	titular = form.titular.value;
+	description = form.description.value;
+	departement = form.departement.value;
+	grade = form.ba.checked ? "ba" : "ma";
+
+	if (CourseCode === '' || title === '' || description === '' || departement === '' || grade === '' || titular === ''){
+		throw "no field may not be empty"
+	}
+
+	course = new Object()
+	course["course-code"] = CourseCode;
+	course.title = title;
+	course.description = description;
+	course.titular = titular;
+	course.department = departement;
+	course.grade = grade;
+
+	data = JSON.stringify(course);
+	url = apicourse("add");
+
+	$.ajax({
+		type : "POST",
+		url : url,
+		data : data,
+		processData: false,
+		contentType: "application/json",
+		success : function(data) {console.log(data); form.reset();},
+		dataType: "JSON"
+	})
+
+	return false;
+}
+
+function delete_course(){
+
+	var form = $("#delete_course_form")[0];
+
+	var course_code = form.course_code.value;
+
+	url = apicourse("del").concat("/" + course_code);
+
+	$.ajax({
+		type : "DELETE",
+		url : url,
+		success : function(data) {console.info(data)}
+	})
+
+	return false;
+}
+
 
 $("#courses").on("mousedown", ".course-item", function (){
-	console.log(this);
 	$('.course-item').removeClass('active');
 	$(this).addClass('active');
+	get_course_info("#course-info", this.id);
+})
+
+$("#PE-course-list").on("mousedown", ".course-item", function (){
+	$('.course-item').removeClass('active');
+	$(this).addClass('active');
+//	$('#remove_course_button').empty()
+//	$('#remove_course_button').append("<button class=\"btn btn-danger btn-lg\" onclick=\"remove_course_from_program(\'" + this.id + "\')\">Remove course</button>")
 	get_course_info("#course-info", this.id);
 })

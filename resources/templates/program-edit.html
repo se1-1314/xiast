@@ -4,46 +4,178 @@
 		<h1 msg="program-edit/title">Program-Edit</h1>
 	</div>
 
+	<div class="row">
+		<div class="col-md-12">
+			<div class="col-md-4">
+				<h2 msg="program-edit/programs">Programs</h2>
+				<form class="form-inline" id="program-search" role="search" onsubmit="return find_programs('#PE-program-list')">
+					<div class="form-group">
+						<input id="keyword" name="keyword" type="text" class="form-control" placeholder="Search">
+					</div>
+					<button id="search_button" class="btn btn-success">Submit</button>
+				</form>
+			</div>
+			<div class="col-md-4">
+				<h2 msg="program-edit/courses">Courses</h2>
+			</div>
+			<div class="col-md-4">
+				<h2 msg="program-edit/courses-info">Course information</h2>
+			</div>
+
+		</div>
+	</div>
 	<div class="row-fluid">
 		<div class="col-md-4">
-			<h2 msg="program-edit/programs">Programs</h2>
 
-			<form class="form-inline" id="program-search" role="search">
-				<div class="form-group">
-					<input type="text" class="form-control" placeholder="Search">
-				</div>
-				<button type="submit" class="btn btn-default">Submit</button>
-			</form>
-
-			<ul class="listing">
-				<li class="list-item btn">
-					program 1
-				</li>
-				<li class="list-item btn">
-					program 2
-				</li>
-			</ul>
-			<button type="button" class="btn btn-primary">Add/Remove Program</button>
+			<div id="PE-program-list">
+				<img src="/img/loading/loading.gif" class="img-responsive">
+			</div>
+			<!-- <button id="add-program" type="button" class="btn btn-primary">Add Program</button> -->
+			<div class="col-md-5" id="add_program_button">
+			<a data-toggle="modal" href="#NewProgram" class="btn btn-success btn-lg" id="AddProgram">Add Program</a>
+			</div>
+			<div  class="col-md-5" id="delete_program_button"></div>
 		</div>
 
 		<div class="col-md-4">
-			<h2 msg="program-edit/courses">Courses</h2>
-			<ul class="listing">
-				<li class="list-item btn">
-					course 1
-				</li>
-				<li class="list-item btn">
-					course 2
-				</li>
-			</ul>
-			<button type="button" class="btn btn-primary">Add/Remove Course</button>
+			<div id="PE-course-list">
+				<h2>Select a Program</h2>
+			</div>
+			<!-- <button type="button" class="btn btn-primary">Add/Remove Course</button> -->
+			<div class="col-md-5" id="create_course_button">
+				<a data-toggle="modal" href="#NewCourse" class="btn btn-success btn-lg" id="AddCourse">Create / Delete course</a>
+			</div>
+			<div  class="col-md-5" id="delete_course_button"></div>
+
 		</div>
 
 		<div class="col-md-4">
-			<h2 msg="program-edit/courses-info">Course information</h2>
-			<button type="button" class="btn btn-primary">Update information</button>
+			<div id="course-info"></div>
+			<button type="button" class="btn btn-success">Update information</button>
 		</div>
 
 	</div>
+
+	<!-- Modal form Program creation -->
+
+	<div class="modal fade" id="NewProgram" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="myModalLabel">Create program</h4>
+				</div>
+				<div class="modal-body">
+					<form class="form" id="program-creation" onsubmit="return create_program()">
+						<div class="form-group">
+							<label class="control-label" for="title">Title</label>
+							<input id="title" name="title" type="text" class="form-control" placeholder="Title" required>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="manager">Program Manager</label>
+							<input id="manager" name="manager" type="text" class="form-control" placeholder="Program manager" required>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="description">description</label>
+							<textarea id="description" name="description" class="form-control" row="10" placeholder="Description" required></textarea>
+						</div>
+						<button type="button" id="CreateProgram" class="btn btn-primary">Create Tha Program</button>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close this shit</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- modal form courses creation
+		 TODO: add course to current selected program -->
+
+	<div class="modal fade" id="NewCourse" tabindex="-1" role="dialog" aria-labelledby="create_course_form" aria-hidden="true">
+
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<ul class="nav nav-tabs">
+						<li class="active"><a href="#create" data-toggle="tab">Create</a></li>
+						<li><a href="#delete" data-toggle="tab">Delete</a></li>
+					</ul>
+				</div>
+				<div class="modal-body">
+					<div class="tab-content">
+						<div class="tab-pane active" id="create">
+
+
+					<form class="form" id="create_course_form" onsubmit="return create_course()">
+						<div class="form-group">
+							<label class="control-label" for="CourseCode">Course Code</label>
+							<input id="CourseCode" name="CourseCode" type="text" class="form-control" placeholder="1001812ANR" required>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="title">Title</label>
+							<input id="title" name="title" type="text" class="form-control" placeholder="Title" required>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="titular">Titular</label>
+							<input id="titular" name="titular" type="text" class="form-control" placeholder="Titular" required>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="description">Description</label>
+							<textarea id="description" name="description" class="form-control" row="10" placeholder="Blah blah blah oh yeah, so fucking cool" required></textarea>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="departement">Departement</label>
+							<input id="departement" name="departement" type="text" class="form-control" placeholder="departement" required>
+						</div>
+						<div class="form-group">
+							<div class="radio">
+  								<label>
+    								<input type="radio" name="grade" id="ba" value="ba" checked>BA
+  								</label>
+							</div>
+							<div class="radio">
+  								<label>
+    								<input type="radio" name="grade" id="ma" value="ma">MA
+  								</label>
+							</div>
+						</div>
+						<button type="button" id="CreateCourse" class="btn btn-primary">MOARE COURSES!</button>
+					</form>
+				</div>
+				<div class="tab-pane" id="delete">
+					<form class="form" id="delete_course_form" onsubmit="return delete_course()">
+						<div class="form-group">
+							<label class="control-label" for="course_code">Departement</label>
+							<input id="course_code" name="course_code" type="text" class="form-control" placeholder="course_code" required>
+						</div>
+						<button type="button" id="DeleteCourse" class="btn btn-primary" onclick="delete_course()">GOOD RIDANCE!</button>
+					</form>
+				</div>
+				</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close this shit</button>
+				</div>
+			</div>
+
+
+		</div>
+
+	</div>
+
+
+	<script src="/js/jquery.js" type="text/javascript"></script>
+	<script src="/js/jquery-ui.js" type="text/javascript"></script>
+	<script src="/js/ServerLove.js" type="text/javascript"></script>
+	<script src="/js/courseAPI.js" type="text/javascript"></script>
+	<script src="/js/programAPI.js" type="text/javascript"></script>
+	<script src="/js/semi-schedulingAPI.js" type="text/javascript"></script>
+	<script src="/js/program-editAPI.js" type="text/javascript"></script>
+	<script src="/js/modalclick.js" type="text/javascript"></script>
+	<script type="text/javascript">
+	list_programs("#PE-program-list");
+	</script>
 </div>
 </html>

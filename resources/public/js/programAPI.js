@@ -18,7 +18,7 @@ Parameters: 	divID: The id where the information should be displayed
 returns: 		function to be used as a callback in the AJAX call
 
  *****************************************/
-function process_JSON_program(divID, root_key){
+function process_JSON_program(divID, key){
 
 	return function(data){
 	console.log(data);
@@ -58,8 +58,6 @@ function process_JSON_program(divID, root_key){
 			// Writing the information to the html div addressed by there given ID
 			$(divID).empty();
 			$(divID).append("<ul id='program-list' class='listing'></ul>");
-
-			$("#program-list").append("<h2>Programs</h2>");
 
 			$.each(programs, function(index, value) {
 				$("#program-list").append(value);
@@ -131,15 +129,85 @@ function list_programs(divID, keyword){
 	// He may then choose to laugh or warn us about it.
 	// He / She will Probably do both
 	} catch(error) {
-	//	console.log(error);
+		console.error(error);
 	}
 }
 
+
+function find_programs(divID){
+
+	var form = $("#program-search")[0];
+	var keyword = form.keyword.value;
+	form.keyword.value = "";
+
+	list_programs(divID, keyword);
+
+	return false;
+}
+
+function create_program_success(data){
+	console.info(data);
+}
+
+function create_program(){
+	
+	var form = $("#program-creation")[0];
+
+	var title = form.title.value;
+	var description = form.description.value;
+	var manager = form.manager.value;
+
+	if ( title === '' ||  description === '' || manager === ''){
+		throw "form may not contain empty values";
+	}
+
+	var data = new Object();
+	data.title = title;
+	data.description = description;
+	data.manager = manager
+	data.mandatory = [];
+	data.optional = []
+	data = JSON.stringify(data);
+
+	url = apiprogram("add");
+
+	$.ajax({
+			type: "POST",
+			url: url,
+		  	data: data, 
+		  	processData: false,
+		  	contentType: "application/json",
+		  	success: function (data){console.info(data); form.reset();},
+		  	dataType: "JSON",
+
+	});
+
+	$("#NewProgram").modal("hide");
+
+	return false;
+}
+
+function delete_program(program_id){
+
+	url = apiprogram("del").concat("/" + program_id);
+
+	$.ajax({
+		type: "DELETE",
+		url: url,
+		success: function (data) {console.info(data)}
+	})
+}
+
 $("#programs").on("mousedown", ".program-item", function (){
-	console.log(this.id);
-	//console.log(this);
 	$('.program-item').removeClass('active');
 	$(this).addClass('active');
 	list_courses_by_program("#courses", this.id);
 })
 
+$("#PE-program-list").on("mousedown", ".program-item", function (){
+	$('.program-item').removeClass('active');
+	$(this).addClass('active');
+	$('#delete_program_button').empty()
+	$('#delete_program_button').append("<button class=\"btn btn-danger btn-lg\" onclick=\"delete_program(\'" + this.id + "\')\">Delete Program</button>")
+	list_courses_by_program("#PE-course-list", this.id);
+})
