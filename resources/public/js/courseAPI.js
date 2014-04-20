@@ -9,8 +9,9 @@ API calls and processing of resulting JSON concerning courses
 function print_courses(divID){
 
 	return function (data){
-	console.log('optional: ' + data.optional);
-	console.log('mandatory: ' + data.mandatory);
+	console.log(data);
+//	console.log('optional: ' + data.optional);
+//	console.log('mandatory: ' + data.mandatory);
 
 	$(divID).empty();
 	$(divID).append("<ul id='course-list' class='listing'></ul>");
