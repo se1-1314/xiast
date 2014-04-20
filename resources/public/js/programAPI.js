@@ -44,7 +44,7 @@ function process_JSON_program(divID, key){
 								title = val;
 							}
 							// Same applies to program-id
-							else if (key == 'program-id'){
+							else if (key == 'id'){
 								id = val;
 							}
 						})

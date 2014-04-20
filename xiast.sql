@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.6.16, for osx10.9 (x86_64)
 --
--- Host: localhost    Database: xiastport
+-- Host: localhost    Database: xiast
 -- ------------------------------------------------------
 -- Server version	5.6.16
 
@@ -118,7 +118,7 @@ CREATE TABLE `course-enrollment` (
   KEY `netid` (`netid`),
   CONSTRAINT `course-enrollment_ibfk_1` FOREIGN KEY (`course-code`) REFERENCES `course` (`course-code`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `course-enrollment_ibfk_2` FOREIGN KEY (`netid`) REFERENCES `person` (`netid`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -366,6 +366,35 @@ LOCK TABLES `schedule-block` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `schedule-proposal-message`
+--
+
+DROP TABLE IF EXISTS `schedule-proposal-message`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `schedule-proposal-message` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `titular` varchar(12) NOT NULL DEFAULT '',
+  `program` int(11) unsigned NOT NULL,
+  `content` tinytext NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `titular` (`titular`),
+  KEY `schedule-proposal_ibfk_2` (`program`),
+  CONSTRAINT `schedule-proposal-message_ibfk_2` FOREIGN KEY (`program`) REFERENCES `program` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `schedule-proposal-message_ibfk_1` FOREIGN KEY (`titular`) REFERENCES `person` (`netid`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `schedule-proposal-message`
+--
+
+LOCK TABLES `schedule-proposal-message` WRITE;
+/*!40000 ALTER TABLE `schedule-proposal-message` DISABLE KEYS */;
+/*!40000 ALTER TABLE `schedule-proposal-message` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `session`
 --
 
@@ -424,4 +453,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-04-14 19:02:18
+-- Dump completed on 2014-04-18 11:57:15
