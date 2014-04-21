@@ -6,6 +6,7 @@ var header = { left: 'prev,next today',
                right: 'agendaMonth,agendaWeek,agendaDay'};
 
 
+
 // Returns a Calendar object with drag&drop disabled by default
 function create_calendar(){
     return { new_events: [],
@@ -49,8 +50,23 @@ function add_schedule_block(calendar, block){
 return calendar.events.push(schedule_block_to_event(block));
 }
 
+function calendar_event_click_event(jqobj, calendar){
+    return function(calendar_event, js_event, view){
+        var button = "<button id=\"delete_button\"type=\"button\" class=\"btn btn-lg btn-danger\">Delete </br>" + calendar_event.title + "</button>";
+        if (typeof calendar.previous_clicked !== 'undefined'){
+            calendar.previous_clicked.color = "#3a87ad";
+            $(jqobj).fullCalendar("updateEvent", calendar.previous_clicked);
+        }
+        calendar.previous_clicked = calendar_event;
+        calendar_event.color = "#FF0000"; 
+        $("#schedule-buttons").empty().append(button);
+        $(jqobj).fullCalendar("updateEvent", calendar_event);
+        $("#delete_button").click(function () {console.info("clicked"); delete_event(jqobj, calendar, calendar_event);});
+    }
+}
+
 function populate_calendar_request(calendar){
-    /*      var url = api_schedule()
+/*          var url = api_schedule()
 
             $.ajax({
             type: "GET"
@@ -121,7 +137,8 @@ function render_calendar(obj, calendar){
             header: calendar.header,
             editable: calendar.editable,
             events: calendar.events,
-            eventDrop: event_dropped(calendar)
+            eventDrop: event_dropped(calendar),
+            eventClick: calendar_event_click_event(obj, calendar)
         });
     } catch(error){
         console.log(error);
@@ -153,7 +170,7 @@ sb2['last-slot'] = 11;
 sb2.item = new Object();
 sb2.item.type = "WPO";
 sb2.item["course-activity"] = '6';
-sb2.item["course-id"] = '1000428ANR';
+sb2.item["course-id"] = '2000431ANR';
 sb2.room = new Object();
 sb2.room.building = 'E';
 sb2.room.floor = 1;
@@ -167,7 +184,7 @@ var sb3 = {
     'last-slot': 16,
     item: {
         type: "HOC",
-        "course-activity": '5',
+        "course-activity": '7',
         "course-id": '1004123ANR',
     },
     room: {
