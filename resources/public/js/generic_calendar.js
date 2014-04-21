@@ -49,6 +49,14 @@ function add_schedule_block(calendar, block){
 return calendar.events.push(schedule_block_to_event(block));
 }
 
+function calendar_event_click_event(jqobj, calendar){
+    return function(calendar_event, js_event, view){
+        var button = "<button id=\"delete_button\"type=\"button\" class=\"btn btn-lg btn-warning\">Delete</button>";
+        $("#schedule-buttons").empty().append(button);
+        $("#delete_button").click(function () {console.info("clicked"); delete_event(jqobj, calendar, calendar_event);});
+    }
+}
+
 function populate_calendar_request(calendar){
     /*      var url = api_schedule()
 
@@ -121,7 +129,8 @@ function render_calendar(obj, calendar){
             header: calendar.header,
             editable: calendar.editable,
             events: calendar.events,
-            eventDrop: event_dropped(calendar)
+            eventDrop: event_dropped(calendar),
+            eventClick: calendar_event_click_event(obj, calendar)
         });
     } catch(error){
         console.log(error);
