@@ -51,7 +51,8 @@ return calendar.events.push(schedule_block_to_event(block));
 
 function calendar_event_click_event(jqobj, calendar){
     return function(calendar_event, js_event, view){
-        var button = "<button id=\"delete_button\"type=\"button\" class=\"btn btn-lg btn-warning\">Delete</button>";
+        var button = "<button id=\"delete_button\"type=\"button\" class=\"btn btn-lg btn-danger\">Delete <br>" + calendar_event.title + "</button>";
+        calendar_event.color = "#ffff00";
         $("#schedule-buttons").empty().append(button);
         $("#delete_button").click(function () {console.info("clicked"); delete_event(jqobj, calendar, calendar_event);});
     }
@@ -162,7 +163,7 @@ sb2['last-slot'] = 11;
 sb2.item = new Object();
 sb2.item.type = "WPO";
 sb2.item["course-activity"] = '6';
-sb2.item["course-id"] = '1000428ANR';
+sb2.item["course-id"] = '2000431ANR';
 sb2.room = new Object();
 sb2.room.building = 'E';
 sb2.room.floor = 1;
