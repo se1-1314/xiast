@@ -66,7 +66,7 @@ function calendar_event_click_event(jqobj, calendar){
 }
 
 function populate_calendar_request(calendar){
-    /*      var url = api_schedule()
+/*          var url = api_schedule()
 
             $.ajax({
             type: "GET"
