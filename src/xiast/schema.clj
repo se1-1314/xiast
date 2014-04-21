@@ -93,7 +93,7 @@
                                         :activity-more-than-once-weekly
                                         :room-capacity-unsatisfied
                                         :room-facility-unsatisfied)
-                          :concerning [ScheduleBlock]
+                          :concerning #{ScheduleBlock}
                           s/Any s/Any})
 (def TimeSpan
   "These are used to filter schedule blocks in queries; weeks, days
