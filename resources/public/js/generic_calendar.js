@@ -145,6 +145,64 @@ function render_calendar(obj, calendar){
     }
 }
 
+function is_valid(obj){
+    var result = true;
+    $.each(obj, function(key, value){
+        if (result == false)  {
+            return result;
+        }
+        else if (typeof value == "object"){
+            console.log("object");
+            result = is_valid(value);
+        }
+        else if (typeof value == "undefined"){
+            console.log("undefined");
+            result = false;
+        }
+        else if (value == ""){
+            console.log("empty string");
+            result = false;
+        }
+        else {
+            console.log(typeof value);
+        }
+    });
+    console.log(result);
+    return result;
+}
+
+function create_event(){
+    // fetch the form by id
+    var form = $("#event-creation")[0];
+
+    var sb = new Object();
+    sb.room = new Object();
+    sb.item = new Object();
+
+    sb.id = 24;// should be returned from AJAX request
+    sb.week = form.week.value;
+    sb.day = form.day.value;
+    sb['first-slot'] = form.first_slot.value;
+    sb['last-slot'] = form.last_slot.value;
+    sb.item.type = form.WPO.checked ? "WPO" : "HOC";
+    sb.item["course-activity"] = 5; // where to retrieve this?
+    sb.item["course-id"] = form.course_code.value;
+    sb.room.building = form.building.value;
+    sb.room.floor = form.floor.value;
+    sb.room.number = form.number.value;
+
+    if (is_valid(sb)){
+
+        add_schedule_block(c ,sb); // need a way to correctly find / extract the calendar object
+        render_calendar($("#schedule-content"), c);
+    
+        form.reset();
+        
+        }
+    else {
+        // do something
+    }
+}
 
 var sb1 = new Object();
 sb1.id = 21;
