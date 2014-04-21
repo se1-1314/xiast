@@ -184,7 +184,7 @@ var sb3 = {
     'last-slot': 16,
     item: {
         type: "HOC",
-        "course-activity": '5',
+        "course-activity": '7',
         "course-id": '1004123ANR',
     },
     room: {
