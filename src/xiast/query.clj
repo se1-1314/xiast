@@ -652,12 +652,14 @@
 (s/defn schedule-proposal-apply! :- s/Any
   [proposal :- xs/ScheduleProposal]
   (doseq [new (:new proposal)]
-    (insert schedule-block
-            (values new)))
+    (schedule-block-add! (dissoc new :id)))
   (doseq [moved (:moved proposal)]
-    (update schedule-block
-            (set-fields (dissoc moved :id))
-            (where {:id (:id moved)})))
+    (let [room-id (:id (first (select room
+                                      (where (:room moved)))))]
+      (update schedule-block
+              (set-fields (assoc (dissoc moved [:id :item :room])
+                            :room room-id))
+              (where {:id (:id moved)}))))
   (doseq [deleted (:deleted proposal)]
     (delete schedule-block
             (where {:id (:id deleted)}))))
