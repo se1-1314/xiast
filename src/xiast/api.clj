@@ -408,15 +408,14 @@
               proposal {:new (set (:new request))
                         :moved (set (:moved request))
                         :deleted (set (:deleted request))}
-              check (scheduling/check-proposal proposal)]
-          (if (empty? check)
-            (do (query/schedule-proposal-apply! proposal)
-                {:result []})
-            {:result check}))
+              ;;check (scheduling/check-proposal proposal)
+              ]
+          (do (query/schedule-proposal-apply! proposal)
+              {:result "OK"}))
         (catch [:type :coercion-error] e
           {:result "Invalid JSON"})
         (catch Exception e
-          {:result "Error"})))
+          {:result (.getMessage e)})))
 
 (defroutes schedule-routes
   (GET "/" []
