@@ -86,12 +86,16 @@
                                   login-link))
   [:div#alert] (if-let [alert (or *alert* alert)]
                  (do-> (add-class (str "alert-" (name (:type alert))))
-                       (append (t/translate (:message alert)))))
+                       (append (t/translate (:message alert))))))
+
+ ;; What this actually did was deleting all hyperlinkgs by having it referring to nothing
+ ;; please do not reinclude this piece of code unless you are certain you are not reintrodicing that bug.
+ ;; We NEED those hyperlinks!
  ;; This prefixes absolute URLs with a string.
- [:a] (fn [nodes]
-        (update-in nodes [:attrs :href]
-                   #(if (= (first %) \/)
-                      (str (:url-prefix config) %)))))
+ ;;[:a] (fn [nodes]
+ ;;       (update-in nodes [:attrs :href]
+ ;;                  #(if (= (first %) \/)
+ ;;                     (str (:url-prefix config) %)))))
 
 (defsnippet index-body "templates/index.html" [:div#page-content]
   []

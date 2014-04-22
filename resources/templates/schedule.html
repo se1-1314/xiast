@@ -6,9 +6,100 @@
   <body>
     <div id="page-content">
       <h1>Schedule</h1>
-      <div id="schedule-content">
-        
+      <div class="row">
+          <div class="col-md-12">
+          <div id="schedule-content" class="col-md-10">
+            
+          </div>
+          <div id="schedule-buttons" class="col-md-2">
+
+          </div>
+        </div>
       </div>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="col-md-2">
+            <a data-toggle="modal" href="#newEvent" class="btn btn-success btn-lg" id="AddEvent">Create event</a>
+          </div>
+          <div class="col-md-6">
+          </div>
+          <div class="col-md-2">
+            <button type="button" class="btn btn-primary btn-lg">Check proposal</button>
+          </div>
+
+        </div>
+     </div>
+
+    <div class="modal fade" id="newEvent" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Create event</h4>
+          </div>
+          <div class="modal-body">
+            <form class="form" id="event-creation" onsubmit="return create_event()">
+              <!-- Time -->
+
+              <div class="form-group">
+                <label class="control-label" for="week">Week</label>
+                <input id="week" name="week" type="number" class="form-control" placeholder="32" required>
+              </div>
+              <div class="form-group">
+                <!-- TODO dropdown selection box-->
+                <label class="control-label" for="day">Day</label>
+                <input id="day" name="day" type="number" class="form-control" placeholder="1" required>
+              </div>
+              <div class="form-group">
+                <label class="control-label" for="first_slot">First Slot</label>
+                <input id="first_slot" name="first_slot" type="number" class="form-control" placeholder="1" required>
+              </div>
+              <div class="form-group">
+                <label class="control-label" for="last_slot">Last Slot</label>
+                <input id="last_slot" name="last_slot" type="number" class="form-control" placeholder="3" required>
+              </div>
+
+              <!-- item -->
+
+              <div class="form-group">
+                <label class="control-label" for="course_code">Course Code</label>
+                <input id="course_code" name="course_code" type="text" class="form-control" placeholder="1234567ANR" required>
+              </div>
+
+              <div class="form-group">
+                <div class="radio">
+                    <label>
+                      <input type="radio" name="type" id="WPO" value="WPO" checked>WPO
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                      <input type="radio" name="type" id="HOC" value="HOC">HOC
+                    </label>
+                </div>
+              </div>
+
+              <!-- Room -->
+
+              <div class="form-group">
+                <label class="control-label" for="building">Building</label>
+                <input id="building" name="building" type="text" class="form-control" placeholder="E" required>
+                <label class="control-label" for="floor">Floor</label>
+                <input id="floor" name="floor" type="number" class="form-control" placeholder="3" required>
+                <label class="control-label" for="number">Room</label>
+                <input id="number" name="number" type="number" class="form-control" placeholder="1" required>
+              </div>
+
+              <button type="button" id="CreateProgram" class="btn btn-primary" onclick="create_event()">Create Event</button>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     </div>
   </body>
   </div>

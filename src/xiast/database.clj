@@ -80,3 +80,7 @@
 (def ^:dynamic schedule-block
   (-> (create-entity "schedule-block")
       (database db)))
+
+(def ^:dynamic schedule-proposal-message
+  (-> (create-entity "schedule-proposal-message")
+      (database db)))

@@ -23,4 +23,7 @@ Thumbs.db
 *.swp
 layout-backup.html
 
+*.orig
+*.backup
+
 xiast.conf
