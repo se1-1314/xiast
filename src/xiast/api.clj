@@ -404,9 +404,9 @@
 (defn schedule-proposal-apply!
   [body]
   (try+ (let [request (coerce-as ScheduleProposal body)
-              proposal {:new (set (:new proposal))
-                        :moved (set (:moved proposal))
-                        :deleted (set (:deleted proposal))}]
+              proposal {:new (set (:new request))
+                        :moved (set (:moved request))
+                        :deleted (set (:deleted request))}]
           (query/schedule-proposal-apply! proposal))
         (catch [:type :coercion-error] e
           {:result "Invalid JSON"})
