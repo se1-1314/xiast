@@ -58,7 +58,7 @@ function calendar_event_click_event(jqobj, calendar){
             $(jqobj).fullCalendar("updateEvent", calendar.previous_clicked);
         }
         calendar.previous_clicked = calendar_event;
-        calendar_event.color = "#FF0000"; 
+        calendar_event.color = "#FF0000";
         $("#schedule-buttons").empty().append(button);
         $(jqobj).fullCalendar("updateEvent", calendar_event);
         $("#delete_button").click(function () {console.info("clicked"); delete_event(jqobj, calendar, calendar_event);});
@@ -93,6 +93,13 @@ function generate_schedule_proposal(calendar){
         moved: calendar.moved_events.map(event_to_schedule_block),
         deleted: calendar.deleted_block_ids
     };
+}
+function send_schedule_proposal(prop){
+    $.ajax({
+        type: 'POST',
+        url: '/api/schedule/proposal/apply',
+        succes: function(){},
+        dataType: 'JSON'});
 }
 
 function event_dropped(calendar){
@@ -195,9 +202,9 @@ function create_event(){
 
         add_schedule_block(c ,sb); // need a way to correctly find / extract the calendar object
         render_calendar($("#schedule-content"), c);
-    
+
         form.reset();
-        
+
         }
     else {
         // do something
@@ -205,7 +212,7 @@ function create_event(){
 }
 
 var sb1 = new Object();
-sb1.id = 21;
+//sb1.id = 21;
 sb1.week = 32;
 sb1.day = 1;
 sb1['first-slot'] = 4;
@@ -220,8 +227,7 @@ sb1.room.floor = 1;
 sb1.room.number = 8;
 
 var sb2 = new Object();
-sb2.id = 22;
-sb2.week = 32;
+//sb2.week = 32;
 sb2.day = 1;
 sb2['first-slot'] = 8;
 sb2['last-slot'] = 11;
@@ -235,7 +241,7 @@ sb2.room.floor = 1;
 sb2.room.number = 7;
 
 var sb3 = {
-    id: 23,
+    //id: 23,
     week: 32,
     day: 4,
     'first-slot': 13,
@@ -255,9 +261,10 @@ var sb3 = {
 // testing
 
 var c = create_modifiable_calendar();
-add_schedule_block(c, sb1);
-add_schedule_block(c, sb2);
-add_schedule_block(c, sb3);
 
 
 render_calendar($("#schedule-content"), c);
+
+add_new_schedule_block($("#schedule-content"), c, sb1);
+add_new_schedule_block($("#schedule-content"), c, sb2);
+add_new_schedule_block($("#schedule-content"), c, sb3);
