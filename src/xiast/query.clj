@@ -339,9 +339,17 @@
   (if-let [id (:id activity)]
     (let [course-code ((comp :course-code first)
                        (select course-activity
-                               (where {:id id})))]
+                               (where {:id id})))
+          blocks (map :id
+                      (select schedule-block
+                              (where {:course-activity activity})))]
       (course-delete-activity! id)
-      (course-add-activity! course-code activity))
+      (let [id (course-add-activity! course-code activity)]
+        (doseq [block blocks]
+          (update schedule-block
+                  (set-fields {:course-activity id})
+                  (where {:id block})))
+        id))
     (throw+ {:error "ID required"})))
 
 (s/defn course-list :- [xs/Course]
@@ -400,12 +408,12 @@
   ([]
      "Returns a list of all programs."
      #_(map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
-          (select program))
+            (select program))
      (map program->sProgram (select program)))
   ([manager :- xs/PersonID]
      "Returns a list of all programs the manager is manager of."
      #_(map #(assoc (select-keys % [:course-code :title]) :program-id (:id %))
-          (select program (where {:manager manager})))
+            (select program (where {:manager manager})))
      (map program->sProgram (select program
                                     (where {:manager manager})))))
 
@@ -626,13 +634,10 @@
     (mapcat identity blocks)))
 
 (s/defn schedule-proposal-message-add! :- s/Any
-  [titular :- xs/PersonID
-   program :- xs/ProgramID
-   proposal :- xs/ScheduleProposal]
+  [message :- xs/ScheduleProposalMessage]
   (insert schedule-proposal-message
-          (values {:titular titular
-                   :program program
-                   :content (pr-str proposal)})))
+          (assoc (assoc (dissoc message [:id :proposal]))
+            :proposal (pr-str (:proposal message)))))
 
 (s/defn schedule-proposal-message-get :- [xs/ScheduleProposalMessage]
   [to :- xs/ProgramID]
@@ -642,3 +647,17 @@
            (assoc (dissoc proposal :content)
              :proposal (edn/read-string (:content proposal))))
          proposals)))
+
+;; TODO: Put this in schedule and refactor
+(s/defn schedule-proposal-apply! :- s/Any
+  [proposal :- xs/ScheduleProposal]
+  (doseq [new (:new proposal)]
+    (insert schedule-block
+            (values new)))
+  (doseq [moved (:moved proposal)]
+    (update schedule-block
+            (set-fields (dissoc moved :id))
+            (where {:id (:id moved)})))
+  (doseq [deleted (:deleted proposal)]
+    (delete schedule-block
+            (where {:id (:id deleted)}))))
