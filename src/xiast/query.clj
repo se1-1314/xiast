@@ -653,7 +653,7 @@
   [proposal :- xs/ScheduleProposal]
   (doseq [new (:new proposal)]
     (insert schedule-block
-            (values new)))
+            (values (dissoc new :id))))
   (doseq [moved (:moved proposal)]
     (update schedule-block
             (set-fields (dissoc moved :id))
