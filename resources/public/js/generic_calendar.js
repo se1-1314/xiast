@@ -224,12 +224,11 @@ function create_event(){
     sb['first-slot'] = +form.first_slot.value;
     sb['last-slot'] = +form.last_slot.value;
     sb.item.type = form.WPO.checked ? "WPO" : "HOC";
-    sb.item["course-activity"] = 0; // where to retrieve this?
+    sb.item["course-activity"] = +form.course_activity.value;
     sb.item["course-code"] = form.course_code.value;
     sb.room.building = form.building.value;
     sb.room.floor = +form.floor.value;
     sb.room.number = +form.number.value;
-    skewer.log(sb);
     if (true){
         add_new_schedule_block($("#schedule-content"), c ,sb);
         //form.reset();
