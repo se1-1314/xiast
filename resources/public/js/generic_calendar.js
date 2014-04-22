@@ -298,6 +298,11 @@ pm_sched.forEach(
 
 render_calendar($("#schedule-content"), c);
 
+function send_proposal() {
+    send_schedule_proposal(generate_schedule_proposal(c));
+}
+//$("#apply_button").onclick = send_proposal;
+
 // add_new_schedule_block($("#schedule-content"), c, sb1);
 // add_new_schedule_block($("#schedule-content"), c, sb2);
 // add_new_schedule_block($("#schedule-content"), c, sb3);

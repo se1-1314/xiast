@@ -24,7 +24,7 @@
           <div class="col-md-6">
           </div>
           <div class="col-md-2">
-            <button type="button" class="btn btn-primary btn-lg">Check proposal</button>
+            <button type="button" class="btn btn-primary btn-lg" id="apply_button" onclick="send_proposal()">Apply</button>
           </div>
 
         </div>
@@ -95,7 +95,7 @@
                 <input id="number" name="number" type="number" class="form-control" placeholder="1" required>
               </div>
 
-              <button type="button" class="btn btn-primary" onclick="(function x () {create_event()})()">Create Event</button>
+              <button type="button" class="btn btn-primary" onclick="create_event()">Create Event</button>
             </form>
           </div>
           <div class="modal-footer">
