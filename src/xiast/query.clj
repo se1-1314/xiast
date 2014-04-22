@@ -647,3 +647,17 @@
            (assoc (dissoc proposal :content)
              :proposal (edn/read-string (:content proposal))))
          proposals)))
+
+;; TODO: Put this in schedule and refactor
+(s/defn schedule-proposal-apply! :- s/Any
+  [proposal :- xs/ScheduleProposal]
+  (doseq [new (:new proposal)]
+    (insert schedule-block
+            (values new)))
+  (doseq [moved (:moved proposal)]
+    (update schedule-block
+            (set-fields (dissoc moved :id))
+            (where {:id (:id moved)})))
+  (doseq [deleted (:deleted proposal)]
+    (delete schedule-block
+            (where {:id (:id deleted)}))))

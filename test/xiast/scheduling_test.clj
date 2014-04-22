@@ -159,9 +159,9 @@
   => roc1))
 
 ;; Instructor availabilities
-(def iac1
+#_(def iac1
   (mocksched/gen-course-schedule-block ))
 
-(fact
+#_(fact
  "Check instructor availabilities"
  (sched/check-instructor-availabilities instructor-availabilities-porp))

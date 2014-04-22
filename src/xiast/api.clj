@@ -394,8 +394,20 @@
                         :proposal {:new (set (:new proposal))
                                    :moved (set (:moved proposal))
                                    :deleted (set (:deleted proposal))})]
-          (do (query/sechedule-proposal-message-add! message)
+          (do (query/schedule-proposal-message-add! message)
               {:result "ok"}))
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result "Error"})))
+
+(defn schedule-proposal-apply!
+  [body]
+  (try+ (let [request (coerce-as ScheduleProposal body)
+              proposal {:new (set (:new proposal))
+                        :moved (set (:moved proposal))
+                        :deleted (set (:deleted proposal))}]
+          (query/schedule-proposal-apply! proposal))
         (catch [:type :coercion-error] e
           {:result "Invalid JSON"})
         (catch Exception e
@@ -431,7 +443,9 @@
          :days [d1 d2]
          :slots [s1 s2]}))
   (POST "/proposal" {body :body}
-        ((wrap-api-function schedule-proposal-add!) (slurp body))))
+        ((wrap-api-function schedule-proposal-add!) (slurp body)))
+  (POST "/proposal/apply" {body :body}
+        ((wrap-api-function schedule-proposal-apply!) (slurp body))))
 
 (defn department-list
   []
