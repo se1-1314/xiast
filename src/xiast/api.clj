@@ -52,6 +52,17 @@
   {:program xs/ProgramID
    :course xs/CourseCode})
 
+(def ScheduleProposal
+  ;; See CourseActivityAPI...
+  {(s/optional-key :new) [xs/ScheduleBlock]
+   (s/optional-key :moved) [xs/ScheduleBlock]
+   (s/optional-key :deleted) [xs/ScheduleBlockID]})
+
+(def ScheduleProposalMessage
+  {:titular xs/PersonID
+   :program xs/ProgramID
+   :proposal ScheduleProposal})
+
 ;; Course API
 
 (defn course-list
@@ -372,6 +383,22 @@
   [program-id timespan]
   {:schedule (query/program-schedule program-id timespan)})
 
+;; TODO: security
+(defn schedule-proposal-add!
+  [body]
+  (try+ (let [request (coerce-as ScheduleProposalMessage body)
+              proposal (:proposal request)
+              message (assoc (dissoc request :proposal)
+                        :proposal {:new (set (:new proposal))
+                                   :moved (set (:moved proposal))
+                                   :deleted (set (:deleted proposal))})]
+          (do (query/sechedule-proposal-message-add! message)
+              {:result "ok"}))
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result "Error"})))
+
 (defroutes schedule-routes
   (GET "/" []
        "Invalid request")
@@ -400,7 +427,9 @@
         id
         {:weeks [w1 w2]
          :days [d1 d2]
-         :slots [s1 s2]})))
+         :slots [s1 s2]}))
+  (POST "/proposal" {body :body}
+        ((wrap-api-function schedule-proposal-add!) (slurp body))))
 
 (defn department-list
   []

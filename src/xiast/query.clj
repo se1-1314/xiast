@@ -628,13 +628,10 @@
     (mapcat identity blocks)))
 
 (s/defn schedule-proposal-message-add! :- s/Any
-  [titular :- xs/PersonID
-   program :- xs/ProgramID
-   proposal :- xs/ScheduleProposal]
+  [message :- xs/ScheduleProposalMessage]
   (insert schedule-proposal-message
-          (values {:titular titular
-                   :program program
-                   :content (pr-str proposal)})))
+          (assoc (assoc (dissoc message [:id :proposal]))
+            :proposal (pr-str (:proposal message)))))
 
 (s/defn schedule-proposal-message-get :- [xs/ScheduleProposalMessage]
   [to :- xs/ProgramID]
