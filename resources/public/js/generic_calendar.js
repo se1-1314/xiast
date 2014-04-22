@@ -77,8 +77,7 @@ function populate_calendar_request(calendar){
 function event_to_schedule_block(e){
     var start = date_to_VUB_time(e.start);
     var end = date_to_VUB_time(e.end);
-    return {
-        id: e.schedule_block_id,
+    var sb = {
         week: start[0],
         day: start[1],
         'first-slot': start[2],
@@ -86,7 +85,12 @@ function event_to_schedule_block(e){
         item: e.item,
         room: e.room
     };
+    if (e.hasOwnProperty('schedule_block_id')) {
+        sb.id = e.schedule_block_id;
+    }
+    return sb;
 }
+
 function generate_schedule_proposal(calendar){
     return {
         new: calendar.new_events.map(event_to_schedule_block),
@@ -99,6 +103,8 @@ function send_schedule_proposal(prop){
         type: 'POST',
         url: '/api/schedule/proposal/apply',
         succes: function(){},
+        contentType: "application/json",
+        data: JSON.stringify(prop),
         dataType: 'JSON'});
 }
 
@@ -192,7 +198,7 @@ function create_event(){
     sb['first-slot'] = form.first_slot.value;
     sb['last-slot'] = form.last_slot.value;
     sb.item.type = form.WPO.checked ? "WPO" : "HOC";
-    sb.item["course-activity"] = 5; // where to retrieve this?
+    sb.item["course-activity"] = 0; // where to retrieve this?
     sb.item["course-id"] = form.course_code.value;
     sb.room.building = form.building.value;
     sb.room.floor = form.floor.value;
@@ -219,7 +225,7 @@ sb1['first-slot'] = 4;
 sb1['last-slot'] = 7;
 sb1.item = new Object();
 sb1.item.type = "HOC";
-sb1.item["course-activity"] = '5';
+sb1.item["course-activity"] = 5;
 sb1.item["course-id"] = '1000428ANR';
 sb1.room = new Object();
 sb1.room.building = 'E';
@@ -227,13 +233,13 @@ sb1.room.floor = 1;
 sb1.room.number = 8;
 
 var sb2 = new Object();
-//sb2.week = 32;
+sb2.week = 32;
 sb2.day = 1;
 sb2['first-slot'] = 8;
 sb2['last-slot'] = 11;
 sb2.item = new Object();
 sb2.item.type = "WPO";
-sb2.item["course-activity"] = '6';
+sb2.item["course-activity"] = 6;
 sb2.item["course-id"] = '2000431ANR';
 sb2.room = new Object();
 sb2.room.building = 'E';
@@ -248,7 +254,7 @@ var sb3 = {
     'last-slot': 16,
     item: {
         type: "HOC",
-        "course-activity": '7',
+        "course-activity": 7,
         "course-id": '1004123ANR',
     },
     room: {
