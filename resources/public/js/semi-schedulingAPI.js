@@ -7,11 +7,11 @@ Description:	API handels user request for the semi-scheduling.
 
 
 /*
-Name: get_facilities
+Name: 			get_facilities
 Author: 		Anders Deliens & Youssef Boudiba
-Arguments: 	none
-Returns: a string (or array) containing the selected facilities
-Creation Date: 10/04/2014
+Arguments: 		none
+Returns: 		a string (or array) containing the selected facilities
+Creation Date: 	10/04/2014
 */
 function get_facilities()
 {
@@ -23,11 +23,11 @@ function get_facilities()
 }
 
 /*
-Name: get_facilities_course
+Name: 			get_facilities_course
 Author: 		Anders Deliens & Youssef Boudiba
-Arguments: 	none
-Returns: a string (or array) containing the selected facilities
-Creation Date: 10/04/2014
+Arguments: 		none
+Returns: 		a string (or array) containing the selected facilities
+Creation Date: 	10/04/2014
 !We gaan hier vanuit dat we vakken kunnen selecteren en dus de bijhorende courseid kunnen opvragen!
 */
 function get_facilities_course(divID,course-code)
@@ -62,44 +62,43 @@ function show_facilities_course(divID)
 	var facilities = [];
 	
 	$.each(data, function(key, val) 
+	{
+		if (key === 'activities')
+		{
+			$.each(val, function(key, val)
 			{
-				if (key === 'activities')
+				if (key == 'course_facility_requirements')
 				{
 					$.each(val, function(key, val)
+					{
+						if (key == 'facilities')
 						{
-								if (key == 'course_facility_requirements')
+							$.each(val, function(key, val)
+							{
+								if (key == 'enum')
 								{
 									$.each(val, function(key, val)
-										{
-											if (key == 'facilities')
-												{
-													$.each(val, function(key, val)
-														{
-															if (key == 'enum')
-															{
-																$.each(val, function(key, val)
-																{
-																	facilities.push("<li>" +  val + "</li>");
-																});
-															}
-														});
-												}
-										});
+									{
+										facilities.push("<li>" +  val + "</li>");
+									});
 								}
-						});
+							});
+						}
+					});
 				}
 			});
-			// Writing the information to the html div addressed by there given ID
-			$(divID).empty();
-			$(divID).append("<ul id='facilities-list'></ul>");
+		}
+	});
+	// Writing the information to the html div addressed by there given ID
+	$(divID).empty();
+	$(divID).append("<ul id='facilities-list'></ul>");
 
-			$.each(facilities, function(index, value) 
-			{
-				$("#facilities").append(value);
-			});
+	$.each(facilities, function(index, value) 
+	{
+		$("#facilities").append(value);
+	});
 }		
 $("#test").click(function()
 	{
-		$("#schedule-content").fadeIn('slow').fadeOut('slow');
 		get_facilities_course('facilities',007);
 	});
