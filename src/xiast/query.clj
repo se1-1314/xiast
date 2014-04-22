@@ -4,7 +4,8 @@
 
   (:require [clojure.edn :as edn]
             [schema.core :as s]
-            [xiast.schema :as xs])
+            [xiast.schema :as xs]
+            [clojure.set :as cset])
   (:use [clojure.set :only [map-invert]]
         [xiast.schema :only [room-facilities course-grades course-activity-types]]
         [xiast.database]
@@ -535,15 +536,20 @@
   ([timespan]
      (schedule-blocks-in-timespan timespan {}))
   ([timespan constraints]
-     (select schedule-block
-             (where (merge constraints
-                           {:course-activity course-activity
-                            :week [>= (first (:weeks timespan)) (second (:weeks timespan))]
-                            ;;:week [<= (second (:weeks timespan))]
-                            :days [>= (first (:days timespan)) (second (:days timespan))]
-                            ;;:days [<= (second (:days timespan))]
-                            :first-slot [<= (first (:slots timespan))]
-                            :last-slot [<= (second (:slots timespan))]})))))
+     (let [b1
+           (select schedule-block
+                   (where (merge constraints
+                                 {:week [>= (first (:weeks timespan))]
+                                  :day [>= (first (:days timespan))]
+                                  :first-slot [>= (first (:slots timespan))]})))
+           b2
+           (select schedule-block
+                   (where (merge constraints
+                                 {:week [<= (second (:weeks timespan))]
+                                  :day [<= (second (:days timespan))]
+                                  :last-slot [<= (second (:slots timespan))]})))]
+       ;; We need to perform the 2 queries as MySQL has no intersect...
+       (cset/intersection (set b1) (set b2)))))
 
 (s/defn schedule-block-add! :- xs/ScheduleBlockID
   [block :- xs/ScheduleBlock]
@@ -573,9 +579,9 @@
   (let [activities (select course-activity
                            (where {:course-code course-code})
                            (fields :id))
-        blocks (map #(schedule-blocks-in-timespan timespan {:course-activity %})
+        blocks (map #(schedule-blocks-in-timespan timespan {:course-activity (:id %)})
                     activities)]
-    (mapcat schedule-block->sScheduleBlock blocks)))
+    (map schedule-block->sScheduleBlock (apply concat blocks))))
 
 (s/defn student-schedule :- xs/Schedule
   [student-id :- xs/PersonID
@@ -595,12 +601,6 @@
   (let [room-id (:id (first (select room (where room-id))))
         blocks (schedule-blocks-in-timespan timespan {:room room-id})]
     blocks))
-
-(s/defn room-schedules :- xs/Schedule
-  [room-ids :- [xs/RoomID]
-   timespan :- xs/TimeSpan]
-  "Return the schedule for multiple rooms in the provided timespan"
-  (apply clojure.set/union (map #(room-schedule % timespan) room-ids)))
 
 (s/defn room-schedules :- xs/Schedule
   [room-ids :- [xs/RoomID]
