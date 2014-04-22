@@ -1,9 +1,12 @@
 (ns xiast.scheduling-test
   (:use midje.sweet
-        xiast.schema)
+        xiast.schema
+        clojure.set)
   (:require [xiast.scheduling :as sched]
-            [xiast.query :as query]
-            [schema.core :as s]))
+            [xiast.query :as q]
+            [schema.core :as s]
+            [xiast.mockschedules :as mocksched]
+            [xiast.mockprograms :as mockprog]))
 
 (def b1 {:id 1
          :week 1 :day 1 :first-slot 1 :last-slot 2
@@ -66,12 +69,12 @@
 
 (fact
  "Sort blocks by programs"
- (sched/blocks-by-programs #{b1 b2 b3}) => {1 #{b1 b2}
-                                            2 #{b2}
-                                            3 #{b3}}
- (provided (query/course-programs "c1") => #{1}
-           (query/course-programs "c2") => #{1 2}
-           (query/course-programs "c3") => #{3}))
+ (sched/blocks-by-program-ids #{b1 b2 b3}) => {1 #{b1 b2}
+                                               2 #{b2}
+                                               3 #{b3}}
+ (provided (q/course-programs "c1") => #{1}
+           (q/course-programs "c2") => #{1 2}
+           (q/course-programs "c3") => #{3}))
 
 (fact
  "Remove deleted & moved from schedule"
@@ -84,3 +87,81 @@
 (fact
  "Total timespan calculation for schedule blocks"
  (sched/schedule-timespan s1-after-p1) => s1-after-p1-timespan)
+
+
+;; Course overlaps
+(def mandatory1
+  (mocksched/gen-course-schedule-blocks-hoc-only
+   mockprog/introduction-to-databases [2 2] 1 [5 8] mockprog/F4-412))
+;; overlaps with mandatory1
+(def mandatory2
+  (mocksched/gen-course-schedule-blocks-hoc-only
+   mockprog/foundations-of-informatics1 [2 2] 1 [7 10] mockprog/F5-403))
+;; overlaps with mandatory2
+(def optional1
+  (mocksched/gen-course-schedule-blocks-hoc-only
+   mockprog/social-psychology [2 2] 1 [9 12] mockprog/D0-03))
+;; no overlaps
+(def optional2
+  (mocksched/gen-course-schedule-blocks-hoc-only
+   mockprog/algorithms-and-datastructures1 [2 2] 1 [13 16] mockprog/E0-05))
+
+(def man&opt-overlap-check-results
+  #{{:type :mandatory-course-overlap
+     :concerning #{mandatory1 mandatory2}}
+    {:type :elective-course-overlap
+     :concerning #{mandatory2 optional1}}})
+(def man&opt-overlap-check-schedule #{})
+(def man&opt-overlap-check-proposal
+  {:new (union mandatory1 mandatory2 optional1 optional2)})
+
+(comment
+  (fact
+  "Check mandatory courses"
+  (sched/check-mandatory&optional man&opt-overlap-check-proposal)
+  => man&opt-overlap-check-results
+  (provided
+   (sched/blocks-by-programs irrelevant)
+   => {mockprog/ba-cw1 #{mocksched/mandatory1
+                         mocksched/mandatory2
+                         mocksched/optional2}
+       mockprog/ba-cw3 #{mocksched/optional1}
+       mockprog/ba-IRCW3 #{mocksched/mandatory1
+                           mocksched/mandatory2
+                           mocksched/optional2}}
+   (q/program-schedule irrelevant irrelevant)
+   => #{})))
+
+;; Room overlaps
+(def roc1
+  (mocksched/gen-course-schedule-blocks-hoc-only
+   mockprog/social-psychology [1 1] 1 [1 2] mockprog/F5-403))
+(def roc2
+  (mocksched/gen-course-schedule-blocks-hoc-only
+   mockprog/foundations-of-informatics1 [1 1] 1 [2 3] mockprog/F5-403))
+(def roc3
+  (mocksched/gen-course-schedule-blocks-hoc-only
+   mockprog/introduction-to-databases [1 1] 1 [4 5] mockprog/F5-403))
+
+(def room-overlap-check-schedule roc1)
+(def room-overlap-check-proposal
+  {:new (union roc2 roc3)})
+(def room-overlap-check-results
+  #{{:type :room-overlap
+     :concerning (union roc1 roc2)}})
+
+(fact
+ "Check room overlaps"
+ (sched/check-room-overlaps room-overlap-check-proposal)
+ => room-overlap-check-results
+ (provided
+  (q/room-schedules irrelevant irrelevant)
+  => roc1))
+
+;; Instructor availabilities
+(def iac1
+  (mocksched/gen-course-schedule-block ))
+
+(fact
+ "Check instructor availabilities"
+ (sched/check-instructor-availabilities instructor-availabilities-porp))

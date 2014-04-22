@@ -81,7 +81,11 @@
   {(s/optional-key :new) #{ScheduleBlock}
    (s/optional-key :moved) #{ScheduleBlock}
    (s/optional-key :deleted) #{ScheduleBlockID}})
-
+(def ScheduleProposalMessage
+  {(s/optional-key :id) s/Int
+   :titular PersonID
+   :program ProgramID
+   :proposal ScheduleProposal})
 (def ScheduleCheckResult {:type (s/enum :mandatory-course-overlap
                                         :elective-course-overlap
                                         :room-overlap
@@ -89,7 +93,7 @@
                                         :activity-more-than-once-weekly
                                         :room-capacity-unsatisfied
                                         :room-facility-unsatisfied)
-                          :concerning [ScheduleBlock]
+                          :concerning #{ScheduleBlock}
                           s/Any s/Any})
 (def TimeSpan
   "These are used to filter schedule blocks in queries; weeks, days

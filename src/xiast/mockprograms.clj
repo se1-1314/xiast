@@ -233,21 +233,23 @@ Les 9: Hoofdstuk 7 - Attitudes: Resistance, Behavior & Advertising"
   ;; xs/Program
   {:title "1e bachelor Computerwetenschappen"
    :description "Alle studenten die de bacheloropleiding in de Computerwetenschappen aanvatten starten met de module eerste bachelor Computerwetenschappen. Deze module komt overeen met het eerste jaar van het modeltraject. Bij een eerste inschrijving in de bacheloropleiding mag de student enkel verplichte studiedelen eerste bachelor opnemen, met uitzondering van het voorbereidend keuzestudiedeel \"Basisvaardigheden Wiskunde\"."
-   :id 1
-   ;; :manager
+   ;; :id 1
+   :manager "0033825" ;; wdemeuter
    :mandatory #{"1015328ANR", "1000447ANR", "1015259ANR", "1007156ANR"}
    :optional #{"1007132ANR"}})
 (def ba-cw3
   {:title "3e bachelor computerwetenschappen"
    :description "In combinatie met de verplichte studiedelen derde bachelor neemt de student bij voorkeur voor 30 studiepunten aan keuzestudiedelen op.
 Inschrijven voor de bachelorproef kan indien het een inschrijving betreft waarbij met de andere gekozen studiedelen het volledige bachelortraject van minstens 180 studiepunten wordt ingevuld."
-   :id 2
+   ;; :id 2
+   :manager "0033825" ;; wdemeuter
    :mandatory #{"1004483BNR", "1001673BNR", "1001714AER"}
    :optional #{"1005176BNR", "1018725AER"}})
 (def ba-IRCW3
   {:title "3e Bachelor Ingenieurswetenschappen - Computerwetenschappen"
    :description "Deze module (60 SP) is specifiek voor de Afstudeerrichting Elektronica en informatietechnologie, met het profiel Computerwetenschappen. Ze bestaat uit een submodule die gemeenschappelijk is voor alle studenten die de afstudeerrichting Elektronica en informatietechnologie hebben gekozen en een submodule specifiek voor het profiel Computerwetenschappen. De studenten moeten alle studiedelen uit beide modules verplicht voltooien. Deze studiedelen behoren tot het derde jaar van het voltijds modeltraject bachelor (Bachelor 3). Bij een eerste inschrijving in de bacheloropleiding is het niet toegelaten reeds in te schrijven voor studiedelen uit deze module. Studenten mogen pas inschrijven voor studiedelen uit 'Jaar 3 van het voltijds modeltraject BA IR – EIT Computerwetenschappen' indien zij reeds de credits verworven hebben voor het technologieproject 'Informatie en communicatietechnologie' en ten minste één van de 3 andere technologieprojecten (Leefmilieu en duurzame materialen of Werktuigkunde en Elektrotechniek of Informatie en communicatietechnologie) uit de module ‘Technologieprojecten in opleidingsateliers' van 'Jaar 2 van het modeltraject BA IR' of voor deze 2 technologieprojecten inschrijven samen met de studiedelen uit de afstudeerrichtingsmodule. Studenten moeten voldoen aan de aan elk van de studiedelen verbonden specifieke inschrijvingsvereisten."
-   :id 3
+   ;;:id 3
+   :manager "0033825" ;; wdemeuter
    :mandatory #{"1004483BNR", "1007156ANR", "1000447ANR", "1001673BNR"} ;; SE, Inl. DB, Grondsl.1, TELE
    :optional #{"1015259ANR", "1018725AER"}}) ;; A&D I, Soc. Psych
 

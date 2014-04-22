@@ -44,7 +44,7 @@ function process_JSON_program(divID, key){
 								title = val;
 							}
 							// Same applies to program-id
-							else if (key == 'program-id'){
+							else if (key == 'id'){
 								id = val;
 							}
 						})
@@ -129,17 +129,16 @@ function list_programs(divID, keyword){
 	// He may then choose to laugh or warn us about it.
 	// He / She will Probably do both
 	} catch(error) {
-	//	console.log(error);
+		console.error(error);
 	}
 }
 
 
 function find_programs(divID){
-	console.log(divID);
+
 	var form = $("#program-search")[0];
 	var keyword = form.keyword.value;
 	form.keyword.value = "";
-	console.log(keyword);
 
 	list_programs(divID, keyword);
 
@@ -147,7 +146,7 @@ function find_programs(divID){
 }
 
 function create_program_success(data){
-	console.log(data);
+	console.info(data);
 }
 
 function create_program(){
@@ -156,10 +155,16 @@ function create_program(){
 
 	var title = form.title.value;
 	var description = form.description.value;
+	var manager = form.manager.value;
+
+	if ( title === '' ||  description === '' || manager === ''){
+		throw "form may not contain empty values";
+	}
 
 	var data = new Object();
 	data.title = title;
 	data.description = description;
+	data.manager = manager
 	data.mandatory = [];
 	data.optional = []
 	data = JSON.stringify(data);
@@ -172,28 +177,37 @@ function create_program(){
 		  	data: data, 
 		  	processData: false,
 		  	contentType: "application/json",
-		  	success: create_program_success,
+		  	success: function (data){console.info(data); form.reset();},
 		  	dataType: "JSON",
 
 	});
 
-	console.log(data);
+	$("#NewProgram").modal("hide");
 
 	return false;
 }
 
+function delete_program(program_id){
+
+	url = apiprogram("del").concat("/" + program_id);
+
+	$.ajax({
+		type: "DELETE",
+		url: url,
+		success: function (data) {console.info(data)}
+	})
+}
+
 $("#programs").on("mousedown", ".program-item", function (){
-	console.log(this.id);
-	//console.log(this);
 	$('.program-item').removeClass('active');
 	$(this).addClass('active');
 	list_courses_by_program("#courses", this.id);
 })
 
 $("#PE-program-list").on("mousedown", ".program-item", function (){
-	console.log(this.id);
-	//console.log(this);
 	$('.program-item').removeClass('active');
 	$(this).addClass('active');
+	$('#delete_program_button').empty()
+	$('#delete_program_button').append("<button class=\"btn btn-danger btn-lg\" onclick=\"delete_program(\'" + this.id + "\')\">Delete Program</button>")
 	list_courses_by_program("#PE-course-list", this.id);
 })
