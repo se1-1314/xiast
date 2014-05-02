@@ -5,50 +5,82 @@ Author: 		Anders Deliens & Youssef Boudiba
 Description:	API handels user request for the semi-scheduling.
 *****************************************/
 
+/*
+Global Variables
+Author: 		Anders Deliens & Youssef Boudiba
+Creation Date: 	10/04/2014
+Last modified: 	14/04/2014	
+*/
+
+var json_var;		//contains result of a get request and is used in several functions as a way to retrieve information  without making additional get requests.
+var calendarEvent;	//contains selected calendar event.
 
 /*
-Name: 			get_facilities
+Name: 			show_facilities_course
 Author: 		Anders Deliens & Youssef Boudiba
 Arguments: 		none
-Returns: 		a string (or array) containing the selected facilities
+Returns: 		none
 Creation Date: 	10/04/2014
+Last modified: 	14/04/2014
 */
-function get_facilities()
+
+function show_facilities_course()
 {
-	$("#save_facilities").click(function(){
-	  var result = $("#facilities input:checked").map(
-	     function () {return this.value;}).get().join(', ');
-		return result;
-	});
+	return function(data)
+	{
+		json_var = data;
+		$("#beamer").prop('checked', false);
+		$("#overhead-projector").prop('checked', false);
+		//$("#speakers").prop('checked', false);
+		$.each(data, function(key, val) 
+		{
+			if (key === 'facilities')
+			{
+				var i;
+				var l = val.length;
+				for ( i = 0; i < l; ++i) 
+				{
+					if(val[i] == 'beamer')
+					{
+						$("#beamer").prop('checked', true);
+					}
+					else if(val[i] == 'overhead-projector')
+					{
+						$("#overhead-projector").prop('checked', true);
+					}
+					//else if(val[i] == 'speakers')
+					//{
+						//$("#speakers").prop('checked', true);
+					//}
+				}
+			}
+		});
+	};	
 }
 
 /*
 Name: 			get_facilities_course
 Author: 		Anders Deliens & Youssef Boudiba
-Arguments: 		none
-Returns: 		a string (or array) containing the selected facilities
+Arguments: 		Calendar event
+Returns: 		none (callback function handles additional work).
 Creation Date: 	10/04/2014
-!We gaan hier vanuit dat we vakken kunnen selecteren en dus de bijhorende courseid kunnen opvragen!
+Last modified: 	14/04/2014
+Note: 			Triggered by clicking on calendar event (see calenderviewer.js);
 */
-function get_facilities_course(divID,course-code)
+
+function get_facilities_course(calEvent)
 {
 	try {
-			if (typeof divID === 'undefined')
-			{
-				throw("divID undefined");
-			}
-	
-			// Create API url ServerLove.js for more details
-			var url = apicourse('/get/' + course-code);
-	
+			var url = apicourse('activity/get/' + calEvent.course_activity_id);
+			//calenderEvent variable is used to save calEvent for use in future PUT requests.
+			calendarEvent = calEvent;
 			$.ajax(
 				{
 			  		type: "GET",
 			  		url: url,
-			  		success: show_facilities_course(divID),
+			  		success: show_facilities_course(),
 			  		dataType: "JSON"
-				});
-				
+				});	
 		}
 	catch(error) 
 		{
@@ -56,49 +88,72 @@ function get_facilities_course(divID,course-code)
 		}
 }
 
-function show_facilities_course(divID)
-{
-	return function(data){
-	var facilities = [];
-	
-	$.each(data, function(key, val) 
-	{
-		if (key === 'activities')
-		{
-			$.each(val, function(key, val)
-			{
-				if (key == 'course_facility_requirements')
-				{
-					$.each(val, function(key, val)
-					{
-						if (key == 'facilities')
-						{
-							$.each(val, function(key, val)
-							{
-								if (key == 'enum')
-								{
-									$.each(val, function(key, val)
-									{
-										facilities.push("<li>" +  val + "</li>");
-									});
-								}
-							});
-						}
-					});
-				}
-			});
-		}
-	});
-	// Writing the information to the html div addressed by there given ID
-	$(divID).empty();
-	$(divID).append("<ul id='facilities-list'></ul>");
+/*
+Name: 			update_course_activity_id
+Author: 		Anders Deliens & Youssef Boudiba
+Arguments: 		data (JSON result of a PUT request)
+Returns: 		none (set course_activity_id to the new created one).
+Creation Date: 	10/04/2014
+Last modified: 	14/04/2014
+Note: 			Silly function but AJAX calls require a succes function.
+*/
 
-	$.each(facilities, function(index, value) 
-	{
-		$("#facilities").append(value);
-	});
-}		
-$("#test").click(function()
-	{
-		get_facilities_course('facilities',007);
-	});
+function update_course_activity_id(data)
+{
+	calendarEvent.course_activity_id = data.id;
+}
+
+/*
+Name: 			set_facilities_course
+Author: 		Anders Deliens & Youssef Boudiba
+Arguments: 		none
+Returns: 		none (callback function handles additional work).
+Creation Date: 	10/04/2014
+Last modified: 	14/04/2014
+*/
+
+function set_facilities_course()
+{
+	try {
+			var url = apicourse('activity/' + calendarEvent.course_activity_id);
+			var facilities = [];
+			if($("#beamer").prop('checked'))
+			{
+				facilities.push("beamer");
+			}
+			if($("#overhead-projector").prop('checked'))
+			{
+				facilities.push("overhead-projector");
+			}
+			//if($("#speakers").prop('checked'))
+			//{
+			//	facilities.push("speakers");
+			//}
+			json_var.facilities = facilities;
+			json_var.instructor = "0";
+			var data = new Object();	
+			data = JSON.stringify(json_var);
+			$.ajax(
+				{
+			  		type: "PUT",
+			  		url: url,
+			  		contentType: "application/json",
+			  		data: data, 
+		  			processData: false,
+		  			success: update_course_activity_id,
+			  		dataType: "JSON"
+				});			
+		}
+	catch(error) 
+		{
+			alert(error.message);
+		}
+}
+
+/*
+jQuery selectors to trigger the corresponding functions:
+*/
+
+$("#save_facilities").click(function(){
+	set_facilities_course();
+});

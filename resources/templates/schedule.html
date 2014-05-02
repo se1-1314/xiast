@@ -9,7 +9,7 @@
       <div class="row">
           <div class="col-md-12">
           <div id="schedule-content" class="col-md-10">
-            
+
           </div>
           <div id="schedule-buttons" class="col-md-2">
 
@@ -18,7 +18,15 @@
       </div>
       <div class="row">
         <div class="col-md-12">
-          <a data-toggle="modal" href="#newEvent" class="btn btn-success btn-lg" id="AddEvent">Create event</a>
+          <div class="col-md-2">
+            <a data-toggle="modal" href="#newEvent" class="btn btn-success btn-lg" id="AddEvent">Create event</a>
+          </div>
+          <div class="col-md-6">
+          </div>
+          <div class="col-md-2">
+            <button type="button" class="btn btn-primary btn-lg" id="apply_button" onclick="send_proposal()">Apply</button>
+          </div>
+
         </div>
      </div>
 
@@ -59,6 +67,11 @@
               </div>
 
               <div class="form-group">
+                <label class="control-label" for="course_activity">Course activity</label>
+                <input id="course_activity" name="course_activity" type="number" class="form-control" placeholder="18" required>
+              </div>
+
+              <div class="form-group">
                 <div class="radio">
                     <label>
                       <input type="radio" name="type" id="WPO" value="WPO" checked>WPO
@@ -82,11 +95,11 @@
                 <input id="number" name="number" type="number" class="form-control" placeholder="1" required>
               </div>
 
-              <button type="button" id="CreateProgram" class="btn btn-primary" onclick="create_event()">Create Event</button>
+              <button type="button" class="btn btn-primary" onclick="create_event()">Create Event</button>
             </form>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close this shit</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           </div>
         </div>
       </div>

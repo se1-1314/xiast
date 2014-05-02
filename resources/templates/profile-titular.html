@@ -1,0 +1,55 @@
+<html>
+	<div class="container" id="page-content">
+	<div id="personal_data"></div>
+	
+	<div>
+		<h2>Assigned courses</h2>
+		<div id="assigned_courses"></div>
+	</div>
+	
+	<div>
+		<h2>Course Description</h2>
+		<div id="description"></div>
+		<button type="button" class="btn btn-primary" id="editdescription">edit</button>
+	</div>
+	
+	<div>
+		<h2>Facilities</h2>
+		<button type="button" class="btn btn-primary" id="hoc">HOC</button>
+		<button type="button" class="btn btn-primary" id="wpo">WPO</button>
+		<div id="facilities">
+			<ul style="list-style: none;">
+				<li>
+					<input type="checkbox" name="beamer" value="beamer" id="beamer">
+					beamer
+				</li>
+				<li>
+					<input type="checkbox" name="overhead-projector" value="overhead-projector" id="overhead-projector">
+					overhead-projector
+				</li>
+				<!--<li><input type="checkbox" name="speakers" value="speakers" id="speakers">speakers</li>-->
+			</ul>
+		</div>
+		<button type="button" class="btn btn-primary" id="editfacilities">edit</button>
+	</div>
+	
+	<div id="availability"></div>
+
+	
+	<script src="/js/jquery.js" type="text/javascript"></script>
+	<script src="/js/jquery-ui.js" type="text/javascript"></script>
+	<script src="/js/bootstrap.min.js" type="text/javascript"></script>
+	<script src="/js/date_conversion.js" type="text/javascript"></script>
+	<script src="/js/fullcalendar.min.js" type="text/javascript"></script>
+	<script src="/js/calendarviewer.js" type="text/javascript"></script>
+	<script src="/js/ServerLove.js" type="text/javascript"></script>
+	<script src="/js/courseAPI.js" type="text/javascript"></script>
+	<script src="/js/programAPI.js" type="text/javascript"></script>
+	<script src="/js/semi-schedulingAPI.js" type="text/javascript"></script>
+	<script src="/js/profile-titularAPI.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		$('#assigned_courses').html('<img src="http://www.mediaforma.com/sdz/jquery/ajax-loader.gif">');
+		get_assigned_courses('#assigned_courses');
+	</script>
+	</div>
+</html>
