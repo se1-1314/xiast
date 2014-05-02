@@ -143,6 +143,7 @@
   (->> proposal-checks
        (map #(% proposal))
        (apply union)))
+
 (comment
   (defn check-instructor-availabilities :- #{ScheduleCheckResult}
     [proposed :- ScheduleProposal]
@@ -199,5 +200,4 @@
          (filter #(room-facilities-satisfied? (:room %) (:item %)))
          (map (fn [block]
                 {:type :room-facility-unsatisfied
-                 :concerning [block]}))))
-  )
+                 :concerning [block]})))))
