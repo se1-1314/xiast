@@ -82,11 +82,16 @@
   {(s/optional-key :new) #{ScheduleBlock}
    (s/optional-key :moved) #{ScheduleBlock}
    (s/optional-key :deleted) #{ScheduleBlockID}})
+(def ScheduleProposalMessageStatus
+  (s/enum :inprogress
+          :accepted
+          :rejected))
 (def ScheduleProposalMessage
   {(s/optional-key :id) s/Int
    :titular PersonID
    :program ProgramID
-   :proposal ScheduleProposal})
+   :proposal ScheduleProposal
+   :status ScheduleProposalMessageStatus})
 (def ScheduleCheckResult {:type (s/enum :mandatory-course-overlap
                                         :elective-course-overlap
                                         :room-overlap
@@ -126,3 +131,8 @@
 (def course-activity-types
   {0 :HOC
    1 :WPO})
+
+(def message-status
+  {0 :inprogress
+   1 :accepted
+   2 :rejected})

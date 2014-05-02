@@ -666,8 +666,9 @@
 (s/defn schedule-proposal-message-add! :- s/Any
   [message :- xs/ScheduleProposalMessage]
   (insert schedule-proposal-message
-          (assoc (assoc (dissoc message [:id :proposal]))
-            :proposal (pr-str (:proposal message)))))
+          (assoc (dissoc message [:id :proposal])
+            :proposal (pr-str (:proposal message))
+            :status ((:status message) (map-invert message-status)))))
 
 (s/defn schedule-proposal-message-get :- [xs/ScheduleProposalMessage]
   [to :- xs/ProgramID]

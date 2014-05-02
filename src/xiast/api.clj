@@ -395,7 +395,8 @@
                         :proposal {:new (set (:new proposal))
                                    :moved (set (:moved proposal))
                                    :deleted (set (:deleted proposal))})]
-          (do (query/schedule-proposal-message-add! message)
+          (do (query/schedule-proposal-message-add! (assoc message
+                                                      :status :inprogress))
               {:result "ok"}))
         (catch [:type :coercion-error] e
           {:result "Invalid JSON"})
