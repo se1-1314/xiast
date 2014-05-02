@@ -19,6 +19,14 @@ A working version can be found on [Wilma](http://wilma.vub.ac.be/xiast/).
 
 ## Deliverables
 
+### Iteration 3
+* [SPMP](https://github.com/se1-1314/xiast-docs/raw/se1-iter3/management/project/spmp.pdf)
+* [SRS](https://github.com/se1-1314/xiast-docs/raw/se1-iter3/management/requirements/srs.pdf)
+* [SDD](https://github.com/se1-1314/xiast-docs/raw/se1-iter3/management/design/design-1.pdf)
+* [STD](https://github.com/se1-1314/xiast-docs/raw/se1-iter3/management/quality/std.pdf)
+* [SDP](https://github.com/se1-1314/xiast-docs/raw/se1-iter3/management/implementation/sdp.pdf)
+* [Download code](https://github.com/se1-1314/xiast/archive/se1-iter3.tar.gz)
+
 ### Iteration 2
 * [SPMP](https://github.com/se1-1314/xiast-docs/raw/se1-iter2/management/project/spmp.pdf)
 * [SRS](https://github.com/se1-1314/xiast-docs/raw/se1-iter2/management/requirements/srs.pdf)
