@@ -433,7 +433,9 @@
 
 (defn schedule-proposal-list
   []
-  nil)
+  (if (some #{:program-manager} (:user-functions *session*))
+    {:result (query/schedule-proposal-message-get (:user *session*))}
+    {:result "Not a program manager"}))
 
 (defroutes schedule-routes
   (GET "/" []

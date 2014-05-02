@@ -671,12 +671,14 @@
             :status ((:status message) (map-invert message-status)))))
 
 (s/defn schedule-proposal-message-get :- [xs/ScheduleProposalMessage]
-  [to :- xs/ProgramID]
+  [pmanager :- xs/PersonID]
   (let [proposals (select schedule-proposal-message
-                          (where {:program to}))]
+                          (join program (= :program :program.id))
+                          (where {:program.manager pmanager}))]
     (map (fn [proposal]
            (assoc (dissoc proposal :content)
-             :proposal (edn/read-string (:content proposal))))
+             :proposal (edn/read-string (:content proposal))
+             :status (get message-status (:status proposal))))
          proposals)))
 
 ;; TODO: Put this in schedule and refactor
