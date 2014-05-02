@@ -34,6 +34,7 @@
          (select course-instructor
                  (where {:course-activity (:id course-activity)})))]
     {:id (:id course-activity)
+     :name (:name course-activity)
      :type (val (find course-activity-types (:type course-activity)))
      :semester (:semester course-activity)
      :week (:week course-activity)
@@ -236,33 +237,62 @@
   netid)
 
 (s/defn course-add-activity! :- s/Any
-  [course-code :- xs/CourseCode
-   activity :- xs/CourseActivity]
-  "Add a new activity to a course."
-  (let [course (select course (where {:course-code course-code}))]
-    (if (not (empty? course))
-      (let [facilities
-            (map #(% (map-invert room-facilities))
-                 (:facilities activity))
-            key
-            (:GENERATED_KEY
-             (insert course-activity
-                     (values {:course-code course-code
-                              :type ((:type activity)
-                                     (map-invert course-activity-types))
-                              :semester (:semester activity)
-                              :week (:week activity)
-                              :contact-time-hours
-                              (:contact-time-hours activity)})))]
-        (insert course-instructor
-                (values {:course-activity key
-                         :netid (person-create!
-                                 (:instructor activity))}))
-        (doseq [facility facilities]
-          (insert course-activity-facility
-                  (values {:course-activity key
-                           :facility facility})))
-        key))))
+  ([course-code :- xs/CourseCode
+    activity :- xs/CourseActivity]
+     "Add a new activity to a course."
+     (let [course (select course (where {:course-code course-code}))]
+       (if (empty? course)
+         ;; TODO: exceptions?
+         "Course not found"
+         (if (:name activity)
+           (course-add-activity! course-code activity (:name activity))
+           (let [course (first course)
+                 type ((:type activity) (map-invert course-activity-types))
+                 activity-count (count (select course-activity
+                                               (where {:course-code course-code
+                                                       :type type})))]
+             (course-add-activity! course-code
+                                   activity
+                                   (str (:name course)
+                                        " "
+                                        type
+                                        " "
+                                        (+ count 1))))))))
+  ([course-code :- xs/CourseCode
+    activity :- xs/CourseActivity
+    name :- s/Str]
+     "Add a new activity to a course."
+     (let [course (select course (where {:course-code course-code}))]
+       (if (not (empty? course))
+         (let [facilities
+               (map #(% (map-invert room-facilities))
+                    (:facilities activity))
+               activity-count
+               (count (select course-activity
+                              (where {:course-code course-code
+                                      :type type})))
+               key
+               (:GENERATED_KEY
+                (insert course-activity
+                        (values {:course-code course-code
+                                 :name name
+                                 :type ((:type activity)
+                                        (map-invert course-activity-types))
+                                 :semester (:semester activity)
+                                 :week (:week activity)
+                                 :contact-time-hours
+                                 (:contact-time-hours activity)})))]
+           (insert course-instructor
+                   (values {:course-activity key
+                            :netid (person-create!
+                                    (:instructor activity))}))
+           (doseq [facility facilities]
+             (insert course-activity-facility
+                     (values {:course-activity key
+                              :facility facility})))
+           key)
+         ;; TODO: Exceptions!
+         "Course does not exist"))))
 
 (s/defn course-add! :- s/Any
   [new-course :- xs/Course]

@@ -32,6 +32,7 @@
                  :faculty s/Str})
 (def CourseActivityType (s/enum :HOC :WPO))
 (def CourseActivity {(s/optional-key :id) s/Int
+                     (s/optional-key :name) s/Str
                      :type CourseActivityType
                      :semester s/Int   ;; TODO: ?? maybe using sessionsemester (lavholsb)
                      :week s/Int
