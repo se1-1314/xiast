@@ -65,7 +65,9 @@
 (fact
  "Schedule overlap detection"
  (sched/overlapping-schedule-blocks #{b1 b2} #{b3})
- => #{#{b2 b3}})
+ => #{#{b2 b3}}
+ (sched/overlapping-schedule-blocks #{b1} #{b3 b2})
+ => #{#{b1 b2} #{b2 b3}})
 
 (fact
  "Sort blocks by programs"
@@ -90,47 +92,76 @@
 
 
 ;; Course overlaps
-(def mandatory1
+(def introduction-to-databases
   (mocksched/gen-course-schedule-blocks-hoc-only
-   mockprog/introduction-to-databases [2 2] 1 [5 8] mockprog/F4-412))
-;; overlaps with mandatory1
-(def mandatory2
+   mockprog/introduction-to-databases [2 2] 1 [1 8] mockprog/F4-412))
+;; overlaps with introduction-to-databases
+(def foundations-of-informatics
   (mocksched/gen-course-schedule-blocks-hoc-only
    mockprog/foundations-of-informatics1 [2 2] 1 [7 10] mockprog/F5-403))
-;; overlaps with mandatory2
-(def optional1
+;; overlaps with foundations-of-informatics
+(def social-psychology
   (mocksched/gen-course-schedule-blocks-hoc-only
    mockprog/social-psychology [2 2] 1 [9 12] mockprog/D0-03))
 ;; no overlaps
-(def optional2
+(def algorithms-and-datastructures1
   (mocksched/gen-course-schedule-blocks-hoc-only
    mockprog/algorithms-and-datastructures1 [2 2] 1 [13 16] mockprog/E0-05))
 
 (def man&opt-overlap-check-results
-  #{{:type :mandatory-course-overlap
-     :concerning #{mandatory1 mandatory2}}
+  #{;; ba-cw1
+    {:type :mandatory-course-overlap
+     :concerning (union introduction-to-databases foundations-of-informatics)}
+    ;; ba-IRCW3
     {:type :elective-course-overlap
-     :concerning #{mandatory2 optional1}}})
+     :concerning (union foundations-of-informatics social-psychology)}})
 (def man&opt-overlap-check-schedule #{})
 (def man&opt-overlap-check-proposal
-  {:new (union mandatory1 mandatory2 optional1 optional2)})
+  {:new (union introduction-to-databases foundations-of-informatics social-psychology algorithms-and-datastructures1)})
 
-(comment
-  (fact
-  "Check mandatory courses"
-  (sched/check-mandatory&optional man&opt-overlap-check-proposal)
-  => man&opt-overlap-check-results
-  (provided
-   (sched/blocks-by-programs irrelevant)
-   => {mockprog/ba-cw1 #{mocksched/mandatory1
-                         mocksched/mandatory2
-                         mocksched/optional2}
-       mockprog/ba-cw3 #{mocksched/optional1}
-       mockprog/ba-IRCW3 #{mocksched/mandatory1
-                           mocksched/mandatory2
-                           mocksched/optional2}}
-   (q/program-schedule irrelevant irrelevant)
-   => #{})))
+(def man&opt-blocks-by-programs
+  {mockprog/ba-cw1 (union introduction-to-databases
+                          foundations-of-informatics
+                          algorithms-and-datastructures1)
+   mockprog/ba-cw3 (union social-psychology)
+   mockprog/ba-IRCW3 (union introduction-to-databases
+                            social-psychology
+                            foundations-of-informatics)})
+
+;; (and (sched/schedule-blocks-overlap? (first introduction-to-databases)
+;;                                      (first foundations-of-informatics))
+;;      (sched/schedule-blocks-overlap? (first foundations-of-informatics)
+;;                                      (first social-psychology)))
+;; => true
+
+;; (map #(-> % :item :course-id)
+;;      (map first [introduction-to-databases foundations-of-informatics social-psychology algorithms-and-datastructures1]))
+;; => ("1007156ANR" "1000447ANR" "1018725AER" "1015259ANR")
+
+;; (:mandatory mockprog/ba-cw1)
+;; #{"1000447ANR" "1015328ANR" "1015259ANR" "1007156ANR"}
+;; (:optional mockprog/ba-cw1)
+;; #{"1007132ANR"}
+
+;; (:mandatory mockprog/ba-cw3)
+;; #{"1001714AER" "1001673BNR" "1004483BNR"}
+;; (:optional mockprog/ba-cw3)
+;; #{"1018725AER" "1005176BNR"}
+
+;; (:mandatory mockprog/ba-IRCW3)
+;; #{"1000447ANR" "1001673BNR" "1007156ANR" "1004483BNR"}
+;; (:optional mockprog/ba-IRCW3)
+;; #{"1015259ANR" "1018725AER"}
+
+(fact
+ "Check mandatory and optional course overlaps"
+ (sched/check-mandatory&optional man&opt-overlap-check-proposal)
+ => man&opt-overlap-check-results
+ (provided
+  (sched/blocks-by-programs irrelevant)
+  => man&opt-blocks-by-programs
+  (q/program-schedule irrelevant irrelevant)
+  => #{}))
 
 ;; Room overlaps
 (def roc1

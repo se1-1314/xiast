@@ -38,6 +38,7 @@
        (= (:day b1) (:day b2))
        (or (<= (:first-slot b1) (:first-slot b2) (:last-slot b1))
            (<= (:first-slot b1) (:last-slot b2) (:last-slot b1)))))
+
 (s/defn overlapping-schedule-blocks :- [(s/pair ScheduleBlock ""
                                                 ScheduleBlock "")]
   [correct-schedule :- Schedule
@@ -47,8 +48,9 @@
   contain overlaps."
   (->> (concat
         (comb/cartesian-product correct-schedule proposed-schedule)
-        (remove = (comb/cartesian-product proposed-schedule
-                                          proposed-schedule)))
+        (remove (fn [[a b]] (= a b))
+                (comb/cartesian-product proposed-schedule
+                                        proposed-schedule)))
        (filter #(apply schedule-blocks-overlap? %))
        (map #(set %))
        set))
@@ -144,6 +146,31 @@
        (map #(% proposal))
        (apply union)))
 
+(s/defn check-mandatory&optional :- #{ScheduleCheckResult}
+  [proposal :- ScheduleProposal]
+  "Checks if there are overlaps in time for mandatory or optional
+   course activities."
+  (->> (for [[program prop-schedule] (blocks-by-programs
+                                      (proposal-new&moved proposal))]
+         (-> (:id program)
+             (q/program-schedule (schedule-timespan prop-schedule))
+             (remove-deleted&moved proposal)
+             (overlapping-schedule-blocks prop-schedule)
+             (->>
+              (map seq) ;; Hurray, no destructuring on sets
+              (map (fn [[b1 b2 :as blocks]]
+                     {:type
+                      (if (let [mandatory-courses (:mandatory program)]
+                            (and (contains? mandatory-courses
+                                            (-> b1 :item :course-id))
+                                 (contains? mandatory-courses
+                                            (-> b2 :item :course-id))))
+                        :mandatory-course-overlap
+                        :elective-course-overlap),
+                      :concerning
+                      (set blocks)})))))
+       (apply concat)
+       set))
 (comment
   (defn check-instructor-availabilities :- #{ScheduleCheckResult}
     [proposed :- ScheduleProposal]
@@ -153,32 +180,6 @@
          (map (fn [block]
                 {:type :instructor-unavailable
                  :concerning #{block}}))))
-  (s/defn check-mandatory&optional :- #{ScheduleCheckResult}
-    [proposal :- ScheduleProposal]
-    "Checks if there are overlaps in time for mandatory course
-    activities."
-    (println (blocks-by-programs (proposal-new&moved proposal)))
-    (->> (for [[program prop-schedule]
-               (blocks-by-programs (proposal-new&moved proposal))]
-           (do(println (:id program))
-              (let [mandatory-courses (:mandatory program)]
-                (println mandatory-courses)
-                (println prop-schedule)
-                (-> (:id program)
-                    (q/program-schedule (schedule-timespan prop-schedule))
-                    (remove-deleted&moved proposal)
-                    (overlapping-schedule-blocks prop-schedule)
-                    (->>
-                     (map (fn [[b1 b2 :as blocks]]
-                            {:type (if (and (contains? mandatory-courses
-                                                       (-> b1 :item :course-id))
-                                            (contains? mandatory-courses
-                                                       (-> b2 :item :course-id)))
-                                     :mandatory-course-overlap
-                                     :elective-course-overlap)
-                             :concerning (set blocks)})))))))
-         (apply concat)
-         set))
   (defn check-weekly-activity [proposed]
     "Check if activities occur more than once per week"
     (->> proposed
