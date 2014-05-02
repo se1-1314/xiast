@@ -418,6 +418,23 @@
         (catch Exception e
           {:result (.getMessage e)})))
 
+(defn schedule-proposal-check
+  [body]
+  (try+ (let [request (coerce-as ScheduleProposal body)
+              proposal {:new (set (:new request))
+                        :moved (set (:moved request))
+                        :deleted (set (:deleted request))}
+              check (scheduling/check-proposal proposal)]
+          check)
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result (.getMessage e)})))
+
+(defn schedule-proposal-list
+  []
+  nil)
+
 (defroutes schedule-routes
   (GET "/" []
        "Invalid request")
@@ -450,7 +467,11 @@
   (POST "/proposal" {body :body}
         ((wrap-api-function schedule-proposal-add!) (slurp body)))
   (POST "/proposal/apply" {body :body}
-        ((wrap-api-function schedule-proposal-apply!) (slurp body))))
+        ((wrap-api-function schedule-proposal-apply!) (slurp body)))
+  (POST "/proposal/check" {body :body}
+        ((wrap-api-function schedule-proposal-check) (slurp body)))
+  (GET "/proposal/list" []
+       ((wrap-api-function schedule-proposal-list))))
 
 (defn department-list
   []
