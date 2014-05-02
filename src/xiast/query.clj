@@ -662,4 +662,4 @@
               (where {:id (:id moved)}))))
   (doseq [deleted (:deleted proposal)]
     (delete schedule-block
-            (where {:id (:id deleted)}))))
+            (where {:id deleted}))))
