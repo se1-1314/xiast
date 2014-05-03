@@ -60,9 +60,9 @@
    (s/optional-key :deleted) [xs/ScheduleBlockID]})
 
 (def ScheduleProposalMessage
-  {:titular xs/PersonID
-   :program xs/ProgramID
-   :proposal ScheduleProposal})
+  {:sender xs/PersonID
+   :proposal ScheduleProposal
+   :message s/Str})
 
 ;; Course API
 
@@ -386,56 +386,76 @@
   [program-id timespan]
   {:schedule (query/program-schedule program-id timespan)})
 
-;; TODO: security
-(defn schedule-proposal-add!
+;; TODO: Check whether the sender is the titular of all activities he's scheduling?
+(defn schedule-proposal-message-add!
   [body]
-  (try+ (let [request (coerce-as ScheduleProposalMessage body)
-              proposal (:proposal request)
-              message (assoc (dissoc request :proposal)
-                        :proposal {:new (set (:new proposal))
-                                   :moved (set (:moved proposal))
-                                   :deleted (set (:deleted proposal))})]
-          (do (query/schedule-proposal-message-add! (assoc message
-                                                      :status :inprogress))
-              {:result "ok"}))
+  (try+ (if (some #{:program-manager :titular} (:user-functions *session*))
+          (let [request (coerce-as ScheduleProposalMessage body)
+                proposal (:proposal request)
+                message (assoc (dissoc request :proposal)
+                          :proposal {:new (set (:new proposal))
+                                     :moved (set (:moved proposal))
+                                     :deleted (set (:deleted proposal))})]
+            (do (query/schedule-proposal-message-add! message)
+                {:result "OK"}))
+          {:result "Not authorized"})
         (catch [:type :coercion-error] e
           {:result "Invalid JSON"})
         (catch Exception e
-          {:result "Error"})))
+          {:result (str "Unexpected error: " (.getMessage e))})))
 
-(defn schedule-proposal-apply!
-  [body]
-  (try+ (let [request (coerce-as ScheduleProposal body)
-              proposal {:new (set (:new request))
-                        :moved (set (:moved request))
-                        :deleted (set (:deleted request))}
-              ;;check (scheduling/check-proposal proposal)
-              ]
-          (do (query/schedule-proposal-apply! proposal)
-              {:result "OK"}))
-        (catch [:type :coercion-error] e
-          {:result "Invalid JSON"})
-        (catch Exception e
-          {:result (.getMessage e)})))
+(defn schedule-proposal-message-list
+  []
+  (if (some #{:program-manager} (:user-functions *session*))
+    (select-keys (query/schedule-proposal-message-list (:user *session*)
+                                                       :inprogress)
+                 [:id :sender])
+    {:result "Not authorized"}))
+
+(defn schedule-proposal-message-get
+  [id]
+  nil)
+
+(defn schedule-proposal-message-accept!
+  [id]
+  nil)
+
+(defn schedule-prpopsal-message-reject!
+  [id]
+  nil)
 
 (defn schedule-proposal-check
   [body]
   (try+ (let [request (coerce-as ScheduleProposal body)
               proposal {:new (set (:new request))
                         :moved (set (:moved request))
-                        :deleted (set (:deleted request))}
-              check (scheduling/check-proposal proposal)]
-          check)
+                        :deleted (set (:deleted request))}]
+          (if (some #{:program-manager :titular} (:user-functions *session*))
+            (scheduling/check-proposal)
+            {:result "Not authorized"}))
         (catch [:type :coercion-error] e
           {:result "Invalid JSON"})
         (catch Exception e
-          {:result (.getMessage e)})))
+          {:result (str "Unexpected error: " (.getMessage e))})))
 
-(defn schedule-proposal-list
-  []
-  (if (some #{:program-manager} (:user-functions *session*))
-    {:result (query/schedule-proposal-message-get (:user *session*))}
-    {:result "Not a program manager"}))
+(defn schedule-proposal-apply!
+  [body]
+  nil)
+
+#_(defn schedule-proposal-apply!
+    [body]
+    (try+ (let [request (coerce-as ScheduleProposal body)
+                proposal {:new (set (:new request))
+                          :moved (set (:moved request))
+                          :deleted (set (:deleted request))}
+                ;;check (scheduling/check-proposal proposal)
+                ]
+            (do (query/schedule-proposal-apply! proposal)
+                {:result "OK"}))
+          (catch [:type :coercion-error] e
+            {:result "Invalid JSON"})
+          (catch Exception e
+            {:result (.getMessage e)})))
 
 (defroutes schedule-routes
   (GET "/" []
@@ -466,14 +486,20 @@
         {:weeks [w1 w2]
          :days [d1 d2]
          :slots [s1 s2]}))
-  (POST "/proposal" {body :body}
-        ((wrap-api-function schedule-proposal-add!) (slurp body)))
-  (POST "/proposal/apply" {body :body}
-        ((wrap-api-function schedule-proposal-apply!) (slurp body)))
+  (POST "/message" {body :body}
+        ((wrap-api-function schedule-proposal-message-add! (slurp body))))
+  (GET "/message/list" []
+       ((wrap-api-function schedule-proposal-message-list)))
+  (GET "/message/:id" [id]
+       ((wrap-api-function schedule-proposal-message-get id)))
+  (GET "/message/accept/:id" [id]
+       ((wrap-api-function schedule-proposal-message-accept! id)))
+  (GET "/message/reject/:id" [id]
+       ((wrap-api-function schedule-proposal-message-reject! id)))
   (POST "/proposal/check" {body :body}
-        ((wrap-api-function schedule-proposal-check) (slurp body)))
-  (GET "/proposal/list" []
-       ((wrap-api-function schedule-proposal-list))))
+        ((wrap-api-function schedule-proposal-check (slurp body))))
+  (POST "/proposal/apply" {body :body}
+        ((wrap-api-function schedule-proposal-apply! (slurp body)))))
 
 (defn department-list
   []

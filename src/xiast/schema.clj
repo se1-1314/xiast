@@ -85,6 +85,7 @@
   (s/enum :inprogress
           :accepted
           :rejected))
+;; TODO: Add datetime field to check when the message was sent
 (def ScheduleProposalMessage
   {(s/optional-key :id) s/Int
    :sender PersonID

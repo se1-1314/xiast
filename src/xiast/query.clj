@@ -701,10 +701,37 @@
                        :program-id program})))))
 
 (s/defn schedule-proposal-message-list :- [xs/ScheduleProposalMessage]
-  ([]
-     nil)
-  ([status :- xs/ScheduleProposalMessageStatus]
-     nil))
+  ([manager :- xs/PersonID]
+     (schedule-proposal-message-list manager false))
+  ([manager :- xs/PersonID
+    status :- xs/ScheduleProposalMessageStatus]
+     (let [programs
+           (set (map :id (select program
+                                 (where {:manager manager})
+                                 (fields :id))))
+           messages
+           (if (empty? programs)
+             []
+             ;; Joins, eval, macho code
+             (eval
+              `(select schedule-proposal-message
+                       (join schedule-proposal-message-programs
+                             (~'= :schedule-proposal-message-programs.message-id :id))
+                       (where
+                        ~(let [or-terms
+                               (map (fn [id]
+                                      `{:schedule-proposal-message-programs.program-id ~id})
+                                    programs)]
+                           (if (and status (keyword? status))
+                             `(~'and {:status ~(status (map-invert message-status))}
+                                     (~'or ~@or-terms))
+                             `(~'or ~@or-terms))))
+                       (modifier "DISTINCT"))))]
+       (map #(assoc (dissoc % [:proposal :status])
+               :proposal (edn/read-string (:proposal %))
+               :status (get message-status (:status %)))
+            messages))))
+
 
 (s/defn schedule-proposal-message-get :- [xs/ScheduleProposalMessage]
   [pmanager :- xs/PersonID]
