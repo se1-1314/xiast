@@ -64,8 +64,7 @@
 (def ScheduleSlot (s/named s/Int "Half-hour time slots from 07:00 through 23:30"))
 
 (def ScheduledCourseActivity
-  {:type CourseActivityType
-   (s/optional-key :title) (s/named s/Str "Course title")
+  {(s/optional-key :title) (s/named s/Str "Course title")
    :course-activity s/Int
    :course-id CourseCode})
 (def ScheduleBlockID s/Int)
@@ -88,10 +87,11 @@
           :rejected))
 (def ScheduleProposalMessage
   {(s/optional-key :id) s/Int
-   :titular PersonID
-   :program ProgramID
+   :sender PersonID
+   (s/optional-key :programs) #{ProgramID}
    :proposal ScheduleProposal
-   :status ScheduleProposalMessageStatus})
+   :message s/Str
+   (s/optional-key :status) ScheduleProposalMessageStatus})
 (def ScheduleCheckResult {:type (s/enum :mandatory-course-overlap
                                         :elective-course-overlap
                                         :room-overlap

@@ -7,7 +7,7 @@
             [xiast.schema :as xs]
             [clojure.set :as cset])
   (:use [clojure.set :only [map-invert]]
-        [xiast.schema :only [room-facilities course-grades course-activity-types]]
+        [xiast.schema :only [room-facilities course-grades course-activity-types message-status]]
         [xiast.database]
         [korma.db]
         [korma.core]
@@ -665,10 +665,46 @@
 
 (s/defn schedule-proposal-message-add! :- s/Any
   [message :- xs/ScheduleProposalMessage]
-  (insert schedule-proposal-message
-          (assoc (dissoc message [:id :proposal])
-            :proposal (pr-str (:proposal message))
-            :status ((:status message) (map-invert message-status)))))
+  (let [courses-affected
+        (cset/union
+         (set (map (comp :course-id :item)
+                   (:new (:proposal message))))
+         (set (map (comp :course-id :item)
+                   (:moved (:proposal message))))
+         (set (map #((comp :course-code :first)
+                     (select schedule-block
+                             (join course-activity
+                                   (= :course-activity :course-activity.id))
+                             (fields :course-activity.course-code)
+                             (where {:id %})))
+                   (:deleted (:proposal message)))))
+        programs-affected
+        (set
+         (map :program
+              (mapcat identity
+                      (map #(union (queries (subselect program-choice-course
+                                                       (where {:course-code %})
+                                                       (fields :program))
+                                            (subselect program-mandatory-course
+                                                       (where {:course-code %})
+                                                       (fields :program))))
+                           courses-affected))))
+        message-id
+        (:GENERATED_KEY
+         (insert schedule-proposal-message
+                 (values (assoc (dissoc message [:id :proposal :status])
+                           :proposal (pr-str (:proposal message))
+                           :status (:inprogress (map-invert message-status))))))]
+    (doseq [program programs-affected]
+      (insert schedule-proposal-message-programs
+              (values {:message-id message-id
+                       :program-id program})))))
+
+(s/defn schedule-proposal-message-list :- [xs/ScheduleProposalMessage]
+  ([]
+     nil)
+  ([status :- xs/ScheduleProposalMessageStatus]
+     nil))
 
 (s/defn schedule-proposal-message-get :- [xs/ScheduleProposalMessage]
   [pmanager :- xs/PersonID]
