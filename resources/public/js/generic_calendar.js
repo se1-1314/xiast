@@ -33,6 +33,11 @@ function create_modifiable_calendar(){
     calendar.editable = true;
     return calendar;
 }
+
+// Converters:
+// Scheduleblocks: for back-end scheduler
+// Events: for front-end full_calendar view
+// Scheduleblock -> Event and Event -> Scheduleblock
 function schedule_block_to_event(b){
     var e = {
         title: b.item["course-code"],
@@ -45,12 +50,38 @@ function schedule_block_to_event(b){
         e.schedule_block_id = b.id;
     return e;
 }
+function event_to_schedule_block(e){
+    var start = date_to_VUB_time(e.start);
+    var end = date_to_VUB_time(e.end);
+    var sb = {
+        week: start[0],
+        day: start[1],
+        'first-slot': start[2],
+        'last-slot': end[2],
+        item: e.item,
+        room: e.room
+    };
+    if ('schedule_block_id' in e) {
+        sb.id = e.schedule_block_id;
+    }
+    return sb;
+}
+// ADDERS
 
 // Adds a schedule_block to a given calendar
+// Should only be used ONLOAD()
 function add_schedule_block(calendar, block){
     return calendar.events.push(schedule_block_to_event(block));
 }
+// Adds a newly created (p.e. from a form) schedule block to the
+// calendar & new_events
+function add_new_schedule_block(jqobj, calendar, b){
+    var e = schedule_block_to_event(b);
+    calendar.new_events.push(e);
+    jqobj.fullCalendar('renderEvent', e, true);
+}
 
+// Callback when event has been clicked
 function calendar_event_click_event(jqobj, calendar){
     return function(calendar_event, js_event, view){
         var button = "<button id=\"delete_button\"type=\"button\" class=\"btn btn-lg btn-danger\">Delete </br>" + calendar_event.title + "</button>";
@@ -69,31 +100,6 @@ function calendar_event_click_event(jqobj, calendar){
     }
 }
 
-function populate_calendar_request(calendar){
-/*          var url = api_schedule()
-
-            $.ajax({
-            type: "GET"
-            url:
-            })
-    */}
-
-function event_to_schedule_block(e){
-    var start = date_to_VUB_time(e.start);
-    var end = date_to_VUB_time(e.end);
-    var sb = {
-        week: start[0],
-        day: start[1],
-        'first-slot': start[2],
-        'last-slot': end[2],
-        item: e.item,
-        room: e.room
-    };
-    if ('schedule_block_id' in e) {
-        sb.id = e.schedule_block_id;
-    }
-    return sb;
-}
 // FIXME
 function hack_around_backend_bug(schedule_block) {
     var sb = jQuery.extend({}, schedule_block);
@@ -104,6 +110,8 @@ function hack_around_backend_bug(schedule_block) {
     return sb;
 }
 
+// PROPOSALS
+// Generates a back-end scheduler compatible proposal from a given calendar
 function generate_schedule_proposal(calendar){
     return {
         new: calendar.new_events.map(event_to_schedule_block)
@@ -113,6 +121,7 @@ function generate_schedule_proposal(calendar){
         deleted: calendar.deleted_block_ids
     };
 }
+// Sends a compatible proposal to the back-end scheduler
 function send_schedule_proposal(prop){
     $.ajax({
         type: 'POST',
@@ -122,6 +131,9 @@ function send_schedule_proposal(prop){
         data: JSON.stringify(prop),
         dataType: 'JSON'});
 }
+
+// BACK-END GETTERS
+// Returns (at the moment) the schedule of program with id = 1 (1e ba CW)
 function get_pm_schedule(){
     var sched;
     $.ajax({
@@ -131,6 +143,31 @@ function get_pm_schedule(){
         async: false });
     return sched;
 }
+
+// TODO use these functions in autocomplete lists
+// Gets an array of raw programs from back-end
+function list_programs(){
+    var programs;
+    var url = apiprogram('list');
+    $.ajax({
+        url: url,
+        success: function(data){ programs  = data.programs; },
+        dataType: 'json',
+        async: false });
+    return programs;
+}
+// Converts array of raw programs to an array of strings:
+// ["program_title -- program_id", ...].
+// To be used in auto-complete list when looking for
+// schedule of a specific program
+function get_program_titles_ids(raw_programs){
+    var titles_ids = new Array();
+    for(var i = 0; i < raw_programs.length; i++){
+       titles_ids[i] = raw_programs[i].title + " -- " + raw_programs[i].id;
+    }
+return titles_ids;
+}
+
 
 function event_dropped(calendar){
     // Events without schedule_block_ids are newly created
@@ -161,13 +198,7 @@ function delete_event(jqobj, calendar, e){
     }
     jqobj.fullCalendar('removeEvents', function(e1) {return e === e1;});
 }
-// Adds a newly created (p.e. from a form) schedule block to the
-// calendar & new_events
-function add_new_schedule_block(jqobj, calendar, b){
-    var e = schedule_block_to_event(b);
-    calendar.new_events.push(e);
-    jqobj.fullCalendar('renderEvent', e, true);
-}
+
 
 function render_calendar(obj, calendar){
     try{
@@ -299,10 +330,11 @@ pm_sched.forEach(
 render_calendar($("#schedule-content"), c);
 
 function send_proposal() {
+    alert("send_proposal");
     send_schedule_proposal(generate_schedule_proposal(c));
 }
+
 //$("#apply_button").onclick = send_proposal;
 
-// add_new_schedule_block($("#schedule-content"), c, sb1);
 // add_new_schedule_block($("#schedule-content"), c, sb2);
 // add_new_schedule_block($("#schedule-content"), c, sb3);
