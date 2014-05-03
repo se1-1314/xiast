@@ -412,9 +412,12 @@
                  [:id :sender])
     {:result "Not authorized"}))
 
+;; TODO: Check if user is program manager of a program that is linked to the msg
 (defn schedule-proposal-message-get
   [id]
-  nil)
+  (if (some #{:pogram-manager} (:user-functions *session*))
+    (query/schedule-proposal-message-get id)
+    {:result "Not authorized"}))
 
 (defn schedule-proposal-message-accept!
   [id]
@@ -440,22 +443,16 @@
 
 (defn schedule-proposal-apply!
   [body]
-  nil)
-
-#_(defn schedule-proposal-apply!
-    [body]
-    (try+ (let [request (coerce-as ScheduleProposal body)
-                proposal {:new (set (:new request))
-                          :moved (set (:moved request))
-                          :deleted (set (:deleted request))}
-                ;;check (scheduling/check-proposal proposal)
-                ]
-            (do (query/schedule-proposal-apply! proposal)
-                {:result "OK"}))
-          (catch [:type :coercion-error] e
-            {:result "Invalid JSON"})
-          (catch Exception e
-            {:result (.getMessage e)})))
+  (try+ (let [request (coerce-as ScheduleProposal body)
+              proposal {:new (set (:new request))
+                        :moved (set (:moved request))
+                        :deleted (set (:deleted request))}]
+          (do (query/schedule-proposal-apply! proposal)
+              {:result "OK"}))
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result (str "Unexpected error: " (.getMessage e))})))
 
 (defroutes schedule-routes
   (GET "/" []

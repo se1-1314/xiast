@@ -733,16 +733,17 @@
             messages))))
 
 
-(s/defn schedule-proposal-message-get :- [xs/ScheduleProposalMessage]
-  [pmanager :- xs/PersonID]
-  (let [proposals (select schedule-proposal-message
-                          (join program (= :program :program.id))
-                          (where {:program.manager pmanager}))]
-    (map (fn [proposal]
-           (assoc (dissoc proposal :content)
-             :proposal (edn/read-string (:content proposal))
-             :status (get message-status (:status proposal))))
-         proposals)))
+(s/defn schedule-proposal-message-get :- xs/ScheduleProposalMessage
+  [id :- s/Int]
+  (let [message
+        (select schedule-proposal-message
+                (where {:id id}))]
+    (if (empty? message)
+      nil
+      (#(assoc (dissoc % [:proposal :status])
+          :proposal (edn/read-string (:proposal %))
+          :status (get message-status (:status %)))
+       (first message)))))
 
 ;; TODO: Put this in schedule and refactor
 (s/defn schedule-proposal-apply! :- s/Any
