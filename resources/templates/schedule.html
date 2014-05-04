@@ -44,8 +44,23 @@
 
               <div class="form-group">
                 <label class="control-label" for="program">Program</label>
-                <input id="program" name="program" type="text" class="form-control" list="programs_option_list"required disabled>
+                <input id="program" name="program" type="text" class="form-control" list="programs_option_list" onchange="update_course_activity_list()" required disabled>
               </div>
+
+              <!-- course activity -->
+
+              <div class="form-group">
+                <label class="control-label" for="course_activity">Course Activity</label>
+                <input id="course_activity" name="course_activity" type="text" class="form-control" list="room_option_list" onchange="update_rooms_list()" required disabled>
+              </div>
+
+              <!-- Room -->
+
+              <div class="form-group">
+                <label class="control-label" for="course_activity">Room</label>
+                <input id="course_activity" name="course_activity" type="text" class="form-control" list="room_option_list" required disabled>
+              </div>
+
 
               <!-- Time -->
 
@@ -53,54 +68,45 @@
                 <label class="control-label" for="week">Week</label>
                 <input id="week" name="week" type="number" class="form-control" placeholder="32" required>
               </div>
+
               <div class="form-group">
-                <!-- TODO dropdown selection box-->
                 <label class="control-label" for="day">Day</label>
-                <input id="day" name="day" type="number" class="form-control" placeholder="1" required>
+                <select id="day" name="day" class="form-control" required>
+                  <option value="0">Monday</option>
+                  <option value="1">Tuesday</option> 
+                  <option value="2">Wednesday</option> 
+                  <option value="3">Thursday</option> 
+                  <option value="4">Friday</option> 
+                  <option value="5">Saturday</option> 
+                </select>
               </div>
+
               <div class="form-group">
                 <label class="control-label" for="first_slot">First Slot</label>
-                <input id="first_slot" name="first_slot" type="number" class="form-control" placeholder="1" required>
+                <select id="first_slot" name="first_slot" class="form-control" required>
+                </select>
+                <script type="text/javascript">
+                  for(var i=1; i<= 32; i++){
+                  var select = document.getElementById("first_slot");
+                  var option = document.createElement("OPTION");
+                  select.options.add(option);
+                  option.text = i;
+                  option.value = i;
+                  }
+                </script>
               </div>
               <div class="form-group">
                 <label class="control-label" for="last_slot">Last Slot</label>
-                <input id="last_slot" name="last_slot" type="number" class="form-control" placeholder="3" required>
-              </div>
-
-              <!-- item -->
-
-              <div class="form-group">
-                <label class="control-label" for="course_code">Course Code</label>
-                <input id="course_code" name="course_code" type="text" class="form-control" placeholder="1234567ANR" required>
-              </div>
-
-              <div class="form-group">
-                <label class="control-label" for="course_activity">Course activity</label>
-                <input id="course_activity" name="course_activity" type="number" class="form-control" placeholder="18" required>
-              </div>
-
-              <div class="form-group">
-                <div class="radio">
-                    <label>
-                      <input type="radio" name="type" id="WPO" value="WPO" checked>WPO
-                    </label>
-                </div>
-                <div class="radio">
-                    <label>
-                      <input type="radio" name="type" id="HOC" value="HOC">HOC
-                    </label>
-                </div>
-              </div>
-
-              <!-- Room -->
-
-              <div class="form-group">
-                <label class="control-label" for="building">Building</label>
-                <input id="building" name="building" type="text" class="form-control" placeholder="E" required>
-                <label class="control-label" for="floor">Floor</label>
-                <input id="floor" name="floor" type="number" class="form-control" placeholder="3" required>
-                <label class="control-label" for="number">Room</label>
-                <input id="number" name="number" type="number" class="form-control" placeholder="1" required>
+                <select id="last_slot" name="last_slot" class="form-control" required></select>
+                <script type="text/javascript">
+                  for(var i=1; i<= 32; i++){
+                  var select = document.getElementById("last_slot");
+                  var option = document.createElement("OPTION");
+                  select.options.add(option);
+                  option.text = i;
+                  option.value = i;
+                  }
+                </script>
               </div>
 
               <button type="button" class="btn btn-primary" onclick="create_event()">Create Event</button>
@@ -114,6 +120,7 @@
     </div>
     <script src="/js/jquery.js" type="text/javascript"></script>
     <script src="/js/ServerLove.js" type="text/javascript"></script>
+    <script src="/js/courseAPI.js" type="text/javascript"></script>
     <script src="/js/programAPI.js" type="text/javascript"></script>
     <script type="text/javascript">
       create_program_option_list("#event-creation", "#program");
@@ -124,3 +131,4 @@
   </body>
   </div>
 </html>
+l

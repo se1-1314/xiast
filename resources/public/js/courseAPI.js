@@ -200,6 +200,10 @@ function delete_course(){
 	return false;
 }
 
+function update_course_activity_list(){
+	throw "not implemented";
+}
+
 
 $("#courses").on("mousedown", ".course-item", function (){
 	$('.course-item').removeClass('active');
