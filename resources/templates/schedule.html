@@ -39,6 +39,14 @@
           </div>
           <div class="modal-body">
             <form class="form" id="event-creation" onsubmit="return create_event()">
+              
+              <!-- program -->
+
+              <div class="form-group">
+                <label class="control-label" for="program">Program</label>
+                <input id="program" name="program" type="text" class="form-control" list="programs_option_list"required disabled>
+              </div>
+
               <!-- Time -->
 
               <div class="form-group">
@@ -104,6 +112,13 @@
         </div>
       </div>
     </div>
+    <script src="/js/jquery.js" type="text/javascript"></script>
+    <script src="/js/ServerLove.js" type="text/javascript"></script>
+    <script src="/js/programAPI.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      create_program_option_list("#event-creation", "#program");
+      });
+</script> 
 
     </div>
   </body>

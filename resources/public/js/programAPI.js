@@ -198,6 +198,26 @@ function delete_program(program_id){
 	})
 }
 
+function create_program_option_list(obj, search){
+
+	var url = apiprogram("list");
+	console.log(url)
+
+	$.ajax({
+		type: "GET",
+		url: url,
+		dataType: "JSON",
+		success: function (data) {
+			
+			$(obj).append('<datalist id="programs_option_list"></datalist>');
+			$.each(data.programs, function(index, program){
+				$("#programs_option_list").append('<option value="' + program.title + '"')
+			});
+			$(search).prop("disabled", false);
+		}
+	});
+}
+
 $("#programs").on("mousedown", ".program-item", function (){
 	$('.program-item').removeClass('active');
 	$(this).addClass('active');
