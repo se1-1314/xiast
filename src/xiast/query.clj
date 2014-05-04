@@ -663,6 +663,22 @@
                     activities)]
     (mapcat identity blocks)))
 
+;; TODO: Put this in schedule and refactor
+(s/defn schedule-proposal-apply! :- s/Any
+  [proposal :- xs/ScheduleProposal]
+  (doseq [new (:new proposal)]
+    (schedule-block-add! (dissoc new :id)))
+  (doseq [moved (:moved proposal)]
+    (let [room-id (:id (first (select room
+                                      (where (:room moved)))))]
+      (update schedule-block
+              (set-fields (assoc (dissoc moved [:id :item :room])
+                            :room room-id))
+              (where {:id (:id moved)}))))
+  (doseq [deleted (:deleted proposal)]
+    (delete schedule-block
+            (where {:id deleted}))))
+
 (s/defn schedule-proposal-message-add! :- s/Any
   [message :- xs/ScheduleProposalMessage]
   (let [courses-affected
@@ -780,18 +796,3 @@
                    (set-fields {:status (:rejected (map-invert message-status))})
                    (where {:id id})))))
 
-;; TODO: Put this in schedule and refactor
-(s/defn schedule-proposal-apply! :- s/Any
-  [proposal :- xs/ScheduleProposal]
-  (doseq [new (:new proposal)]
-    (schedule-block-add! (dissoc new :id)))
-  (doseq [moved (:moved proposal)]
-    (let [room-id (:id (first (select room
-                                      (where (:room moved)))))]
-      (update schedule-block
-              (set-fields (assoc (dissoc moved [:id :item :room])
-                            :room room-id))
-              (where {:id (:id moved)}))))
-  (doseq [deleted (:deleted proposal)]
-    (delete schedule-block
-            (where {:id deleted}))))

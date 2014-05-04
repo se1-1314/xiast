@@ -424,9 +424,9 @@
   (if (some #{:program-manager} (:user-functions *session*))
     (try+ (do (query/schedule-proposal-message-accept! id (:user *session*))
               {:result "OK"})
-          (catch [:type :not-found]
+          (catch [:type :not-found] e
               {:result "Message not found"})
-          (catch [:type :not-authorized]
+          (catch [:type :not-authorized] e
               {:result "Not authorized"})
           (catch Exception e
             {:result (str "Unexpected error: " (.getMessage e))}))
@@ -437,9 +437,9 @@
   (if (some #{:program-manager} (:user-functions *session*))
     (try+ (do (query/schedule-proposal-message-reject! id (:user *session*))
               {:result "OK"})
-          (catch [:type :not-found]
+          (catch [:type :not-found] e
               {:result "Message not found"})
-          (catch [:type :not-authorized]
+          (catch [:type :not-authorized] e
               {:result "Not authorized"})
           (catch Exception e
             {:result (str "Unexpected error: " (.getMessage e))}))
