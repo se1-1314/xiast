@@ -434,7 +434,7 @@
                         :moved (set (:moved request))
                         :deleted (set (:deleted request))}]
           (if (some #{:program-manager :titular} (:user-functions *session*))
-            (scheduling/check-proposal)
+            (scheduling/check-proposal proposal)
             {:result "Not authorized"}))
         (catch [:type :coercion-error] e
           {:result "Invalid JSON"})
@@ -446,9 +446,12 @@
   (try+ (let [request (coerce-as ScheduleProposal body)
               proposal {:new (set (:new request))
                         :moved (set (:moved request))
-                        :deleted (set (:deleted request))}]
-          (do (query/schedule-proposal-apply! proposal)
-              {:result "OK"}))
+                        :deleted (set (:deleted request))}
+              check (scheduling/check-proposal proposal)]
+          (if (empty? check)
+            (do (query/schedule-proposal-apply! proposal)
+                {:result "OK"})
+            check))
         (catch [:type :coercion-error] e
           {:result "Invalid JSON"})
         (catch Exception e
