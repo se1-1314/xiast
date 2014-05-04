@@ -745,6 +745,41 @@
           :status (get message-status (:status %)))
        (first message)))))
 
+(s/defn schedule-proposal-message-accept! :- s/Any
+  [id :- s/Int
+   manager :- xs/PersonID]
+  (let [message
+        (schedule-proposal-message-get id)
+        programs
+        (select schedule-proposal-message-programs
+                (join program (= :program-id :program.id))
+                (where {:program.manager manager
+                        :message-id id}))]
+    (cond
+     (not message) (throw+ {:type :not-found})
+     (empty? programs) (throw+ {:type :not-authorized})
+     :else (do (schedule-proposal-apply! (:proposal message))
+               (update schedule-proposal-message
+                       (set-fields {:status (:accepted (map-invert message-status))})
+                       (where {:id id}))))))
+
+(s/defn schedule-proposal-message-reject! :- s/Any
+  [id :- s/Int
+   manager :- xs/PersonID]
+  (let [message
+        (schedule-proposal-message-get id)
+        programs
+        (select schedule-proposal-message-programs
+                (join program (= :program-id :program.id))
+                (where {:program.manager manager
+                        :message-id id}))]
+    (cond
+     (not message) (throw+ {:type :not-found})
+     (empty? programs) (throw+ {:type :not-authorized})
+     :else (update schedule-proposal-message
+                   (set-fields {:status (:rejected (map-invert message-status))})
+                   (where {:id id})))))
+
 ;; TODO: Put this in schedule and refactor
 (s/defn schedule-proposal-apply! :- s/Any
   [proposal :- xs/ScheduleProposal]

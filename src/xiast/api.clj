@@ -415,17 +415,35 @@
 ;; TODO: Check if user is program manager of a program that is linked to the msg
 (defn schedule-proposal-message-get
   [id]
-  (if (some #{:pogram-manager} (:user-functions *session*))
+  (if (some #{:program-manager} (:user-functions *session*))
     (query/schedule-proposal-message-get id)
     {:result "Not authorized"}))
 
 (defn schedule-proposal-message-accept!
   [id]
-  nil)
+  (if (some #{:program-manager} (:user-functions *session*))
+    (try+ (do (query/schedule-proposal-message-accept! id (:user *session*))
+              {:result "OK"})
+          (catch [:type :not-found]
+              {:result "Message not found"})
+          (catch [:type :not-authorized]
+              {:result "Not authorized"})
+          (catch Exception e
+            {:result (str "Unexpected error: " (.getMessage e))}))
+    {:result "Not authorized"}))
 
-(defn schedule-prpopsal-message-reject!
+(defn schedule-proposal-message-reject!
   [id]
-  nil)
+  (if (some #{:program-manager} (:user-functions *session*))
+    (try+ (do (query/schedule-proposal-message-reject! id (:user *session*))
+              {:result "OK"})
+          (catch [:type :not-found]
+              {:result "Message not found"})
+          (catch [:type :not-authorized]
+              {:result "Not authorized"})
+          (catch Exception e
+            {:result (str "Unexpected error: " (.getMessage e))}))
+    {:result "Not authorized"}))
 
 (defn schedule-proposal-check
   [body]
