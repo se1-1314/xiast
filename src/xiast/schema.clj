@@ -32,6 +32,7 @@
                  :faculty s/Str})
 (def CourseActivityType (s/enum :HOC :WPO))
 (def CourseActivity {(s/optional-key :id) s/Int
+                     (s/optional-key :name) s/Str
                      :type CourseActivityType
                      :semester s/Int   ;; TODO: ?? maybe using sessionsemester (lavholsb)
                      :week s/Int
@@ -63,8 +64,7 @@
 (def ScheduleSlot (s/named s/Int "Half-hour time slots from 07:00 through 23:30"))
 
 (def ScheduledCourseActivity
-  {:type CourseActivityType
-   (s/optional-key :title) (s/named s/Str "Course title")
+  {(s/optional-key :title) (s/named s/Str "Course title")
    :course-activity s/Int
    :course-id CourseCode})
 (def ScheduleBlockID s/Int)
@@ -81,11 +81,18 @@
   {(s/optional-key :new) #{ScheduleBlock}
    (s/optional-key :moved) #{ScheduleBlock}
    (s/optional-key :deleted) #{ScheduleBlockID}})
+(def ScheduleProposalMessageStatus
+  (s/enum :inprogress
+          :accepted
+          :rejected))
+;; TODO: Add datetime field to check when the message was sent
 (def ScheduleProposalMessage
   {(s/optional-key :id) s/Int
-   :titular PersonID
-   :program ProgramID
-   :proposal ScheduleProposal})
+   :sender PersonID
+   (s/optional-key :programs) #{ProgramID}
+   :proposal ScheduleProposal
+   :message s/Str
+   (s/optional-key :status) ScheduleProposalMessageStatus})
 (def ScheduleCheckResult {:type (s/enum :mandatory-course-overlap
                                         :elective-course-overlap
                                         :room-overlap
@@ -125,3 +132,8 @@
 (def course-activity-types
   {0 :HOC
    1 :WPO})
+
+(def message-status
+  {0 :inprogress
+   1 :accepted
+   2 :rejected})
