@@ -368,6 +368,17 @@
   (GET "/courses" []
        ((wrap-api-function instructor-courses))))
 
+(defn schedule-get
+  [timespan]
+  (cond
+   (some #{:instructor} (:user-functions *session*))
+   {:schedule (query/instructor-schedule (:user *session*) timespan)}
+   (some #{:student} (:user-functions *session*))
+   {:schedule (query/student-schedule (:user *session*) timespan)}
+   (some #{:program-manager} (:user-functions *session*))
+   {:schedule (query/program-manager-schedule (:user *session*) timespan)}
+   {:schedule []}))
+
 (defn schedule-student-get
   [timespan]
   (if (:user *session*)
@@ -484,6 +495,12 @@
 (defroutes schedule-routes
   (GET "/" []
        "Invalid request")
+  (GET "/:w1/:w2/:d1/:d2/:s1/:s2"
+       [w1 w2 d1 d2 s1 s2]
+       ((wrap-api-function schedule-get)
+        {:weeks [w1 w2]
+         :days [d1 d2]
+         :slots [s1 s2]}))
   (GET "/student/:w1/:w2/:d1/:d2/:s1/:s2"
        [w1 w2 d1 d2 s1 s2]
        ((wrap-api-function schedule-student-get)

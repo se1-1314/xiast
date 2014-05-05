@@ -670,6 +670,33 @@
                     activities)]
     (mapcat identity blocks)))
 
+(s/defn program-manager-schedule :- xs/Schedule
+  [manager :- xs/PersonID
+   timespan :- xs/TimeSpan]
+  (let [activities
+        (union
+         (queries
+          (subselect course-activity
+                     (fields :id)
+                     (join program-mandatory-course
+                           (= :course-code :program-mandatory-course.course-code))
+                     (join program
+                           (= :program.id :program-mandatory-course.program))
+                     (where {:program.manager manager})
+                     (modifier "DISTINCT"))
+          (subselect course-activity
+                     (fields :id)
+                     (join program-choice-course
+                           (= :course-code :program-choice-course.course-code))
+                     (join program
+                           (= :program.id :program-choice-course.program))
+                     (where {:program.manager manager})
+                     (modifier "DISTINCT"))))
+        schedule-blocks
+        (map #(schedule-blocks-in-timespan timespan {:course-activity (:id %)})
+             activities)]
+    (mapcat identity schedule-blocks)))
+
 ;; TODO: Put this in schedule and refactor
 (s/defn schedule-proposal-apply! :- s/Any
   [proposal :- xs/ScheduleProposal]
