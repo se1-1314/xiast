@@ -377,6 +377,7 @@
    {:schedule (query/student-schedule (:user *session*) timespan)}
    (some #{:program-manager} (:user-functions *session*))
    {:schedule (query/program-manager-schedule (:user *session*) timespan)}
+   :else
    {:schedule []}))
 
 (defn schedule-student-get
