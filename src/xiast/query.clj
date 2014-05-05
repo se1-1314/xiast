@@ -573,20 +573,16 @@
   ([timespan]
      (schedule-blocks-in-timespan timespan {}))
   ([timespan constraints]
-     (let [b1
+     (let [blocks
            (select schedule-block
-                   (where (merge constraints
-                                 {:week [>= (first (:weeks timespan))]
-                                  :day [>= (first (:days timespan))]
-                                  :first-slot [>= (first (:slots timespan))]})))
-           b2
-           (select schedule-block
-                   (where (merge constraints
-                                 {:week [<= (second (:weeks timespan))]
-                                  :day [<= (second (:days timespan))]
-                                  :last-slot [<= (second (:slots timespan))]})))]
-       ;; We need to perform the 2 queries as MySQL has no intersect...
-       (cset/intersection (set b1) (set b2)))))
+                   (where (and (merge constraints
+                                      {:week [>= (first (:weeks timespan))]
+                                       :day [>= (first (:days timespan))]
+                                       :first-slot [>= (first (:slots timespan))]}
+                                      {:week [<= (second (:weeks timespan))]
+                                       :day [<= (second (:days timespan))]
+                                       :last-slot [<= (second (:slots timespan))]}))))]
+       blocks)))
 
 (s/defn schedule-block-add! :- xs/ScheduleBlockID
   [block :- xs/ScheduleBlock]
@@ -657,18 +653,25 @@
                              (select program-mandatory-course
                                      (where {:program program-id}))))
         schedules (map #(course-schedule % timespan) courses)]
-    (mapcat identity schedules)))
+    (set (mapcat identity schedules))))
 
 (s/defn instructor-schedule :- xs/Schedule
   [instructor-id :- xs/PersonID
    timespan :- xs/TimeSpan]
-  (let [activities (map :course-activity
-                        (select course-instructor
-                                (where {:netid instructor-id})
-                                (fields :course-activity)))
-        blocks (map #(schedule-blocks-in-timespan timespan {:course-activity %})
-                    activities)]
-    (mapcat identity blocks)))
+  (let [blocks
+        (select schedule-block
+                (join course-activity
+                      (= :course-activity :course-activity.id))
+                (join course-instructor
+                      (= :course-activity.id :course-instructor.course-activity))
+                (where (and {:course-instructor.netid instructor-id}
+                            {:week [>= (first (:weeks timespan))]
+                             :day [>= (first (:days timespan))]
+                             :first-slot [>= (first (:slots timespan))]}
+                            {:week [<= (second (:weeks timespan))]
+                             :day [<= (second (:days timespan))]
+                             :last-slot [<= (second (:slots timespan))]})))]
+    (set (map schedule-block->sScheduleBlock blocks))))
 
 (s/defn program-manager-schedule :- xs/Schedule
   [manager :- xs/PersonID
