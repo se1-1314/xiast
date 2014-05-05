@@ -540,4 +540,5 @@
   (context "/titular" [] titular-routes)
   (context "/instructor" [] instructor-routes)
   (context "/schedule" [] schedule-routes)
+   (context "/my-schedule" [] schedule-routes) ;nieuw?
   (context "/department" [] department-routes))

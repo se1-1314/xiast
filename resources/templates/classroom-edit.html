@@ -3,40 +3,16 @@
 		<div class="col-md-12">
 			<h1 msg="classroom-edit/title">Classroom edit</h1>
 		</div>
-
 		<div class="row-fluid">
 			<div class="col-md-4">
 				<h2 msg="classroom-edit/buildings">Building</h2>
-
-				<ul class="listing">
-					<li class="list-item btn">
-						Building A
-					</li>
-					<li class="list-item btn">
-						Building B
-					</li>
-				</ul>
-				<button type="button" class="btn btn-primary">Add/Remove Building</button>
+				<input id="keyword-building" name="keyword" type="text" class="search-query" placeholder="Search">
+				<div id="building-list">
+				</div>
 			</div>
-
-			<div class="col-md-4">
-				<h2 msg="classroom-edit/rooms">Rooms</h2>
-				<ul class="listing">
-					<li class="list-item btn">
-						room 1
-					</li>
-					<li class="list-item btn">
-						room 2
-					</li>
-				</ul>
-				<button type="button" class="btn btn-primary">Add/Remove Room</button>
-			</div>
-
-			<div class="col-md-4">
-				<h2 msg="classroom-edit/room-details">Rooms details</h2>
-				<button type="button" class="btn btn-primary">update details</button>
-			</div>
-
 		</div>
+		<script type="text/javascript">
+			get_buildings("#building-list");
+		</script>
 	</div>
 </html>

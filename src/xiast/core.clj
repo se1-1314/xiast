@@ -64,6 +64,11 @@
 (deftemplate base "templates/layout.html"
   [body & {:keys [title alert]}]
   [:html :> :head :> :title] (content title)
+  [:li#my-schedule] (cond
+                      (contains? (set (:user-functions *session*)) :program-manager) identity
+                      (contains? (set (:user-functions *session*)) :student) identity
+                      (contains? (set (:user-functions *session*)) :titular) identity
+                      :else nil)
   [:li#curriculum-info] (if (contains? (set (:user-functions *session*)) :student)
                           identity
                           nil)
@@ -215,17 +220,6 @@
 (defsnippet profile-program-manager-body "templates/profile-program-manager.html" [:div#page-content]
   []
   identity)
-
-   [:div#student] (if (contains? (set (:user-functions *session*)) :student)
-                  identity
-                   nil)
-    ;[:div#titular] (if (contains? (set (:user-functions *session*)) :titular)
-     ;              identity
-      ;             nil)
-    ;[:div#program-manager] (if (contains? (set (:user-functions *session*)) :program-manager)
-     ;       identity
-      ;      nil)
-      
       
 (defroutes profile-routes
   (GET "/profile" []
@@ -235,6 +229,20 @@
                    (contains? (set (:user-functions *session*)) :titular) (profile-titular-body)
                    (contains? (set (:user-functions *session*)) :program-manager) (profile-program-manager-body)
                    :else nil)
+                 (t/translate-nodes)))))
+
+(defsnippet my-schedule-program-manager-body "templates/my-schedule.html" [:div.my-schedule-program-manager] [])
+(defsnippet my-schedule-titular-body "templates/my-schedule.html" [:div.my-schedule-titular] [])
+(defsnippet my-schedule-student-body "templates/my-schedule.html" [:div.my-schedule-student] [])
+
+(defroutes my-schedule-routes
+  (GET "/my-schedule" []
+       (base (-> 
+               (cond
+                      (contains? (set (:user-functions *session*)) :program-manager) (my-schedule-program-manager-body)
+                      (contains? (set (:user-functions *session*)) :student) (my-schedule-student-body)
+                      (contains? (set (:user-functions *session*)) :titular) (my-schedule-titular-body)
+                      :else nil)
                  (t/translate-nodes)))))
 
 (defroutes language-routes
@@ -255,6 +263,7 @@
   program-edit-routes
   classroom-edit-routes
   profile-routes
+  my-schedule-routes
   (route/not-found "Not found!"))
 
 
