@@ -159,7 +159,7 @@ function create_course(){
 		throw "no field may not be empty"
 	}
 
-	course = new Object()
+	course = new Object();
 	course["course-code"] = CourseCode;
 	course.title = title;
 	course.description = description;
@@ -176,9 +176,28 @@ function create_course(){
 		data : data,
 		processData: false,
 		contentType: "application/json",
-		success : function(data) {console.log(data); form.reset();},
+		success : function(data) {
+			url = form.mandatory.checked ? "/api/program-manager/program/mandatory" : "/api/program-manager/program/optional";
+			temp = new Object();
+			temp.program = selected_program;
+			temp.course = CourseCode;
+			data = JSON.stringify(temp);
+			form.reset();
+			alert(data + " " + url);
+
+			$.ajax({
+				type : "POST",
+				url : url,
+				data : data,
+				processData: false,
+				contentType: "application/json",
+				dataType: "JSON"
+			})
+		},
 		dataType: "JSON"
 	})
+
+	
 
 	return false;
 }

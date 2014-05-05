@@ -16,3 +16,4 @@ $('#add-program').click(function(){
 			dataType: "JSON"
 		});
 	}
+});
