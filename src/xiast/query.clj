@@ -131,6 +131,13 @@
                               (where {:building building
                                       :floor floor})))))
 
+(s/defn room-building-list :- [s/Str]
+  []
+  (map :building
+       (select room
+               (fields :building)
+               (modifier "DISTINCT"))))
+
 (s/defn room-add! :- s/Any
   [new-room :- xs/Room]
   "Add a Room."

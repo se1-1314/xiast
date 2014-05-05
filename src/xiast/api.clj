@@ -253,6 +253,10 @@
                    :floor floor
                    :number number}))
 
+(defn room-building-list
+  []
+  (query/room-building-list))
+
 (defroutes room-routes
   (GET "/" []
        "Invalid request")
@@ -267,7 +271,9 @@
        ((wrap-api-function room-list)))
   ;; /get/building/floor/number -- returns room in building on floor with number
   (GET "/get/:building/:floor/:number" [building floor number]
-       ((wrap-api-function room-get) building floor number)))
+       ((wrap-api-function room-get) building floor number))
+  (GET "/building/list" []
+       ((wrap-api-function room-building-list))))
 
 ;; Enrollment API
 
