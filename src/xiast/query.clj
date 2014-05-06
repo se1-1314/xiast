@@ -835,15 +835,21 @@
 
 (s/defn free-rooms-in-timespan :- [xs/Room]
   [timespan :- xs/TimeSpan]
-  (map room->sRoom
-       (select room
-               (join schedule-block (not= :id :schedule-block.room))
-               (where
-                (and {:schedule-block.week [>= (first (:weeks timespan))]
-                      :schedule-block.day [>= (first (:days timespan))]
-                      :schedule-block.first-slot [>= (first (:slots timespan))]}
-                     {:schedule-block.week [<= (second (:weeks timespan))]
-                      :schedule-block.day [<= (second (:days timespan))]
-                      :schedule-block.last-slot [<= (second (:slots timespan))]}))
-               (modifier "DISTINCT"))))
-
+  (let [slots (:slots timespan)]
+    (map room->sRoom
+         (select
+          room
+          (where
+           {:id [not-in
+                 (subselect schedule-block
+                            (fields [:room :id])
+                            (where
+                             (and {:week [between (:weeks timespan)]
+                                   :day [between (:days timespan)]}
+                                  (or {:first-slot [<= (first slots)]
+                                       :last-slot [>= (last slots)]}
+                                      {:first-slot [between [(first slots)
+                                                             (last slots)]]}
+                                      {:last-slot [between [(first slots)
+                                                            (last slots)]]})))
+                            (modifier "DISTINCT"))]})))))
