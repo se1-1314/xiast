@@ -51,9 +51,21 @@
 (def person3-enrollments (generate-enrollments person3 mprgs/ba-cw3))
 
 
-;; Previousl generated enrollments
-(def p1-old-enrl #{{:course "1018725AER", :netid "lavholsb"} {:course "1004483BNR", :netid "lavholsb"} {:course "1001714AER", :netid "lavholsb"} {:course "1001673BNR", :netid "lavholsb"}})
+;; Previously generated enrollments
+(def p1-old-enrl
+  #{{:course "1018725AER" :netid "lavholsb"}
+    {:course "1004483BNR" :netid "lavholsb"}
+    {:course "1001714AER" :netid "lavholsb"}
+    {:course "1001673BNR" :netid "lavholsb"}})
 
-(def p2-old-enrl #{{:course "1007156ANR", :netid "adeliens"} {:course "1004483BNR", :netid "adeliens"} {:course "1001673BNR", :netid "adeliens"} {:course "1015259ANR", :netid "adeliens"} {:course "1000447ANR", :netid "adeliens"}})
+(def p2-old-enrl
+  #{{:course "1007156ANR" :netid "adeliens"}
+    {:course "1004483BNR" :netid "adeliens"}
+    {:course "1001673BNR" :netid "adeliens"}
+    {:course "1015259ANR" :netid "adeliens"}
+    {:course "1000447ANR" :netid "adeliens"}})
 
-(def p3-old-enrl #{{:course "1004483BNR", :netid "nvgeele"} {:course "1001673BNR", :netid "nvgeele"} {:course "1001714AER", :netid "nvgeele"}})
+(def p3-old-enrl
+  #{{:course "1004483BNR" :netid "nvgeele"}
+    {:course "1001673BNR" :netid "nvgeele"}
+    {:course "1001714AER" :netid "nvgeele"}})
