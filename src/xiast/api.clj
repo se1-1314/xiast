@@ -261,6 +261,15 @@
   [timespan]
   (query/free-rooms-in-timespan timespan))
 
+(defn room-list-free-for-block
+  [block body]
+  (try+ (let [proposal (coerce-as ScheduleProposal body)]
+          (query/free-rooms-for-block block proposal))
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result (str "Unexpected error: " (.getMessage e))})))
+
 (defroutes room-routes
   (GET "/" []
        "Invalid request")
@@ -283,7 +292,15 @@
        ((wrap-api-function room-list-free)
         {:weeks [w1 w2]
          :days [d1 d2]
-         :slots [s1 s2]})))
+         :slots [s1 s2]}))
+  (POST "/free/:w/:d/:fs/:ls"
+        [w d fs ls :as {body :body}]
+        ((wrap-api-function room-list-free-for-block)
+         {:week w
+          :day d
+          :first-slot fs
+          :last-slot ls}
+         (slurp body))))
 
 ;; Enrollment API
 
