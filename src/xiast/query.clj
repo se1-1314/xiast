@@ -833,3 +833,17 @@
                    (set-fields {:status (:rejected (map-invert message-status))})
                    (where {:id id})))))
 
+(s/defn free-rooms-in-timespan :- [xs/Room]
+  [timespan :- xs/TimeSpan]
+  (map room->sRoom
+       (select room
+               (join schedule-block (not= :id :schedule-block.room))
+               (where
+                (and {:schedule-block.week [>= (first (:weeks timespan))]
+                      :schedule-block.day [>= (first (:days timespan))]
+                      :schedule-block.first-slot [>= (first (:slots timespan))]}
+                     {:schedule-block.week [<= (second (:weeks timespan))]
+                      :schedule-block.day [<= (second (:days timespan))]
+                      :schedule-block.last-slot [<= (second (:slots timespan))]}))
+               (modifier "DISTINCT"))))
+

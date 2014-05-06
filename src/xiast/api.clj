@@ -257,6 +257,10 @@
   []
   (query/room-building-list))
 
+(defn room-list-free
+  [timespan]
+  (query/free-rooms-in-timespan timespan))
+
 (defroutes room-routes
   (GET "/" []
        "Invalid request")
@@ -273,7 +277,13 @@
   (GET "/get/:building/:floor/:number" [building floor number]
        ((wrap-api-function room-get) building floor number))
   (GET "/building/list" []
-       ((wrap-api-function room-building-list))))
+       ((wrap-api-function room-building-list)))
+  (GET "/free/:w1/:w2/:d1/:d2/:s1/:s2"
+       [w1 w2 d1 d2 s1 s2]
+       ((wrap-api-function room-list-free)
+        {:weeks [w1 w2]
+         :days [d1 d2]
+         :slots [s1 s2]})))
 
 ;; Enrollment API
 
@@ -377,6 +387,7 @@
    {:schedule (query/student-schedule (:user *session*) timespan)}
    (some #{:program-manager} (:user-functions *session*))
    {:schedule (query/program-manager-schedule (:user *session*) timespan)}
+   :else
    {:schedule []}))
 
 (defn schedule-student-get
