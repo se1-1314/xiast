@@ -17,9 +17,8 @@ function get_buildings() {
 function construct_available_tags() {
 	var json_data = get_buildings();
 	var available_tags = [];
-	$.each(json_data, function(key) {
-		console.log(key);
-		available_tags.push(key);
+	$.each(json_data, function(key, value) {
+		available_tags.push(value);
 	});
 	return available_tags;
 }
