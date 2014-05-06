@@ -134,16 +134,6 @@ function send_schedule_proposal(prop){
 
 // BACK-END GETTERS
 // Returns (at the moment) the schedule of program with id = 1 (1e ba CW)
-function get_pm_schedule(){
-    var sched;
-    $.ajax({
-        url: '/api/schedule/program/1/1/52/1/7/1/24',
-        success: function(data){ sched = data.schedule; },
-        dataType: 'json',
-        async: false });
-    return sched;
-}
-
 // TODO use these functions in autocomplete lists
 // Gets an array of raw programs from back-end
 function list_programs(){
@@ -322,12 +312,13 @@ var sb3 = {
 
 var c = create_modifiable_calendar();
 
-var pm_sched = get_pm_schedule();
+// TODO: work this out (lavholsb)
+var schedule = get_current_user_schedule();
 
-pm_sched.forEach(
-    function(sb) { add_schedule_block(c, sb); });
+//schedule.forEach(function(sb) {
+//    add_schedule_block(c, sb); });
 
-render_calendar($("#schedule-content"), c);
+// render_calendar($("#schedule-content"), c);
 
 function send_proposal() {
     alert("send_proposal");

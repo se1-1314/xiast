@@ -65,9 +65,8 @@ function process_JSON_program(divID, key){
     }
 }
 
-// Returns an array of programs from back-end
-// TODO: check if function is usable (lavholsb)
-function api_list_programs(){
+// Returns an array of programs from back-end (lavholsb)
+function sync_list_programs(){
     var programs;
     var url = apiprogram('list');
     $.ajax({

@@ -76,8 +76,8 @@
                           identity
                           nil)
   [:li#schedule-nav] (if (contains? (set (:user-functions *session*)) :program-manager)
-                   identity
-                   nil)
+                       identity
+                       nil)
   [:li#classroom-edit] (if (contains? (set (:user-functions *session*)) :program-manager)
                          identity
                          nil)
@@ -91,7 +91,8 @@
                                   login-link))
   [:div#alert] (if-let [alert (or *alert* alert)]
                  (do-> (add-class (str "alert-" (name (:type alert))))
-                       (append (t/translate (:message alert))))))
+                       (append (t/translate (:message alert)))))
+  [:script#initscript] (html-content (str "var current_user = \"" (*session* :user) "\";")))
 
  ;; What this actually did was deleting all hyperlinkgs by having it referring to nothing
  ;; please do not reinclude this piece of code unless you are certain you are not reintrodicing that bug.
