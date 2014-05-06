@@ -7,7 +7,7 @@
             [xiast.schema :as xs]
             [clojure.set :as cset])
   (:use [clojure.set :only [map-invert]]
-        [xiast.schema :only [room-facilities course-grades course-activity-types]]
+        [xiast.schema :only [room-facilities course-grades course-activity-types message-status]]
         [xiast.database]
         [korma.db]
         [korma.core]
@@ -34,6 +34,7 @@
          (select course-instructor
                  (where {:course-activity (:id course-activity)})))]
     {:id (:id course-activity)
+     :name (:name course-activity)
      :type (val (find course-activity-types (:type course-activity)))
      :semester (:semester course-activity)
      :week (:week course-activity)
@@ -129,6 +130,13 @@
      (map room->sRoom (select room
                               (where {:building building
                                       :floor floor})))))
+
+(s/defn room-building-list :- [s/Str]
+  []
+  (map :building
+       (select room
+               (fields :building)
+               (modifier "DISTINCT"))))
 
 (s/defn room-add! :- s/Any
   [new-room :- xs/Room]
@@ -236,33 +244,62 @@
   netid)
 
 (s/defn course-add-activity! :- s/Any
-  [course-code :- xs/CourseCode
-   activity :- xs/CourseActivity]
-  "Add a new activity to a course."
-  (let [course (select course (where {:course-code course-code}))]
-    (if (not (empty? course))
-      (let [facilities
-            (map #(% (map-invert room-facilities))
-                 (:facilities activity))
-            key
-            (:GENERATED_KEY
-             (insert course-activity
-                     (values {:course-code course-code
-                              :type ((:type activity)
-                                     (map-invert course-activity-types))
-                              :semester (:semester activity)
-                              :week (:week activity)
-                              :contact-time-hours
-                              (:contact-time-hours activity)})))]
-        (insert course-instructor
-                (values {:course-activity key
-                         :netid (person-create!
-                                 (:instructor activity))}))
-        (doseq [facility facilities]
-          (insert course-activity-facility
-                  (values {:course-activity key
-                           :facility facility})))
-        key))))
+  ([course-code :- xs/CourseCode
+    activity :- xs/CourseActivity]
+     "Add a new activity to a course."
+     (let [course (select course (where {:course-code course-code}))]
+       (if (empty? course)
+         ;; TODO: exceptions?
+         "Course not found"
+         (if (:name activity)
+           (course-add-activity! course-code activity (:name activity))
+           (let [course (first course)
+                 type ((:type activity) (map-invert course-activity-types))
+                 activity-count (count (select course-activity
+                                               (where {:course-code course-code
+                                                       :type type})))]
+             (course-add-activity! course-code
+                                   activity
+                                   (str (:name course)
+                                        " "
+                                        type
+                                        " "
+                                        (+ count 1))))))))
+  ([course-code :- xs/CourseCode
+    activity :- xs/CourseActivity
+    name :- s/Str]
+     "Add a new activity to a course."
+     (let [course (select course (where {:course-code course-code}))]
+       (if (not (empty? course))
+         (let [facilities
+               (map #(% (map-invert room-facilities))
+                    (:facilities activity))
+               activity-count
+               (count (select course-activity
+                              (where {:course-code course-code
+                                      :type type})))
+               key
+               (:GENERATED_KEY
+                (insert course-activity
+                        (values {:course-code course-code
+                                 :name name
+                                 :type ((:type activity)
+                                        (map-invert course-activity-types))
+                                 :semester (:semester activity)
+                                 :week (:week activity)
+                                 :contact-time-hours
+                                 (:contact-time-hours activity)})))]
+           (insert course-instructor
+                   (values {:course-activity key
+                            :netid (person-create!
+                                    (:instructor activity))}))
+           (doseq [facility facilities]
+             (insert course-activity-facility
+                     (values {:course-activity key
+                              :facility facility})))
+           key)
+         ;; TODO: Exceptions!
+         "Course does not exist"))))
 
 (s/defn course-add! :- s/Any
   [new-course :- xs/Course]
@@ -536,20 +573,16 @@
   ([timespan]
      (schedule-blocks-in-timespan timespan {}))
   ([timespan constraints]
-     (let [b1
+     (let [blocks
            (select schedule-block
-                   (where (merge constraints
-                                 {:week [>= (first (:weeks timespan))]
-                                  :day [>= (first (:days timespan))]
-                                  :first-slot [>= (first (:slots timespan))]})))
-           b2
-           (select schedule-block
-                   (where (merge constraints
-                                 {:week [<= (second (:weeks timespan))]
-                                  :day [<= (second (:days timespan))]
-                                  :last-slot [<= (second (:slots timespan))]})))]
-       ;; We need to perform the 2 queries as MySQL has no intersect...
-       (cset/intersection (set b1) (set b2)))))
+                   (where (and (merge constraints
+                                      {:week [>= (first (:weeks timespan))]
+                                       :day [>= (first (:days timespan))]
+                                       :first-slot [>= (first (:slots timespan))]}
+                                      {:week [<= (second (:weeks timespan))]
+                                       :day [<= (second (:days timespan))]
+                                       :last-slot [<= (second (:slots timespan))]}))))]
+       blocks)))
 
 (s/defn schedule-block-add! :- xs/ScheduleBlockID
   [block :- xs/ScheduleBlock]
@@ -620,33 +653,52 @@
                              (select program-mandatory-course
                                      (where {:program program-id}))))
         schedules (map #(course-schedule % timespan) courses)]
-    (mapcat identity schedules)))
+    (set (mapcat identity schedules))))
 
 (s/defn instructor-schedule :- xs/Schedule
   [instructor-id :- xs/PersonID
    timespan :- xs/TimeSpan]
-  (let [activities (map :course-activity
-                        (select course-instructor
-                                (where {:netid instructor-id})
-                                (fields :course-activity)))
-        blocks (map #(schedule-blocks-in-timespan timespan {:course-activity %})
-                    activities)]
-    (mapcat identity blocks)))
+  (let [blocks
+        (select schedule-block
+                (join course-activity
+                      (= :course-activity :course-activity.id))
+                (join course-instructor
+                      (= :course-activity.id :course-instructor.course-activity))
+                (where (and {:course-instructor.netid instructor-id}
+                            {:week [>= (first (:weeks timespan))]
+                             :day [>= (first (:days timespan))]
+                             :first-slot [>= (first (:slots timespan))]}
+                            {:week [<= (second (:weeks timespan))]
+                             :day [<= (second (:days timespan))]
+                             :last-slot [<= (second (:slots timespan))]})))]
+    (set (map schedule-block->sScheduleBlock blocks))))
 
-(s/defn schedule-proposal-message-add! :- s/Any
-  [message :- xs/ScheduleProposalMessage]
-  (insert schedule-proposal-message
-          (assoc (assoc (dissoc message [:id :proposal]))
-            :proposal (pr-str (:proposal message)))))
-
-(s/defn schedule-proposal-message-get :- [xs/ScheduleProposalMessage]
-  [to :- xs/ProgramID]
-  (let [proposals (select schedule-proposal-message
-                          (where {:program to}))]
-    (map (fn [proposal]
-           (assoc (dissoc proposal :content)
-             :proposal (edn/read-string (:content proposal))))
-         proposals)))
+(s/defn program-manager-schedule :- xs/Schedule
+  [manager :- xs/PersonID
+   timespan :- xs/TimeSpan]
+  (let [activities
+        (union
+         (queries
+          (subselect course-activity
+                     (fields :id)
+                     (join program-mandatory-course
+                           (= :course-code :program-mandatory-course.course-code))
+                     (join program
+                           (= :program.id :program-mandatory-course.program))
+                     (where {:program.manager manager})
+                     (modifier "DISTINCT"))
+          (subselect course-activity
+                     (fields :id)
+                     (join program-choice-course
+                           (= :course-code :program-choice-course.course-code))
+                     (join program
+                           (= :program.id :program-choice-course.program))
+                     (where {:program.manager manager})
+                     (modifier "DISTINCT"))))
+        schedule-blocks
+        (map #(schedule-blocks-in-timespan timespan {:course-activity (:id %)})
+             activities)]
+    (mapcat identity schedule-blocks)))
 
 ;; TODO: Put this in schedule and refactor
 (s/defn schedule-proposal-apply! :- s/Any
@@ -662,4 +714,136 @@
               (where {:id (:id moved)}))))
   (doseq [deleted (:deleted proposal)]
     (delete schedule-block
-            (where {:id (:id deleted)}))))
+            (where {:id deleted}))))
+
+(s/defn schedule-proposal-message-add! :- s/Any
+  [message :- xs/ScheduleProposalMessage]
+  (let [courses-affected
+        (cset/union
+         (set (map (comp :course-id :item)
+                   (:new (:proposal message))))
+         (set (map (comp :course-id :item)
+                   (:moved (:proposal message))))
+         (set (map #((comp :course-code :first)
+                     (select schedule-block
+                             (join course-activity
+                                   (= :course-activity :course-activity.id))
+                             (fields :course-activity.course-code)
+                             (where {:id %})))
+                   (:deleted (:proposal message)))))
+        programs-affected
+        (set
+         (map :program
+              (mapcat identity
+                      (map #(union (queries (subselect program-choice-course
+                                                       (where {:course-code %})
+                                                       (fields :program))
+                                            (subselect program-mandatory-course
+                                                       (where {:course-code %})
+                                                       (fields :program))))
+                           courses-affected))))
+        message-id
+        (:GENERATED_KEY
+         (insert schedule-proposal-message
+                 (values (assoc (dissoc message [:id :proposal :status])
+                           :proposal (pr-str (:proposal message))
+                           :status (:inprogress (map-invert message-status))))))]
+    (doseq [program programs-affected]
+      (insert schedule-proposal-message-programs
+              (values {:message-id message-id
+                       :program-id program})))))
+
+(s/defn schedule-proposal-message-list :- [xs/ScheduleProposalMessage]
+  ([manager :- xs/PersonID]
+     (schedule-proposal-message-list manager false))
+  ([manager :- xs/PersonID
+    status :- xs/ScheduleProposalMessageStatus]
+     (let [programs
+           (set (map :id (select program
+                                 (where {:manager manager})
+                                 (fields :id))))
+           messages
+           (if (empty? programs)
+             []
+             ;; Joins, eval, macho code
+             (eval
+              `(select schedule-proposal-message
+                       (join schedule-proposal-message-programs
+                             (~'= :schedule-proposal-message-programs.message-id :id))
+                       (where
+                        ~(let [or-terms
+                               (map (fn [id]
+                                      `{:schedule-proposal-message-programs.program-id ~id})
+                                    programs)]
+                           (if (and status (keyword? status))
+                             `(~'and {:status ~(status (map-invert message-status))}
+                                     (~'or ~@or-terms))
+                             `(~'or ~@or-terms))))
+                       (modifier "DISTINCT"))))]
+       (map #(assoc (dissoc % [:proposal :status])
+               :proposal (edn/read-string (:proposal %))
+               :status (get message-status (:status %)))
+            messages))))
+
+
+(s/defn schedule-proposal-message-get :- xs/ScheduleProposalMessage
+  [id :- s/Int]
+  (let [message
+        (select schedule-proposal-message
+                (where {:id id}))]
+    (if (empty? message)
+      nil
+      (#(assoc (dissoc % [:proposal :status])
+          :proposal (edn/read-string (:proposal %))
+          :status (get message-status (:status %)))
+       (first message)))))
+
+(s/defn schedule-proposal-message-accept! :- s/Any
+  [id :- s/Int
+   manager :- xs/PersonID]
+  (let [message
+        (schedule-proposal-message-get id)
+        programs
+        (select schedule-proposal-message-programs
+                (join program (= :program-id :program.id))
+                (where {:program.manager manager
+                        :message-id id}))]
+    (cond
+     (not message) (throw+ {:type :not-found})
+     (empty? programs) (throw+ {:type :not-authorized})
+     :else (do (schedule-proposal-apply! (:proposal message))
+               (update schedule-proposal-message
+                       (set-fields {:status (:accepted (map-invert message-status))})
+                       (where {:id id}))))))
+
+(s/defn schedule-proposal-message-reject! :- s/Any
+  [id :- s/Int
+   manager :- xs/PersonID]
+  (let [message
+        (schedule-proposal-message-get id)
+        programs
+        (select schedule-proposal-message-programs
+                (join program (= :program-id :program.id))
+                (where {:program.manager manager
+                        :message-id id}))]
+    (cond
+     (not message) (throw+ {:type :not-found})
+     (empty? programs) (throw+ {:type :not-authorized})
+     :else (update schedule-proposal-message
+                   (set-fields {:status (:rejected (map-invert message-status))})
+                   (where {:id id})))))
+
+(s/defn free-rooms-in-timespan :- [xs/Room]
+  [timespan :- xs/TimeSpan]
+  (map room->sRoom
+       (select room
+               (join schedule-block (not= :id :schedule-block.room))
+               (where
+                (and {:schedule-block.week [>= (first (:weeks timespan))]
+                      :schedule-block.day [>= (first (:days timespan))]
+                      :schedule-block.first-slot [>= (first (:slots timespan))]}
+                     {:schedule-block.week [<= (second (:weeks timespan))]
+                      :schedule-block.day [<= (second (:days timespan))]
+                      :schedule-block.last-slot [<= (second (:slots timespan))]}))
+               (modifier "DISTINCT"))))
+

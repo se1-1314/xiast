@@ -84,3 +84,7 @@
 (def ^:dynamic schedule-proposal-message
   (-> (create-entity "schedule-proposal-message")
       (database db)))
+
+(def ^:dynamic schedule-proposal-message-programs
+  (-> (create-entity "schedule-proposal-message-programs")
+      (database db)))
