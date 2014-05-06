@@ -1,13 +1,16 @@
 function get_buildings() {
 	var url = '/api/room/building/list';
+	var result = null;
 	$.ajax({
 		type : "GET",
 		url : url,
 		dataType : "JSON",
+		async : false,
 		success : function(data) {
-			return data;
+			result =  data;
 		}
 	});
+	result = data;
 }
 
 function construct_available_tags() {
