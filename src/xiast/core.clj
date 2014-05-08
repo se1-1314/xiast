@@ -97,7 +97,7 @@
                                                                       (contains? user-functions :student) "student"
                                                                       (contains? user-functions :titular) "titular"
                                                                       (contains? user-functions :program-manager) "program-manager"
-                                                                      :else "guest"))
+                                                                      :else "guest"))  ;; FIXME: if p.e. 'lavholsb' logs in => current_user holds "guest" instead of "student"
                                        "\";")))
 
 ;; What this actually did was deleting all hyperlinkgs by having it referring to nothing

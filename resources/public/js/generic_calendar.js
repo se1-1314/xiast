@@ -308,21 +308,27 @@ var sb3 = {
     }
 }
 
-// ONLOAD
+// TODO: these functions should only be called when loading the page ('onload()')
 var c = null;
-if()
+if(current_user == "guest" || current_user == "student"){
+    c = create_calendar();}
+else if(current_user == "titular" || current_user == "program-manager"){
+    c = create_modifiable_calendar();}
+
+render_calendar($("#schedule-content"), c);
+
 
 // testing
 
-var c = create_modifiable_calendar();
+//var c = create_modifiable_calendar();
 
 // TODO: work this out (lavholsb)
-var schedule = get_current_user_schedule();
+//var schedule = get_current_user_schedule();
 
 //schedule.forEach(function(sb) {
 //    add_schedule_block(c, sb); });
 
- render_calendar($("#schedule-content"), c);
+
 
 function send_proposal() {
     alert("send_proposal");
@@ -331,5 +337,5 @@ function send_proposal() {
 
 //$("#apply_button").onclick = send_proposal;
 
-// add_new_schedule_block($("#schedule-content"), c, sb2);
+ add_new_schedule_block($("#schedule-content"), c, sb2);
 // add_new_schedule_block($("#schedule-content"), c, sb3);
