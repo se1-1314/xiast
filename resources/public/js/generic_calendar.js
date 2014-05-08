@@ -308,6 +308,10 @@ var sb3 = {
     }
 }
 
+// ONLOAD
+var c = null;
+if()
+
 // testing
 
 var c = create_modifiable_calendar();
@@ -318,7 +322,7 @@ var schedule = get_current_user_schedule();
 //schedule.forEach(function(sb) {
 //    add_schedule_block(c, sb); });
 
-// render_calendar($("#schedule-content"), c);
+ render_calendar($("#schedule-content"), c);
 
 function send_proposal() {
     alert("send_proposal");
