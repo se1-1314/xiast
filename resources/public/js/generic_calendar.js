@@ -366,16 +366,31 @@ function course_activities(course){
             activity_name: a.name};});
 }
 
-function get_room_suggestions(week, day, first_slot, last_slot,
-                              proposal,
-                              callback) {
+function postJSON(url, data, succes) {
     return $.ajax({
         type: "POST",
-        url: "/api/room/free/"+week+"/"+day+"/"+first_slot+"/"+last_slot,
-        data: JSON.stringify(proposal),
+        url: url,
+        data: JSON.stringify(data),
         contentType: "application/json",
-        success: callback,
+        success: succes,
         dataType: "JSON"});
 }
+function get_room_suggestions(week, day, first_slot, last_slot,
+                              proposal,
+                              callback){
+    postJSON("/api/room/free/"+week+"/"+day+"/"+first_slot+"/"+last_slot,
+             proposal
+             callback);
+}
 
-function get_schedule_block_suggestions() {};
+function get_schedule_block_suggestions(
+    timespan, length, activity_id, room_id, proposal, callback){
+    postJSON(
+        "/proposal/available-blocks",
+        {timespan: timespan,
+         block-length: length,
+         "course-activity": activity_id,
+         room: room_id,
+         proposal: proposal},
+        callback);
+}
