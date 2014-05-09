@@ -157,7 +157,7 @@
     (let [room-id (:id (first (select room
                                       (where (:room moved)))))]
       (update schedule-block
-              (set-fields (assoc (dissoc moved [:id :item :room])
+              (set-fields (assoc (dissoc moved :id :item :room)
                             :room room-id))
               (where {:id (:id moved)}))))
   (doseq [deleted (:deleted proposal)]

@@ -5,6 +5,7 @@ var header = { left: 'prev,next today',
                center: 'title',
                right: 'agendaMonth,agendaWeek,agendaDay'};
 var c;    // Represents the calendar view. Initialized by calendar_onload()
+var jqobj = $("#schedule-content");
 
 
 // MISC FUNCTIONS
@@ -88,6 +89,14 @@ function render_calendar(obj, calendar){
     }
 }
 
+function destroy_calendar(jqobj, calendar){
+    try{
+        jqobj.fullCalendar('destroy');
+    } catch(error){
+        console.log(error);
+    }
+}
+
 // CONVERT
 //------------------------------------------------------------------------------
 // Scheduleblocks: for back-end scheduler
@@ -164,7 +173,6 @@ function create_event(){
     sb.day = +form.day.value;
     sb['first-slot'] = +form.first_slot.value;
     sb['last-slot'] = +form.last_slot.value;
-    sb.item.type = form.WPO.checked ? "WPO" : "HOC";
     sb.item["course-activity"] = +form.course_activity.value;
     sb.item["course-code"] = form.course_code.value;
     sb.room.building = form.building.value;
@@ -259,6 +267,18 @@ function generate_schedule_proposal(calendar){
     };
 }
 // SEND
+
+// Generates a proposal, sends the proposal, and refreshes the
+// calendarview to reset the internal events (lavholsb)
+function send_proposal() {
+    send_schedule_proposal(generate_schedule_proposal(c));
+    location.reload();
+    // destroy_calendar($("#schedule-content"), c);
+   // calendar_onload();
+}
+
+
+
 // Sends a compatible proposal to the back-end scheduler
 function send_schedule_proposal(prop){
     $.ajax({
@@ -274,13 +294,12 @@ function send_schedule_proposal(prop){
 //------------------------------------------------------------------------------
 
 var sb1 = new Object();
-//sb1.id = 21;
-sb1.week = 32;
-sb1.day = 1;
+sb1.id = 21;
+sb1.week = 33;
+sb1.day = 4;
 sb1['first-slot'] = 4;
 sb1['last-slot'] = 7;
 sb1.item = new Object();
-sb1.item.type = "HOC";
 sb1.item["course-activity"] = 1626;
 sb1.item["course-id"] = '1000447ANR';
 sb1.room = new Object();
@@ -296,7 +315,6 @@ sb2.day = 1;
 sb2['first-slot'] = 8;
 sb2['last-slot'] = 11;
 sb2.item = new Object();
-sb2.item.type = "WPO";
 sb2.item["course-activity"] = 1628;
 sb2.item["course-id"] = '1000447ANR';
 sb2.room = new Object();
@@ -311,7 +329,6 @@ var sb3 = {
     'first-slot': 13,
     'last-slot': 16,
     item: {
-        type: "HOC",
         "course-activity": 1900,
         "course-code": '1015328ANR',
     },
@@ -328,7 +345,8 @@ var sb3 = {
 function load_current_user_schedule(c){
     var scheduleblocks = get_current_user_schedule();
     scheduleblocks.forEach(function (sb) {
-        add_schedule_block(c, sb); });
+        add_schedule_block(c, sb);
+    });
 }
 function calendar_onload(){
     if(current_user == "guest" || current_user == "student"){
@@ -345,23 +363,3 @@ function calendar_onload(){
 
 // TODO: should be called only when page.onload() (lavholsb) + FIXME
 calendar_onload();
-
-// testing
-
-//var c = create_modifiable_calendar();
-
-// TODO: work this out (lavholsb)
-//var schedule = get_current_user_schedule();
-
-//schedule.forEach(function(sb) {
-//    add_schedule_block(c, sb); });
-
-function send_proposal() {
-    alert("send_proposal");
-    send_schedule_proposal(generate_schedule_proposal(c));
-}
-
-//$("#apply_button").onclick = send_proposal;
-
-// add_new_schedule_block($("#schedule-content"), c, sb2);
-// add_new_schedule_block($("#schedule-content"), c, sb3);
