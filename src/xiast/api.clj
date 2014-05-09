@@ -4,7 +4,7 @@
         [xiast.session :only [*session*]]
         [clojure.data.json :only [read-str write-str]]
         [slingshot.slingshot :only [throw+ try+]])
-  (:require [xiast.query :as query]
+  (:require [xiast.query.core :as query]
             [xiast.schema :as xs]
             [xiast.scheduling :as scheduling]
             [clojure.data.json :as json]
@@ -595,5 +595,5 @@
   (context "/titular" [] titular-routes)
   (context "/instructor" [] instructor-routes)
   (context "/schedule" [] schedule-routes)
-   (context "/my-schedule" [] schedule-routes) ;nieuw?
+  (context "/my-schedule" [] schedule-routes) ;nieuw?
   (context "/department" [] department-routes))
