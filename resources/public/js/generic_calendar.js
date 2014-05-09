@@ -4,6 +4,7 @@ var defaultView = 'agendaWeek';
 var header = { left: 'prev,next today',
                center: 'title',
                right: 'agendaMonth,agendaWeek,agendaDay'};
+var c;    // Represents the calendar view. Initialized by calendar_onload()
 
 
 // MISC FUNCTIONS
@@ -123,6 +124,8 @@ function event_to_schedule_block(e){
 
 // CALENDAR MANIPULATIONS
 //------------------------------------------------------------------------------
+// ADD
+//................................................
 // Adds a schedule_block to a given calendar
 // Should only be used ONLOAD()
 function add_schedule_block(calendar, block){
@@ -135,6 +138,49 @@ function add_new_schedule_block(jqobj, calendar, b){
     calendar.new_events.push(e);
     jqobj.fullCalendar('renderEvent', e, true);
 }
+
+// TODO: make a function (in autocomplete.js) which returns a String[] of
+// ?day-slot? suggestions (check with adeliens & aleijnse) to plan an activity
+
+
+// TODO: create a repeat function/variable to keep track
+// of how many weeks a specific activity should be repeated(lavholsb)
+// or fetch this from the form <<<
+
+// TODO: make a function (in autocomplete.js) which returns a String[]
+// roomsuggestions (lavholsb <-> aleijnse)
+
+
+// TODO: adapt to new form type of 'create event' (lavholsb -> kwpardon)
+function create_event(){
+    // fetch the form by id
+    var form = $("#event-creation")[0];
+
+    var sb = new Object();
+    sb.room = new Object();
+    sb.item = new Object();
+
+    sb.week = +form.week.value;
+    sb.day = +form.day.value;
+    sb['first-slot'] = +form.first_slot.value;
+    sb['last-slot'] = +form.last_slot.value;
+    sb.item.type = form.WPO.checked ? "WPO" : "HOC";
+    sb.item["course-activity"] = +form.course_activity.value;
+    sb.item["course-code"] = form.course_code.value;
+    sb.room.building = form.building.value;
+    sb.room.floor = +form.floor.value;
+    sb.room.number = +form.number.value;
+    if (true){
+        add_new_schedule_block($("#schedule-content"), c ,sb);
+        //form.reset();
+    }
+    else {
+        alert("Invalid form");
+    }
+}
+
+// DELETE
+//................................................
 
 // ONCLICK CALLBACK
 // Callback function: when an event has been clicked it will be highlighted in
@@ -173,6 +219,7 @@ function delete_event(jqobj, calendar, e){
 
 
 // MOVE
+//................................................
 function event_dropped(calendar){
     // Events without schedule_block_ids are newly created
     // and are already in the new_events list.
@@ -186,32 +233,6 @@ function event_dropped(calendar){
 }
 
 
-function create_event(){
-    // fetch the form by id
-    var form = $("#event-creation")[0];
-
-    var sb = new Object();
-    sb.room = new Object();
-    sb.item = new Object();
-
-    sb.week = +form.week.value;
-    sb.day = +form.day.value;
-    sb['first-slot'] = +form.first_slot.value;
-    sb['last-slot'] = +form.last_slot.value;
-    sb.item.type = form.WPO.checked ? "WPO" : "HOC";
-    sb.item["course-activity"] = +form.course_activity.value;
-    sb.item["course-code"] = form.course_code.value;
-    sb.room.building = form.building.value;
-    sb.room.floor = +form.floor.value;
-    sb.room.number = +form.number.value;
-    if (true){
-        add_new_schedule_block($("#schedule-content"), c ,sb);
-        //form.reset();
-    }
-    else {
-        alert("Invalid form");
-    }
-}
 
 // PROPOSALS
 //------------------------------------------------------------------------------
@@ -249,7 +270,8 @@ function send_schedule_proposal(prop){
         dataType: 'JSON'});
 }
 
-
+// TESTDATA
+//------------------------------------------------------------------------------
 
 var sb1 = new Object();
 //sb1.id = 21;
@@ -300,15 +322,27 @@ var sb3 = {
     }
 }
 
-// TODO: these functions should only be called when loading the page ('onload()')
-var c = null;
-if(current_user == "guest" || current_user == "student"){
-    c = create_calendar();}
-else if(current_user == "titular" || current_user == "program-manager"){
-    c = create_modifiable_calendar();}
+// ONLOAD
+//------------------------------------------------------------------------------
+// Loads the schedule of the user currently logged in into the calendar
+function load_current_user_schedule(c){
+    var scheduleblocks = get_current_user_schedule();
+    scheduleblocks.forEach(function (sb) {
+                         add_schedule_block(c, sb); });
+}
+function calendar_onload(c){
+    if(current_user == "guest" || current_user == "student"){
+        c = create_calendar();}
+    else if(current_user == "titular" || current_user == "program-manager"){
+        c = create_modifiable_calendar();}
 
-render_calendar($("#schedule-content"), c);
+    render_calendar($("#schedule-content"), c);
 
+load_current_user_schedule();
+}
+
+// TODO: should be called only when page.onload() (lavholsb)
+calendar_onload(c);
 
 // testing
 
@@ -319,8 +353,6 @@ render_calendar($("#schedule-content"), c);
 
 //schedule.forEach(function(sb) {
 //    add_schedule_block(c, sb); });
-
-
 
 function send_proposal() {
     alert("send_proposal");
