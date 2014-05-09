@@ -394,7 +394,7 @@ function get_schedule_block_suggestions(
     postJSON(
         "/proposal/available-blocks",
         {timespan: timespan,
-         block-length: length,
+         "block-length": length,
          "course-activity": activity_id,
          room: room_id,
          proposal: proposal},
