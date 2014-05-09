@@ -1,7 +1,7 @@
 (ns xiast.scheduling
   (:require [clojure.math.combinatorics :as comb]
             [schema.core :as s]
-            [xiast.query :as q])
+            [xiast.query.core :as q])
   (:use [clojure.set :only [union difference rename-keys]]
         [xiast.schema]))
 

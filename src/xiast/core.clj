@@ -20,12 +20,11 @@
   (:require [compojure.route :as route]
             [compojure.handler :as handler]
             [compojure.response :as response]
-            [xiast.query :as query]
+            [xiast.query.core :as query]
             [taoensso.tower :as tower
              :refer (with-locale with-tscope t *locale*)]
             [taoensso.tower.ring :as tower.ring]
-            [xiast.translate :as t]
-            [xiast.query :as query]))
+            [xiast.translate :as t]))
 
 
 ;; (def login-link "<a href=\"/login\" msg=\"header/login\">Login</a>")

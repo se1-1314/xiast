@@ -1,7 +1,7 @@
 (ns xiast.query-test
   (:require [clojure.test :refer :all]
             [midje.sweet :refer :all]
-            [xiast.query :as query]
+            [xiast.query.core :as query]
             [xiast.schema :as xs]
             [schema.test :as s]
             [xiast.mockprograms :as xmp]

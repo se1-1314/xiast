@@ -3,7 +3,7 @@
         [clojure.data.json :only [write-str]])
   (:require [midje.sweet :refer :all]
             [xiast.api :as api]
-            [xiast.query :as query]))
+            [xiast.query.core :as query]))
 
 (def course-add-request
   ;; Let's make this a bit easier for ourselves.
