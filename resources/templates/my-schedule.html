@@ -67,13 +67,13 @@
 							Apply
 						</button> </span>
 					<span class="my-schedule-titular">
-						<button type="button" class="btn btn-primary">
+						<button type="button" id="send-proposal" class="btn btn-primary">
 							Send Proposal
 						</button> </span>
 				</div>
 			</div>
 
-			<!-- Pop-up form -->
+			<!-- Pop-up form: schedule-activity-event -->
 
 			<div id="schedule-activity-event" class="modal fade my-schedule-program-manager my-schedule-titular">
 				<div class="modal-dialog">
@@ -135,6 +135,35 @@
 							</button>
 							<button type="button" data-dismiss="modal" class="btn btn-success">
 								add
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Pop-up form: send-proposal-event -->
+
+			<div id="send-proposal-event" class="modal fade my-schedule-titular">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<a class="close" data-dismiss="modal" href="#">x</a>
+							<h3>Send proposal</h3>
+						</div>
+						<div class="modal-body">
+							<form role="form">
+								<div class="form-group">
+									<label class="control-label" for="message">Message</label>
+									<textarea id ="message" class="form-control" rows="3"></textarea>
+								</div>
+							</form>
+						</div>
+						<div class="modal-footer">
+							<button type="button" data-dismiss="modal" class="btn btn-default">
+								cancel
+							</button>
+							<button type="button" data-dismiss="modal" id="send" class="btn btn-success">
+								send proposal
 							</button>
 						</div>
 					</div>
