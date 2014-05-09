@@ -237,9 +237,9 @@
               :else nil)
             (t/translate-nodes)))))
 
-(defsnippet my-schedule-program-manager-body "templates/my-schedule.html" [:div.my-schedule-program-manager] [])
-(defsnippet my-schedule-titular-body "templates/my-schedule.html" [:div.my-schedule-titular] [])
-(defsnippet my-schedule-student-body "templates/my-schedule.html" [:div.my-schedule-student] [])
+(defsnippet my-schedule-program-manager-body "templates/my-schedule.html" [:.my-schedule-program-manager] [])
+(defsnippet my-schedule-titular-body "templates/my-schedule.html" [:.my-schedule-titular] [])
+(defsnippet my-schedule-student-body "templates/my-schedule.html" [:.my-schedule-student] [])
 
 (defroutes my-schedule-routes
   (GET "/my-schedule" []
