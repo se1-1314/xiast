@@ -5,13 +5,11 @@
 function get_program_titles_ids(raw_programs){
     var titles_ids = new Array();
     for(var i = 0; i < raw_programs.length; i++){
-       titles_ids[i] = raw_programs[i].title + " -- " + raw_programs[i].id;
+        titles_ids[i] = raw_programs[i].title + " -- " + raw_programs[i].id;
     }
-return titles_ids;
+    return titles_ids;
 }
 
 
-// TODO: Create function which returns a String[] containing
-// courses with their activities(lavholsb)
-function get_courses_courseactivities(raw_courses_details){
+function get_course_activities(){
 }

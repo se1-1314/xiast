@@ -270,58 +270,6 @@ function send_schedule_proposal(prop){
         dataType: 'JSON'});
 }
 
-// TESTDATA
-//------------------------------------------------------------------------------
-
-var sb1 = new Object();
-//sb1.id = 21;
-sb1.week = 32;
-sb1.day = 1;
-sb1['first-slot'] = 4;
-sb1['last-slot'] = 7;
-sb1.item = new Object();
-sb1.item.type = "HOC";
-sb1.item["course-activity"] = 1626;
-sb1.item["course-id"] = '1000447ANR';
-sb1.room = new Object();
-sb1.room.building = 'E';
-sb1.room.floor = 0;
-sb1.room.number = 4;
-
-
-
-var sb2 = new Object();
-sb2.week = 32;
-sb2.day = 1;
-sb2['first-slot'] = 8;
-sb2['last-slot'] = 11;
-sb2.item = new Object();
-sb2.item.type = "WPO";
-sb2.item["course-activity"] = 1628;
-sb2.item["course-id"] = '1000447ANR';
-sb2.room = new Object();
-sb2.room.building = 'E';
-sb2.room.floor = 0;
-sb2.room.number = 5;
-
-var sb3 = {
-    //id: 23,
-    week: 32,
-    day: 5,
-    'first-slot': 13,
-    'last-slot': 16,
-    item: {
-        type: "HOC",
-        "course-activity": 1900,
-        "course-code": '1015328ANR',
-    },
-    room: {
-        building: 'E',
-        floor: 0,
-        number: 6,
-    }
-}
-
 // ONLOAD
 //------------------------------------------------------------------------------
 // Loads the schedule of the user currently logged in into the calendar
@@ -339,8 +287,6 @@ function calendar_onload(){
     load_current_user_schedule(c);
 
     render_calendar($("#schedule-content"), c);
-
-
 }
 
 // TODO: should be called only when page.onload() (lavholsb) + FIXME
