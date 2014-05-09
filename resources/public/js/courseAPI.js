@@ -57,7 +57,7 @@ function list_all_courses_by_program(program_detail) {
     return program_detail.mandatory.concat(program_detail.optional);
 }
 
-function list_all_current_user_courses(){
+function users_schedulable_courses(){
     var courses;
     var url = apititular('courses')
     $.ajax({

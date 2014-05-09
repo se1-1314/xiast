@@ -223,15 +223,18 @@
          (difference blocks)
          (map #(dissoc % ::available)))))
 
-(defn filter-rooms-by-block&proposal
-  [rooms
-   block
-   proposal]
-  (->> (proposal-new&moved proposal)
-       (filter #(schedule-blocks-overlap? %1 block))
-       (map :room)
-       set
-       (difference (set rooms))))
+(s/defn filter-rooms-by-block&proposal :- [RoomID]
+  [rooms :- [Room]
+   block :- ScheduleBlock
+   proposal :- ScheduleProposal]
+  (let [relevant-rooms-in-proposal
+        (->> proposal
+             proposal-new&moved
+             (filter #(schedule-blocks-overlap? % block))
+             (map #(-> % :room))
+             set)]
+    (remove relevant-rooms-in-proposal
+            (map #(-> % :id) rooms))))
 
 (comment
   (defn check-instructor-availabilities :- #{ScheduleCheckResult}

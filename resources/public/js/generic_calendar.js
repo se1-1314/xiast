@@ -291,55 +291,6 @@ function send_schedule_proposal(prop){
         dataType: 'JSON'});
 }
 
-// TESTDATA
-//------------------------------------------------------------------------------
-
-var sb1 = new Object();
-sb1.id = 21;
-sb1.week = 33;
-sb1.day = 4;
-sb1['first-slot'] = 4;
-sb1['last-slot'] = 7;
-sb1.item = new Object();
-sb1.item["course-activity"] = 1626;
-sb1.item["course-id"] = '1000447ANR';
-sb1.room = new Object();
-sb1.room.building = 'E';
-sb1.room.floor = 0;
-sb1.room.number = 4;
-
-
-
-var sb2 = new Object();
-sb2.week = 32;
-sb2.day = 1;
-sb2['first-slot'] = 8;
-sb2['last-slot'] = 11;
-sb2.item = new Object();
-sb2.item["course-activity"] = 1628;
-sb2.item["course-id"] = '1000447ANR';
-sb2.room = new Object();
-sb2.room.building = 'E';
-sb2.room.floor = 0;
-sb2.room.number = 5;
-
-var sb3 = {
-    //id: 23,
-    week: 32,
-    day: 5,
-    'first-slot': 13,
-    'last-slot': 16,
-    item: {
-        "course-activity": 1900,
-        "course-code": '1015328ANR',
-    },
-    room: {
-        building: 'E',
-        floor: 0,
-        number: 6,
-    }
-}
-
 // ONLOAD
 //------------------------------------------------------------------------------
 // Loads the schedule of the user currently logged in into the calendar
@@ -358,9 +309,74 @@ function calendar_onload(){
     load_current_user_schedule(c);
 
     render_calendar($("#schedule-content"), c);
-
-
 }
 
 // TODO: should be called only when page.onload() (lavholsb)+ FIXME
 calendar_onload();
+
+// testing
+
+//var c = create_modifiable_calendar();
+
+// TODO: work this out (lavholsb)
+//var schedule = get_current_user_schedule();
+
+//schedule.forEach(function(sb) {
+//    add_schedule_block(c, sb); });
+
+function send_proposal() {
+    alert("send_proposal");
+    send_schedule_proposal(generate_schedule_proposal(c));
+}
+
+//$("#apply_button").onclick = send_proposal;
+
+// add_new_schedule_block($("#schedule-content"), c, sb2);
+// add_new_schedule_block($("#schedule-content"), c, sb3);
+
+// Converts array of raw programs to an array of strings:
+// ["program_title -- program_id", ...].
+// To be used in auto-complete list when looking for
+// schedule of a specific program
+function get_program_titles_ids(raw_programs){
+    var titles_ids = new Array();
+    for(var i = 0; i < raw_programs.length; i++){
+        titles_ids[i] = raw_programs[i].title + " -- " + raw_programs[i].id;
+    }
+    return titles_ids;
+}
+
+
+// TODO: Create function which returns a String[] containing
+// courses with their activities(lavholsb)
+function get_courses_courseactivities(){
+}
+
+function course_activity_string(course_title, activity_name) {
+    return course_title + ": " + activity_name;
+}
+function flatten(list){
+    return [].concat.apply([],list);
+}
+function course_activities(course){
+    return c.activities.map(function(a) {
+        return {
+            course_code: c["course-code"],
+            course_title: c.title,
+            activity_id: a.id,
+            activity_name: a.name};});
+}
+
+function get_room_suggestions(week, day, first_slot, last_slot,
+                              proposal,
+                              callback) {
+    return $.ajax({
+        type: "POST",
+        url: "/api/room/free/"+week+"/"+day+"/"+first_slot+"/"+last_slot,
+        data: JSON.stringify(proposal),
+        contentType: "application/json",
+        success: callback,
+        dataType: "JSON"});
+}
+
+function get_schedule_block_suggestions() {};
