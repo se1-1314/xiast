@@ -311,3 +311,50 @@ function send_proposal() {
 
 // add_new_schedule_block($("#schedule-content"), c, sb2);
 // add_new_schedule_block($("#schedule-content"), c, sb3);
+
+// Converts array of raw programs to an array of strings:
+// ["program_title -- program_id", ...].
+// To be used in auto-complete list when looking for
+// schedule of a specific program
+function get_program_titles_ids(raw_programs){
+    var titles_ids = new Array();
+    for(var i = 0; i < raw_programs.length; i++){
+        titles_ids[i] = raw_programs[i].title + " -- " + raw_programs[i].id;
+    }
+    return titles_ids;
+}
+
+
+// TODO: Create function which returns a String[] containing
+// courses with their activities(lavholsb)
+function get_courses_courseactivities(){
+}
+
+function course_activity_string(course_title, activity_name) {
+    return course_title + ": " + activity_name;
+}
+function flatten(list){
+    return [].concat.apply([],list);
+}
+function course_activities(course){
+    return c.activities.map(function(a) {
+        return {
+            course_code: c["course-code"],
+            course_title: c.title,
+            activity_id: a.id,
+            activity_name: a.name};});
+}
+
+function get_room_suggestions(week, day, first_slot, last_slot,
+                              proposal,
+                              callback) {
+    return $.ajax({
+        type: "POST",
+        url: "/api/room/free/"+week+"/"+day+"/"+first_slot+"/"+last_slot,
+        data: JSON.stringify(proposal),
+        contentType: "application/json",
+        success: callback,
+        dataType: "JSON"});
+}
+
+function get_schedule_block_suggestions() {};
