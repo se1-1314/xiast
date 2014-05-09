@@ -11,5 +11,7 @@ function get_program_titles_ids(raw_programs){
 }
 
 
-function get_course_activities(){
+// TODO: Create function which returns a String[] containing
+// courses with their activities(lavholsb)
+function get_courses_courseactivities(raw_courses_details){
 }
