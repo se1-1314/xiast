@@ -100,12 +100,13 @@
 
 (s/defn schedule-block->sScheduleBlock
   [block]
-  (assoc (dissoc block [:room :course-activity])
+  (assoc (dissoc block :room :course-activity)
     :item (let [activity
                 (first (select course-activity
                                (where {:id (:course-activity block)})))]
-            {:type (get course-activity-types (:type activity))
-             :title (:name activity)
+            {:title (if-let [name (:name activity)]
+                      name
+                      "")
              :course-activity (:id activity)
              :course-code (:course-code activity)})
     :room (first (select room

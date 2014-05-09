@@ -163,7 +163,7 @@
        (apply concat)
        set))
 
-(defn proposal-checks
+(def proposal-checks
     [check-room-overlaps
      check-mandatory&optional
      ;; check-instructor-available

@@ -96,7 +96,7 @@
 
 (defn room->sRoom
   [room]
-  {:id (select-keys room [:id :building :floor :number])
+  {:id (select-keys room [:building :floor :number])
    :capacity (:capacity room)
    :facilities (set (map #(get room-facilities (:facility %))
                          (select room-facility

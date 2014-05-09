@@ -5,6 +5,7 @@ var header = { left: 'prev,next today',
                center: 'title',
                right: 'agendaMonth,agendaWeek,agendaDay'};
 var c;    // Represents the calendar view. Initialized by calendar_onload()
+var jqobj = $("#schedule-content");
 
 
 // MISC FUNCTIONS
@@ -88,6 +89,14 @@ function render_calendar(obj, calendar){
     }
 }
 
+function destroy_calendar(jqobj, calendar){
+    try{
+        jqobj.fullCalendar('destroy');
+    } catch(error){
+        console.log(error);
+    }
+}
+
 // CONVERT
 //------------------------------------------------------------------------------
 // Scheduleblocks: for back-end scheduler
@@ -164,7 +173,6 @@ function create_event(){
     sb.day = +form.day.value;
     sb['first-slot'] = +form.first_slot.value;
     sb['last-slot'] = +form.last_slot.value;
-    sb.item.type = form.WPO.checked ? "WPO" : "HOC";
     sb.item["course-activity"] = +form.course_activity.value;
     sb.item["course-code"] = form.course_code.value;
     sb.room.building = form.building.value;
@@ -259,6 +267,18 @@ function generate_schedule_proposal(calendar){
     };
 }
 // SEND
+
+// Generates a proposal, sends the proposal, and refreshes the
+// calendarview to reset the internal events (lavholsb)
+function send_proposal() {
+    send_schedule_proposal(generate_schedule_proposal(c));
+    location.reload();
+    // destroy_calendar($("#schedule-content"), c);
+   // calendar_onload();
+}
+
+
+
 // Sends a compatible proposal to the back-end scheduler
 function send_schedule_proposal(prop){
     $.ajax({
@@ -276,7 +296,8 @@ function send_schedule_proposal(prop){
 function load_current_user_schedule(c){
     var scheduleblocks = get_current_user_schedule();
     scheduleblocks.forEach(function (sb) {
-        add_schedule_block(c, sb); });
+        add_schedule_block(c, sb);
+    });
 }
 function calendar_onload(){
     if(current_user == "guest" || current_user == "student"){
@@ -289,7 +310,7 @@ function calendar_onload(){
     render_calendar($("#schedule-content"), c);
 }
 
-// TODO: should be called only when page.onload() (lavholsb) + FIXME
+// TODO: should be called only when page.onload() (lavholsb)+ FIXME
 calendar_onload();
 
 // testing
