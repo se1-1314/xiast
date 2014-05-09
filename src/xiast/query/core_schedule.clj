@@ -193,7 +193,7 @@
         message-id
         (:GENERATED_KEY
          (insert schedule-proposal-message
-                 (values (assoc (dissoc message [:id :proposal :status])
+                 (values (assoc (dissoc message :id :proposal :status)
                            :proposal (pr-str (:proposal message))
                            :status (:inprogress (map-invert message-status))))))]
     (doseq [program programs-affected]
@@ -228,7 +228,7 @@
                                      (~'or ~@or-terms))
                              `(~'or ~@or-terms))))
                        (modifier "DISTINCT"))))]
-       (map #(assoc (dissoc % [:proposal :status])
+       (map #(assoc (dissoc % :proposal :status)
                :proposal (edn/read-string (:proposal %))
                :status (get message-status (:status %)))
             messages))))
@@ -241,7 +241,7 @@
                 (where {:id id}))]
     (if (empty? message)
       nil
-      (#(assoc (dissoc % [:proposal :status])
+      (#(assoc (dissoc % :proposal :status)
           :proposal (edn/read-string (:proposal %))
           :status (get message-status (:status %)))
        (first message)))))
