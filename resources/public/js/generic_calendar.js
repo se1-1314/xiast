@@ -385,7 +385,7 @@ function get_room_suggestions(week, day, first_slot, last_slot,
                               proposal,
                               callback){
     postJSON("/api/room/free/"+week+"/"+day+"/"+first_slot+"/"+last_slot,
-             proposal
+             proposal,
              callback);
 }
 
