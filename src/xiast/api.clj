@@ -224,7 +224,7 @@
   ;; /list -- returns a map containing all programs available in the database -- p.e. {"programs":[{"program-id":1,"title":"ultrices"},{"program-id":2,"title":"eget lacus."},...]}
   (GET "/list" []
        ((wrap-api-function program-list)))
-  ;; /get/id -- return a course given its id -- p.e. /get/28 ->  {"optional":["4018804DNR","1001720BNR"],"mandtory":["1007131ANW","4012722ENR"],"manager":"pmanager","description":"La citudin","title":"euismod","id":28}
+  ;; /get/id -- returns a course given a program-id -- p.e. /get/2 ->  {"optional":["1015259ANR","1018725AER"],"mandatory":["1000447ANR","1001673BNR","1007156ANR","1004483BNR"],"manager":"pmanager","description": "bbbb",,"title":"3e Bachelor Ingenieurswetenschappen - Computerwetenschappen","id":3}
   (GET "/get/:id" [id]
        ((wrap-api-function program-get) id))
   ;; /del/id -- deletes a course given its id
@@ -595,4 +595,5 @@
   (context "/titular" [] titular-routes)
   (context "/instructor" [] instructor-routes)
   (context "/schedule" [] schedule-routes)
+   (context "/my-schedule" [] schedule-routes) ;nieuw?
   (context "/department" [] department-routes))
