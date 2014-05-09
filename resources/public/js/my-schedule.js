@@ -24,14 +24,13 @@ function update_current_vub_week() {
 
 update_current_vub_week();
 
-$("#schedule-activity-event").modal('hide');
-$("#schedule-activity").click(function() {
+$(".modal").modal('hide');
+document.getElementById("schedule-activity").onclick = function() {
 	$("#schedule-activity-event").modal('show');
-});
-$("#send-proposal-event").modal('hide');
-$("#send-proposal").click(function() {
+};
+document.getElementById("send-proposal").onclick = function() {
 	$("#send-proposal-event").modal('show');
-});
+};
 
 // Send Proposal(titular)
 
@@ -50,11 +49,7 @@ function send_proposal(snd, prop, msg) {
 
 document.getElementById("send").onclick = function() {
 	console.log("ajax twice");
-	var proposal = {
-		"new" : [],
-		"moved" : [],
-		"deleted" : []
-	};
+	var proposal = generate_schedule_proposal(c);
 	var titular = "titular";
 	var message = $("#message").val();
 	send_proposal(titular, proposal, message);
