@@ -425,8 +425,8 @@
 
 (s/defn program-manager-course-list :- [xs/Course]
   [manager :- xs/PersonID]
-  (union
-   (map course->sCourse
+  (map course->sCourse
+       (union
         (queries
          (subselect course
                     (join program-mandatory-course

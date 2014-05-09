@@ -14,4 +14,5 @@ return titles_ids;
 // TODO: Create function which returns a String[] containing
 // courses with their activities(lavholsb)
 function get_courses_courseactivities(raw_courses_details){
+
 }
