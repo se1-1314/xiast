@@ -5,6 +5,7 @@ var header = { left: 'prev,next today',
                center: 'title',
                right: 'agendaMonth,agendaWeek,agendaDay'};
 var c;    // Represents the calendar view. Initialized by calendar_onload()
+var jqobj = $("#schedule-content");
 
 
 // MISC FUNCTIONS
@@ -88,6 +89,14 @@ function render_calendar(obj, calendar){
     }
 }
 
+function destroy_calendar(jqobj, calendar){
+    try{
+        jqobj.fullCalendar('destroy');
+    } catch(error){
+        console.log(error);
+    }
+}
+
 // CONVERT
 //------------------------------------------------------------------------------
 // Scheduleblocks: for back-end scheduler
@@ -164,7 +173,6 @@ function create_event(){
     sb.day = +form.day.value;
     sb['first-slot'] = +form.first_slot.value;
     sb['last-slot'] = +form.last_slot.value;
-    sb.item.type = form.WPO.checked ? "WPO" : "HOC";
     sb.item["course-activity"] = +form.course_activity.value;
     sb.item["course-code"] = form.course_code.value;
     sb.room.building = form.building.value;
@@ -232,6 +240,11 @@ function event_dropped(calendar){
         }};
 }
 
+// RESET
+//................................................
+function calendar_reset(calendar){
+
+}
 
 
 // PROPOSALS
@@ -259,67 +272,28 @@ function generate_schedule_proposal(calendar){
     };
 }
 // SEND
+
+// Generates a proposal, sends the proposal, and refreshes the
+// calendarview to reset the internal events (lavholsb)
+function send_proposal() {
+    send_schedule_proposal(generate_schedule_proposal(c));
+    // destroy_calendar($("#schedule-content"), c);
+   // calendar_onload();
+}
+
+
+
 // Sends a compatible proposal to the back-end scheduler
 function send_schedule_proposal(prop){
     $.ajax({
         type: 'POST',
         url: '/api/schedule/proposal/apply',
-        success: function(){},
+
+        // reload the page to clear new/moved/deleted events in fullcalendar
+        success: function() {location.reload();},
         contentType: "application/json",
         data: JSON.stringify(prop),
         dataType: 'JSON'});
-}
-
-// TESTDATA
-//------------------------------------------------------------------------------
-
-var sb1 = new Object();
-//sb1.id = 21;
-sb1.week = 32;
-sb1.day = 1;
-sb1['first-slot'] = 4;
-sb1['last-slot'] = 7;
-sb1.item = new Object();
-sb1.item.type = "HOC";
-sb1.item["course-activity"] = 1626;
-sb1.item["course-id"] = '1000447ANR';
-sb1.room = new Object();
-sb1.room.building = 'E';
-sb1.room.floor = 0;
-sb1.room.number = 4;
-
-
-
-var sb2 = new Object();
-sb2.week = 32;
-sb2.day = 1;
-sb2['first-slot'] = 8;
-sb2['last-slot'] = 11;
-sb2.item = new Object();
-sb2.item.type = "WPO";
-sb2.item["course-activity"] = 1628;
-sb2.item["course-id"] = '1000447ANR';
-sb2.room = new Object();
-sb2.room.building = 'E';
-sb2.room.floor = 0;
-sb2.room.number = 5;
-
-var sb3 = {
-    //id: 23,
-    week: 32,
-    day: 5,
-    'first-slot': 13,
-    'last-slot': 16,
-    item: {
-        type: "HOC",
-        "course-activity": 1900,
-        "course-code": '1015328ANR',
-    },
-    room: {
-        building: 'E',
-        floor: 0,
-        number: 6,
-    }
 }
 
 // ONLOAD
@@ -328,7 +302,8 @@ var sb3 = {
 function load_current_user_schedule(c){
     var scheduleblocks = get_current_user_schedule();
     scheduleblocks.forEach(function (sb) {
-        add_schedule_block(c, sb); });
+        add_schedule_block(c, sb);
+    });
 }
 function calendar_onload(){
     if(current_user == "guest" || current_user == "student"){
@@ -339,11 +314,9 @@ function calendar_onload(){
     load_current_user_schedule(c);
 
     render_calendar($("#schedule-content"), c);
-
-
 }
 
-// TODO: should be called only when page.onload() (lavholsb) + FIXME
+// TODO: should be called only when page.onload() (lavholsb)+ FIXME
 calendar_onload();
 
 // testing
@@ -365,3 +338,65 @@ function send_proposal() {
 
 // add_new_schedule_block($("#schedule-content"), c, sb2);
 // add_new_schedule_block($("#schedule-content"), c, sb3);
+
+// Converts array of raw programs to an array of strings:
+// ["program_title -- program_id", ...].
+// To be used in auto-complete list when looking for
+// schedule of a specific program
+function get_program_titles_ids(raw_programs){
+    var titles_ids = new Array();
+    for(var i = 0; i < raw_programs.length; i++){
+        titles_ids[i] = raw_programs[i].title + " -- " + raw_programs[i].id;
+    }
+    return titles_ids;
+}
+
+
+// TODO: Create function which returns a String[] containing
+// courses with their activities(lavholsb)
+function get_courses_courseactivities(){
+}
+
+function course_activity_string(course_title, activity_name) {
+    return course_title + ": " + activity_name;
+}
+function flatten(list){
+    return [].concat.apply([],list);
+}
+function course_activities(course){
+    return c.activities.map(function(a) {
+        return {
+            course_code: c["course-code"],
+            course_title: c.title,
+            activity_id: a.id,
+            activity_name: a.name};});
+}
+
+function postJSON(url, data, succes) {
+    return $.ajax({
+        type: "POST",
+        url: url,
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        success: succes,
+        dataType: "JSON"});
+}
+function get_room_suggestions(week, day, first_slot, last_slot,
+                              proposal,
+                              callback){
+    postJSON("/api/room/free/"+week+"/"+day+"/"+first_slot+"/"+last_slot,
+             proposal,
+             callback);
+}
+
+function get_schedule_block_suggestions(
+    timespan, length, activity_id, room_id, proposal, callback){
+    postJSON(
+        "/proposal/available-blocks",
+        {timespan: timespan,
+         "block-length": length,
+         "course-activity": activity_id,
+         room: room_id,
+         proposal: proposal},
+        callback);
+}
