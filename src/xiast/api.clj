@@ -373,9 +373,13 @@
 
 (defn titular-courses
   []
-  (if (some #{:titular} (:user-functions *session*))
-    {:courses (query/titular-course-list (:user *session*))}
-    {:courses []}))
+  (cond
+   (some #{:titular} (:user-functions *session*))
+   {:courses (query/titular-course-list (:user *session*))}
+   (some #{:program-manager} (:user-functions *session*))
+   {:courses (query/program-manager-course-list (:user *session*))}
+   :else
+   {:courses []}))
 
 (defroutes titular-routes
   (GET "/" []

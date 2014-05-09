@@ -423,6 +423,26 @@
                 (where {:course-code course-code}))
         true)))
 
+(s/defn program-manager-course-list :- [xs/Course]
+  [manager :- xs/PersonID]
+  (union
+   (map course->sCourse
+        (queries
+         (subselect course
+                    (join program-mandatory-course
+                          (= :course-code :program-mandatory-course.course-code))
+                    (join program
+                          (= :program.id :program-mandatory-course.program))
+                    (where {:program.manager manager})
+                    (modifier "DISTINCT"))
+         (subselect course
+                    (join program-choice-course
+                          (= :course-code :program-choice-course.course-code))
+                    (join program
+                          (= :program.id :program-choice-course.program))
+                    (where {:program.manager manager})
+                    (modifier "DISTINCT"))))))
+
 (s/defn titular-course-list :- [xs/Course]
   [titular :- xs/PersonID]
   "Returns a list off all courses for which the user is a titular."
