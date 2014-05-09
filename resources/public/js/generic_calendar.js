@@ -361,5 +361,5 @@ function calendar_onload(){
 
 }
 
-// TODO: should be called only when page.onload() (lavholsb) + FIXME
+// TODO: should be called only when page.onload() (lavholsb)+ FIXME
 calendar_onload();
