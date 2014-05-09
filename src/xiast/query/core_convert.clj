@@ -92,7 +92,7 @@
 
 (defn room->sRoom
   [room]
-  {:id (select-keys room [:id :building :floor :number])
+  {:id (select-keys room [:building :floor :number])
    :capacity (:capacity room)
    :facilities (set (map #(get room-facilities (:facility %))
                          (select room-facility
@@ -100,12 +100,11 @@
 
 (s/defn schedule-block->sScheduleBlock
   [block]
-  (assoc (dissoc block [:room :course-activity])
+  (assoc (dissoc block :room :course-activity)
     :item (let [activity
                 (first (select course-activity
                                (where {:id (:course-activity block)})))]
-            {:type (get course-activity-types (:type activity))
-             :title (:name activity)
+            {:title (:name activity)
              :course-activity (:id activity)
              :course-code (:course-code activity)})
     :room (first (select room

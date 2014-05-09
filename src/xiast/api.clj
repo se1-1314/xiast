@@ -297,19 +297,23 @@
        ((wrap-api-function room-get) building floor number))
   (GET "/building/list" []
        ((wrap-api-function room-building-list)))
-  (GET "/free/:w1/:w2/:d1/:d2/:s1/:s2"
+  (GET ["/free/:w1/:w2/:d1/:d2/:s1/:s2"
+        :w1 #"[0-9]+" :w2 #"[0-9]+" :d1 #"[0-9]+"
+        :d2 #"[0-9]+" :s1 #"[0-9]+" :s2 #"[0-9]+"]
        [w1 w2 d1 d2 s1 s2]
        ((wrap-api-function room-list-free)
         {:weeks [w1 w2]
          :days [d1 d2]
          :slots [s1 s2]}))
-  (POST "/free/:w/:d/:fs/:ls"
+  (POST ["/free/:w/:d/:fs/:ls"
+         :w #"[0-9]+" :d #"[0-9]+"
+         :fs #"[0-9]+" :ls #"[0-9]+"]
         [w d fs ls :as {body :body}]
         ((wrap-api-function room-list-free-for-block)
-         {:week w
-          :day d
-          :first-slot fs
-          :last-slot ls}
+         {:week (Integer. w)
+          :day (Integer. d)
+          :first-slot (Integer. fs)
+          :last-slot (Integer. ls)}
          (slurp body))))
 
 ;; Enrollment API
@@ -554,32 +558,43 @@
 (defroutes schedule-routes
   (GET "/" []
        "Invalid request")
-  (GET "/:w1/:w2/:d1/:d2/:s1/:s2"
+  (GET ["/:w1/:w2/:d1/:d2/:s1/:s2"
+        :w1 #"[0-9]+" :w2 #"[0-9]+" :d1 #"[0-9]+"
+        :d2 #"[0-9]+" :s1 #"[0-9]+" :s2 #"[0-9]+"]
        [w1 w2 d1 d2 s1 s2]
        ((wrap-api-function schedule-get)
         {:weeks [w1 w2]
          :days [d1 d2]
          :slots [s1 s2]}))
-  (GET "/student/:w1/:w2/:d1/:d2/:s1/:s2"
+  (GET ["/student/:w1/:w2/:d1/:d2/:s1/:s2"
+        :w1 #"[0-9]+" :w2 #"[0-9]+" :d1 #"[0-9]+"
+        :d2 #"[0-9]+" :s1 #"[0-9]+" :s2 #"[0-9]+"]
        [w1 w2 d1 d2 s1 s2]
        ((wrap-api-function schedule-student-get)
         {:weeks [w1 w2]
          :days [d1 d2]
          :slots [s1 s2]}))
-  (GET "/instructor/:w1/:w2/:d1/:d2/:s1/:s2"
+  (GET ["/instructor/:w1/:w2/:d1/:d2/:s1/:s2"
+        :w1 #"[0-9]+" :w2 #"[0-9]+" :d1 #"[0-9]+"
+        :d2 #"[0-9]+" :s1 #"[0-9]+" :s2 #"[0-9]+"]
        [w1 w2 d1 d2 s1 s2]
        ((wrap-api-function schedule-instructor-get)
         {:weeks [w1 w2]
          :days [d1 d2]
          :slots [s1 s2]}))
-  (GET "/course/:course-code/:w1/:w2/:d1/:d2/:s1/:s2"
+  (GET ["/course/:course-code/:w1/:w2/:d1/:d2/:s1/:s2"
+        :w1 #"[0-9]+" :w2 #"[0-9]+" :d1 #"[0-9]+"
+        :d2 #"[0-9]+" :s1 #"[0-9]+" :s2 #"[0-9]+"]
        [course-code w1 w2 d1 d2 s1 s2]
        ((wrap-api-function schedule-course-get)
         course-code
         {:weeks [w1 w2]
          :days [d1 d2]
          :slots [s1 s2]}))
-  (GET "/program/:id/:w1/:w2/:d1/:d2/:s1/:s2"
+  (GET ["/program/:id/:w1/:w2/:d1/:d2/:s1/:s2"
+        :id #"[0-9]+" :w1 #"[0-9]+" :w2 #"[0-9]+"
+        :d1 #"[0-9]+" :d2 #"[0-9]+" :s1 #"[0-9]+"
+        :s2 #"[0-9]+"]
        [id w1 w2 d1 d2 s1 s2]
        ((wrap-api-function schedule-program-get)
         id
