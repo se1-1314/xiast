@@ -64,6 +64,13 @@
    :proposal ScheduleProposal
    :message s/Str})
 
+(defn AvailableBlocksQuery
+  {:timespan xs/TimeSpan
+   :block-length s/Int
+   :course-activity s/Int
+   :room xs/RoomID
+   :proposal ScheduleProposal})
+
 ;; Course API
 
 (defn course-list
@@ -264,7 +271,10 @@
 (defn room-list-free-for-block
   [block body]
   (try+ (let [proposal (coerce-as ScheduleProposal body)]
-          (query/free-rooms-for-block block proposal))
+          (scheduling/filter-rooms-by-block&proposal
+           (query/free-rooms-for-block block proposal)
+           block
+           proposal))
         (catch [:type :coercion-error] e
           {:result "Invalid JSON"})
         (catch Exception e
@@ -294,7 +304,7 @@
          :days [d1 d2]
          :slots [s1 s2]}))
   (POST "/free/:w/:d/:fs/:ls"
-        [w d fs ls :as {body :body}]
+        [w d fs ls]
         ((wrap-api-function room-list-free-for-block)
          {:week w
           :day d
@@ -474,9 +484,9 @@
     (try+ (do (query/schedule-proposal-message-accept! id (:user *session*))
               {:result "OK"})
           (catch [:type :not-found] e
-              {:result "Message not found"})
+            {:result "Message not found"})
           (catch [:type :not-authorized] e
-              {:result "Not authorized"})
+            {:result "Not authorized"})
           (catch Exception e
             {:result (str "Unexpected error: " (.getMessage e))}))
     {:result "Not authorized"}))
@@ -487,9 +497,9 @@
     (try+ (do (query/schedule-proposal-message-reject! id (:user *session*))
               {:result "OK"})
           (catch [:type :not-found] e
-              {:result "Message not found"})
+            {:result "Message not found"})
           (catch [:type :not-authorized] e
-              {:result "Not authorized"})
+            {:result "Not authorized"})
           (catch Exception e
             {:result (str "Unexpected error: " (.getMessage e))}))
     {:result "Not authorized"}))
@@ -519,6 +529,23 @@
             (do (query/schedule-proposal-apply! proposal)
                 {:result "OK"})
             check))
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result (str "Unexpected error: " (.getMessage e))})))
+
+(defn schedule-available-blocks-in-timespan
+  [body]
+  (try+ (let [request (coerce-as AvailableBlocksQuery body)
+              request-proposal (:proposal request)
+              proposal {:new (set (:new request-proposal))
+                        :moved (set (:moved request-proposal))
+                        :deleted (set (:deleted request-proposal))}]
+          (scheduling/available-blocks-in-timespan (:timespan request)
+                                                   (:block-length request)
+                                                   (:course-activity request)
+                                                   (:room request)
+                                                   proposal))
         (catch [:type :coercion-error] e
           {:result "Invalid JSON"})
         (catch Exception e
@@ -572,7 +599,9 @@
   (POST "/proposal/check" {body :body}
         ((wrap-api-function schedule-proposal-check) (slurp body)))
   (POST "/proposal/apply" {body :body}
-        ((wrap-api-function schedule-proposal-apply!) (slurp body))))
+        ((wrap-api-function schedule-proposal-apply!) (slurp body)))
+  (POST "/proposal/available-blocks" {body :body}
+        ((wrap-api-function schedule-available-blocks-in-timespan) (slurp body))))
 
 (defn department-list
   []
