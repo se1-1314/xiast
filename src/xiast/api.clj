@@ -257,6 +257,19 @@
   []
   (query/room-building-list))
 
+(defn room-list-free
+  [timespan]
+  (query/free-rooms-in-timespan timespan))
+
+(defn room-list-free-for-block
+  [block body]
+  (try+ (let [proposal (coerce-as ScheduleProposal body)]
+          (query/free-rooms-for-block block proposal))
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result (str "Unexpected error: " (.getMessage e))})))
+
 (defroutes room-routes
   (GET "/" []
        "Invalid request")
@@ -273,7 +286,21 @@
   (GET "/get/:building/:floor/:number" [building floor number]
        ((wrap-api-function room-get) building floor number))
   (GET "/building/list" []
-       ((wrap-api-function room-building-list))))
+       ((wrap-api-function room-building-list)))
+  (GET "/free/:w1/:w2/:d1/:d2/:s1/:s2"
+       [w1 w2 d1 d2 s1 s2]
+       ((wrap-api-function room-list-free)
+        {:weeks [w1 w2]
+         :days [d1 d2]
+         :slots [s1 s2]}))
+  (POST "/free/:w/:d/:fs/:ls"
+        [w d fs ls :as {body :body}]
+        ((wrap-api-function room-list-free-for-block)
+         {:week w
+          :day d
+          :first-slot fs
+          :last-slot ls}
+         (slurp body))))
 
 ;; Enrollment API
 

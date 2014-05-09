@@ -109,6 +109,7 @@
                 (first (select course-activity
                                (where {:id (:course-activity block)})))]
             {:type (get course-activity-types (:type activity))
+             :title (:name activity)
              :course-activity (:id activity)
              :course-code (:course-code activity)})
     :room (first (select room
@@ -633,7 +634,7 @@
   "Returns the schedule for a certain room in the provided timespan."
   (let [room-id (:id (first (select room (where room-id))))
         blocks (schedule-blocks-in-timespan timespan {:room room-id})]
-    blocks))
+    (map schedule-block->sScheduleBlock blocks)))
 
 (s/defn room-schedules :- xs/Schedule
   [room-ids :- [xs/RoomID]
@@ -698,7 +699,8 @@
         schedule-blocks
         (map #(schedule-blocks-in-timespan timespan {:course-activity (:id %)})
              activities)]
-    (mapcat identity schedule-blocks)))
+    (map schedule-block->sScheduleBlock
+         (mapcat identity schedule-blocks))))
 
 ;; TODO: Put this in schedule and refactor
 (s/defn schedule-proposal-apply! :- s/Any
@@ -833,3 +835,54 @@
                    (set-fields {:status (:rejected (map-invert message-status))})
                    (where {:id id})))))
 
+(s/defn free-rooms-in-timespan :- [xs/Room]
+  [timespan :- xs/TimeSpan]
+  (let [slots (:slots timespan)]
+    (map room->sRoom
+         (select
+          room
+          (where
+           {:id [not-in
+                 (subselect schedule-block
+                            (fields [:room :id])
+                            (where
+                             (and {:week [between (:weeks timespan)]
+                                   :day [between (:days timespan)]}
+                                  (or {:first-slot [<= (first slots)]
+                                       :last-slot [>= (last slots)]}
+                                      {:first-slot [between [(first slots)
+                                                             (last slots)]]}
+                                      {:last-slot [between [(first slots)
+                                                            (last slots)]]})))
+                            (modifier "DISTINCT"))]})))))
+
+(s/defn free-rooms-for-block :- [xs/Room]
+  [block :- xs/ScheduleBlock
+   proposal :- xs/ScheduleProposal]
+  (let [week (:week block)
+        day (:day block)
+        slots [(:first-slot block)
+               (:last-slot block)]
+        ignored (set (concat (:deleted proposal)
+                             (map :id (:moved proposal))))]
+    (map room->sRoom
+         (eval
+          `(select
+            room
+            (where
+             {:id [~'not-in
+                   (subselect schedule-block
+                              (fields [:room :id])
+                              (where
+                               (~'and
+                                {:week [~'= ~week]
+                                 :day [~'= ~day]}
+                                (~'or {:first-slot [~'<= ~(first slots)]
+                                       :last-slot [~'>= ~(last slots)]}
+                                      {:first-slot [~'between [~(first slots)
+                                                               ~(last slots)]]}
+                                      {:last-slot [~'between [~(first slots)
+                                                              ~(last slots)]]})
+                                ~@(map (fn [id]
+                                         `{:id [~'not= ~id]})
+                                       ignored))))]}))))))
