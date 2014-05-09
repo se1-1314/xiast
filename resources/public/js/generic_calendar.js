@@ -240,6 +240,11 @@ function event_dropped(calendar){
         }};
 }
 
+// RESET
+//................................................
+function calendar_reset(calendar){
+
+}
 
 
 // PROPOSALS
