@@ -272,7 +272,6 @@ function generate_schedule_proposal(calendar){
 // calendarview to reset the internal events (lavholsb)
 function send_proposal() {
     send_schedule_proposal(generate_schedule_proposal(c));
-    location.reload();
     // destroy_calendar($("#schedule-content"), c);
    // calendar_onload();
 }
@@ -284,7 +283,9 @@ function send_schedule_proposal(prop){
     $.ajax({
         type: 'POST',
         url: '/api/schedule/proposal/apply',
-        success: function(){},
+
+        // reload the page to clear new/moved/deleted events in fullcalendar
+        success: function() {location.reload();},
         contentType: "application/json",
         data: JSON.stringify(prop),
         dataType: 'JSON'});
