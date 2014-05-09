@@ -560,19 +560,19 @@
          :days [d1 d2]
          :slots [s1 s2]}))
   (POST "/message" {body :body}
-        ((wrap-api-function schedule-proposal-message-add! (slurp body))))
+        ((wrap-api-function schedule-proposal-message-add!) (slurp body)))
   (GET "/message/list" []
        ((wrap-api-function schedule-proposal-message-list)))
   (GET "/message/:id" [id]
-       ((wrap-api-function schedule-proposal-message-get id)))
+       ((wrap-api-function schedule-proposal-message-get) id))
   (GET "/message/accept/:id" [id]
-       ((wrap-api-function schedule-proposal-message-accept! id)))
+       ((wrap-api-function schedule-proposal-message-accept!) id))
   (GET "/message/reject/:id" [id]
-       ((wrap-api-function schedule-proposal-message-reject! id)))
+       ((wrap-api-function schedule-proposal-message-reject!) id))
   (POST "/proposal/check" {body :body}
-        ((wrap-api-function schedule-proposal-check (slurp body))))
+        ((wrap-api-function schedule-proposal-check) (slurp body)))
   (POST "/proposal/apply" {body :body}
-        ((wrap-api-function schedule-proposal-apply! (slurp body)))))
+        ((wrap-api-function schedule-proposal-apply!) (slurp body))))
 
 (defn department-list
   []
