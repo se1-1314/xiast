@@ -189,7 +189,13 @@ function create_event(){
 // TODO: split this function: onclick part, delete button part (vb.
 // stel dat ik later nog iets anders wil doen als een event wordt aangeklikt)
 function calendar_event_click_event(jqobj, calendar){
+
     return function(calendar_event, js_event, view){
+
+        if (current_user.toLowerCase() === 'student' || current_user.toLowerCase() === 'guest'){
+            throw "Not authorized";
+        }
+
         var button = "<button id=\"delete_button\"type=\"button\" class=\"btn btn-lg btn-danger\">Delete </br>" + calendar_event.title + "</button>";
         if (typeof calendar.previous_clicked !== 'undefined'){
             calendar.previous_clicked.color = "#3a87ad";
@@ -208,6 +214,11 @@ function calendar_event_click_event(jqobj, calendar){
 
 // Deletes an event (if exists) from a calendar and its event-lists
 function delete_event(jqobj, calendar, e){
+
+    if (current_user.toLowerCase() === 'student' || current_user.toLowerCase() === 'guest'){
+        throw "Not authorized";
+    }
+
     if ('schedule_block_id' in e) {
         calendar.deleted_block_ids.push(e.schedule_block_id);
         remove_from_array(calendar.moved_events, e);
@@ -337,7 +348,7 @@ function calendar_onload(){
         c = create_modifiable_calendar();}
 
     load_current_user_schedule(c);
-
+    add_schedule_block(c, sb3);
     render_calendar($("#schedule-content"), c);
 
 
