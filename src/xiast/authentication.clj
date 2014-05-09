@@ -1,7 +1,7 @@
 (ns xiast.authentication
   (:use [xiast.config :only [config]])
   (:require [clj-http.client :as client]
-            [xiast.query :as query]))
+            [xiast.query.core :as query]))
 
 (defn- login-production
   [netid password]
