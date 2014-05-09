@@ -182,11 +182,28 @@ function create_event(){
 // DELETE
 //................................................
 
+
+function create_delete_button(jqobj, calendar, calendar_event){
+    var button = "<button id=\"delete_button\"type=\"button\" class=\"btn btn-lg btn-danger\">Delete </br>" + calendar_event.title + "</button>";
+    if (typeof calendar.previous_clicked !== 'undefined'){
+        calendar.previous_clicked.color = "#3a87ad";
+        $(jqobj).fullCalendar("updateEvent", calendar.previous_clicked);
+    }
+    calendar.previous_clicked = calendar_event;
+    calendar_event.color = "#FF0000";
+    $("#schedule-buttons").empty().append(button);
+    $(jqobj).fullCalendar("updateEvent", calendar_event);
+    $("#delete_button").click(
+        function (){
+            console.info("clicked");
+            delete_event(jqobj, calendar, calendar_event);});
+}
+
 // ONCLICK CALLBACK
 // Callback function: when an event has been clicked it will be highlighted in
 // red and a delete button will appear. When this button has been clicked,
 // the selected event will be deleted
-// TODO: split this function: onclick part, delete button part (vb.
+// DONE: split this function: onclick part, delete button part (vb.
 // stel dat ik later nog iets anders wil doen als een event wordt aangeklikt)
 function calendar_event_click_event(jqobj, calendar){
 
@@ -196,19 +213,7 @@ function calendar_event_click_event(jqobj, calendar){
             throw "Not authorized";
         }
 
-        var button = "<button id=\"delete_button\"type=\"button\" class=\"btn btn-lg btn-danger\">Delete </br>" + calendar_event.title + "</button>";
-        if (typeof calendar.previous_clicked !== 'undefined'){
-            calendar.previous_clicked.color = "#3a87ad";
-            $(jqobj).fullCalendar("updateEvent", calendar.previous_clicked);
-        }
-        calendar.previous_clicked = calendar_event;
-        calendar_event.color = "#FF0000";
-        $("#schedule-buttons").empty().append(button);
-        $(jqobj).fullCalendar("updateEvent", calendar_event);
-        $("#delete_button").click(
-            function (){
-                console.info("clicked");
-                delete_event(jqobj, calendar, calendar_event);});
+        create_delete_button(jqobj, calendar, calendar_event)
     }
 }
 
