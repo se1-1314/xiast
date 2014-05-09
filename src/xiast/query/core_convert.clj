@@ -104,7 +104,9 @@
     :item (let [activity
                 (first (select course-activity
                                (where {:id (:course-activity block)})))]
-            {:title (:name activity)
+            {:title (if-let [name (:name activity)]
+                      name
+                      "")
              :course-activity (:id activity)
              :course-code (:course-code activity)})
     :room (first (select room
