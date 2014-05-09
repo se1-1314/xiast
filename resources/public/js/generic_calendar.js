@@ -251,6 +251,7 @@ function hack_around_backend_bug(schedule_block) {
     sb.item = jQuery.extend({}, sb.item);
     var course_code = sb.item['course-code'];
     delete sb.item['course-code'];
+    delete sb.item.title;
     sb.item['course-id'] = course_code;
     return sb;
 }
@@ -377,21 +378,19 @@ function postJSON(url, data, succes) {
         dataType: "JSON"});
 }
 function get_room_suggestions(week, day, first_slot, last_slot,
-                              proposal,
-                              callback){
+                              proposal, callback){
     postJSON("/api/room/free/"+week+"/"+day+"/"+first_slot+"/"+last_slot,
-             proposal
+             proposal,
              callback);
 }
 
 function get_schedule_block_suggestions(
-    timespan, length, activity_id, room_id, proposal, callback){
+    timespan, length, activity_id, proposal, callback){
     postJSON(
-        "/proposal/available-blocks",
+        "/api/schedule/proposal/available-blocks",
         {timespan: timespan,
-         block-length: length,
+         "block-length": length,
          "course-activity": activity_id,
-         room: room_id,
          proposal: proposal},
         callback);
 }

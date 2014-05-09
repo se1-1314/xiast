@@ -184,7 +184,8 @@
     [first-slot last-slot] :slots} :- TimeSpan
    block-length :- (s/named s/Int "Number of schedule slots needed")
    item :- ScheduledCourseActivity
-   room :- RoomID]
+   ;;room :- RoomID
+   ]
   (->> (comb/cartesian-product
         (range first-week (+ last-week 1))
         (range first-day (+ last-day 1))
@@ -195,22 +196,20 @@
                :first-slot s
                :last-slot (+ s block-length -1)
                :item item
-               :room room
+               ;; :room room
                ::available true}))))
 
 (s/defn available-blocks-in-timespan :- [ScheduleBlock]
   [timespan :- TimeSpan
    block-length :- (s/named s/Int "Number of schedule slots needed")
    course-activity :- ScheduledCourseActivity
-   room :- RoomID
    proposal :- ScheduleProposal]
   "List the available blocks for a specific course-activity within a
   specific time span. The supplied schedule proposal will be applied
   before checking available blocks."
-  (let [blocks (set (map (blocks-in-timespan timespan
-                                             block-length
-                                             course-activity
-                                             room)))]
+  (let [blocks (set (blocks-in-timespan timespan
+                                        block-length
+                                        course-activity))]
     (->> (merge-with union proposal {:new blocks})
          (#(binding [*overlapping-schedule-blocks*
                      (fn [old prop]

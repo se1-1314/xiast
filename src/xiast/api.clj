@@ -68,7 +68,6 @@
   {:timespan xs/TimeSpan
    :block-length s/Int
    :course-activity s/Int
-   :room xs/RoomID
    :proposal ScheduleProposal})
 
 ;; Course API
@@ -548,7 +547,6 @@
           (scheduling/available-blocks-in-timespan (:timespan request)
                                                    (:block-length request)
                                                    (:course-activity request)
-                                                   (:room request)
                                                    proposal))
         (catch [:type :coercion-error] e
           {:result "Invalid JSON"})
