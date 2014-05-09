@@ -328,21 +328,23 @@ var sb3 = {
 function load_current_user_schedule(c){
     var scheduleblocks = get_current_user_schedule();
     scheduleblocks.forEach(function (sb) {
-                         add_schedule_block(c, sb); });
+        add_schedule_block(c, sb); });
 }
-function calendar_onload(c){
+function calendar_onload(){
     if(current_user == "guest" || current_user == "student"){
         c = create_calendar();}
     else if(current_user == "titular" || current_user == "program-manager"){
         c = create_modifiable_calendar();}
 
+    load_current_user_schedule(c);
+
     render_calendar($("#schedule-content"), c);
 
-load_current_user_schedule();
+
 }
 
-// TODO: should be called only when page.onload() (lavholsb)
-calendar_onload(c);
+// TODO: should be called only when page.onload() (lavholsb) + FIXME
+calendar_onload();
 
 // testing
 
