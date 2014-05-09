@@ -64,7 +64,7 @@
    :proposal ScheduleProposal
    :message s/Str})
 
-(defn AvailableBlocksQuery
+(def AvailableBlocksQuery
   {:timespan xs/TimeSpan
    :block-length s/Int
    :course-activity s/Int
@@ -304,7 +304,7 @@
          :days [d1 d2]
          :slots [s1 s2]}))
   (POST "/free/:w/:d/:fs/:ls"
-        [w d fs ls]
+        [w d fs ls :as {body :body}]
         ((wrap-api-function room-list-free-for-block)
          {:week w
           :day d
