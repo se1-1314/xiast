@@ -34,7 +34,7 @@ document.getElementById("send-proposal").onclick = function() {
 
 // Send Proposal(titular)
 
-function send_proposal(snd, prop, msg) {
+function send_proposal_with_message(snd, prop, msg) {
 	var url = "/api/schedule/message";
 	var json_data = {
 		sender : snd,
@@ -52,7 +52,7 @@ document.getElementById("send").onclick = function() {
 	var proposal = generate_schedule_proposal(c);
 	var titular = "titular";
 	var message = $("#message").val();
-	send_proposal(titular, proposal, message);
+	send_proposal_with_message(titular, proposal, message);
 };
 
 // Get proposal(program manager)
