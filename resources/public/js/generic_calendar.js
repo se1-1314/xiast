@@ -5,8 +5,7 @@ var header = { left: 'prev,next today',
                center: 'title',
                right: 'agendaMonth,agendaWeek,agendaDay'};
 var c;    // Represents the calendar view. Initialized by calendar_onload()
-var jqobj = $("#schedule-content");
-
+var current_user = "program-manager";
 
 // MISC FUNCTIONS
 //------------------------------------------------------------------------------
@@ -160,32 +159,6 @@ function add_new_schedule_block(jqobj, calendar, b){
 // roomsuggestions (lavholsb <-> aleijnse)
 
 
-// TODO: adapt to new form type of 'create event' (lavholsb -> kwpardon)
-function create_event(){
-    // fetch the form by id
-    var form = $("#event-creation")[0];
-
-    var sb = new Object();
-    sb.room = new Object();
-    sb.item = new Object();
-
-    sb.week = +form.week.value;
-    sb.day = +form.day.value;
-    sb['first-slot'] = +form.first_slot.value;
-    sb['last-slot'] = +form.last_slot.value;
-    sb.item["course-activity"] = +form.course_activity.value;
-    sb.item["course-code"] = form.course_code.value;
-    sb.room.building = form.building.value;
-    sb.room.floor = +form.floor.value;
-    sb.room.number = +form.number.value;
-    if (true){
-        add_new_schedule_block($("#schedule-content"), c ,sb);
-        //form.reset();
-    }
-    else {
-        alert("Invalid form");
-    }
-}
 
 // DELETE
 //................................................
@@ -239,7 +212,6 @@ function event_dropped(calendar){
             calendar.moved_events.push(event);
         }};
 }
-
 // RESET
 //................................................
 function calendar_reset(calendar){
@@ -300,8 +272,22 @@ function send_schedule_proposal(prop){
 // ONLOAD
 //------------------------------------------------------------------------------
 // Loads the schedule of the user currently logged in into the calendar
+
+// Returns an array of scheduleblocks, representing
+// the personal schedule of the logged in user
+function get_users_schedule(){
+    var schedule_blocks;
+    var url ="/api/schedule/1/52/1/7/1/24";
+    $.ajax({
+        url: url,
+        success: function(data){
+            schedule_blocks  = data.schedule},
+        dataType: 'json',
+        async: false });
+    return schedule_blocks;
+}
 function load_current_user_schedule(c){
-    var scheduleblocks = get_current_user_schedule();
+    var scheduleblocks = get_users_schedule();
     scheduleblocks.forEach(function (sb) {
         add_schedule_block(c, sb);
     });
@@ -316,9 +302,6 @@ function calendar_onload(){
 
     render_calendar($("#schedule-content"), c);
 }
-
-// TODO: should be called only when page.onload() (lavholsb)+ FIXME
-calendar_onload();
 
 // testing
 
@@ -358,21 +341,6 @@ function get_program_titles_ids(raw_programs){
 function get_courses_courseactivities(){
 }
 
-function course_activity_string(course_title, activity_name) {
-    return course_title + ": " + activity_name;
-}
-function flatten(list){
-    return [].concat.apply([],list);
-}
-function course_activities(course){
-    return c.activities.map(function(a) {
-        return {
-            course_code: c["course-code"],
-            course_title: c.title,
-            activity_id: a.id,
-            activity_name: a.name};});
-}
-
 function postJSON(url, data, succes) {
     return $.ajax({
         type: "POST",
@@ -382,20 +350,14 @@ function postJSON(url, data, succes) {
         success: succes,
         dataType: "JSON"});
 }
-function get_room_suggestions(week, day, first_slot, last_slot,
-                              proposal, callback){
-    postJSON("/api/room/free/"+week+"/"+day+"/"+first_slot+"/"+last_slot,
-             proposal,
-             callback);
+
+function current_proposal() {
+    return generate_schedule_proposal(c);
 }
 
-function get_schedule_block_suggestions(
-    timespan, length, activity_id, proposal, callback){
-    postJSON(
-        "/api/schedule/proposal/available-blocks",
-        {timespan: timespan,
-         "block-length": length,
-         "course-activity": activity_id,
-         proposal: proposal},
-        callback);
+$(document).ready(function(){
+    calendar_onload();
+});
+function date_shown_on_calendar(){
+    return $('#schedule-content').fullCalendar('getDate');
 }

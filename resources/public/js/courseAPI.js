@@ -68,23 +68,6 @@ function users_schedulable_courses(){
     return courses;
 }
 
-// Returns an array of schedule blocks representing the schedule of
-// the user currently logged in
-function get_current_user_schedule(){
-    var schedule_blocks;
-    var url ="/api/schedule/1/36/1/7/1/24";
-    var url =
-    $.ajax({
-        url: url,
-        success: function(data){
-            schedule_blocks  = data.schedule},
-        dataType: 'json',
-        async: false });
-    return schedule_blocks;
-}
-
-
-
 function list_courses_by_program(divID, program){
 
     try {
