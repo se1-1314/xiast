@@ -19,21 +19,6 @@ function update_current_vub_week() {
     var date_array = date_to_VUB_time(d);
     $("#start-week").attr("placeholder", date_array[0]);
 }
-// Send Proposal(titular)
-
-function send_proposal(snd, prop, msg){
-    var url = "/api/schedule/message";
-    var json_data = {
-        sender : snd,
-        proposal : prop,
-        message : msg
-    };
-    var data = JSON.stringify(json_data);
-    write_data(url, data);
-    $("#send-proposal-event").modal('hide');
-}
-
-
 function course_activity_string(course_title, activity_name) {
     return course_title + ": " + activity_name;
 }
@@ -58,7 +43,6 @@ function fill_activity_list(activity_list){
         activity_list.appendChild(option);
     });
 }
-
 function get_schedule_block_suggestions(
     timespan, length, activity_id, proposal, callback){
     postJSON(
@@ -143,14 +127,4 @@ $(document).ready(function(){
         update_current_vub_week();
         $("#schedule-activity-event").modal('show');
     });
-    // document.getElementById("send-proposal").onclick = function() {
-    //     $("#send-proposal-event").modal('show');
-    // };
-    $("#send").click(function(){
-        var proposal = generate_schedule_proposal(c);
-        var titular = "titular";
-        var message = $("#message").val();
-        send_proposal(titular, proposal, message);
-    });
-
 });
