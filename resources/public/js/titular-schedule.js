@@ -21,4 +21,4 @@ $(document).ready(function(){
         var message = $("#message").val();
         send_proposal_with_message(titular, proposal, message);
     });
-}
+});

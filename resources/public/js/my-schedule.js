@@ -36,11 +36,14 @@ function course_activities(c){
 
 function fill_activity_list(activity_list){
     // <select> list
+    var activity_list = $("#course-activities");
     var activities = flatten(users_schedulable_courses().map(course_activities));
     activities.map(function(a){
         option = document.createElement("option");
         option.innerHTML = a.course_title + ": " + a.activity_name;
-        activity_list.appendChild(option);
+        option.course_code = a.course_code;
+        option.value = a.activity_id;
+        activity_list.append(option);
     });
 }
 function get_schedule_block_suggestions(
@@ -71,34 +74,43 @@ function fill_schedule_block_suggestions(blocks){
     blocks.forEach(function(b){
         suggestions.append(schedule_block_to_day_hour_option(b));});
 }
-// function create_event(){
-//     // fetch the form by id
-//     var form = $("#event-creation")[0];
-
-//     var sb = new Object();
-//     sb.room = new Object();
-//     sb.item = new Object();
-
-//     sb.week = +form.week.value;
-//     sb.day = +form.day.value;
-//     sb['first-slot'] = +form.first_slot.value;
-//     sb['last-slot'] = +form.last_slot.value;
-//     sb.item["course-activity"] = +form.course_activity.value;
-//     sb.item["course-code"] = form.course_code.value;
-//     sb.room.building = form.building.value;
-//     sb.room.floor = +form.floor.value;
-//     sb.room.number = +form.number.value;
-//     if (true){
-//         add_new_schedule_block($("#schedule-content"), c ,sb);
-//         //form.reset();
-//     }
-//     else {
-//         alert("Invalid form");
-//     }
-// }
-
+function create_event(){
+    var form = $("#schedule-activity-event form")[0];
+    var activities = form["course-activities"];
+    var rooms = form["room-floor"];
+    var room = rooms[rooms.selectedIndex];
+    var schedule_block =
+        {week: +form["start-week"].value,
+         day: +form.day.value,
+         // FIXME first-slot =/= start-hour
+         "first-slot": +form["start-hour"].value,
+         "last-slot": +form["start-hour"].value + +form.duration.value,
+         item: {
+             "course-activity": +activities.value,
+             "course-code": activities[activities.selectedIndex].course_code},
+         room: {
+             building: room.building,
+             floor: +room.floor,
+             number: +room.number}};
+    skewer.log(schedule_block);
+    // FIXME
+    add_new_schedule_block($("#schedule-content"), c, schedule_block);
+}
+function fill_room_list(room_ids){
+    room_ids.map(function(rid){
+        var opt = document.createElement("option");
+        opt.innerHTML = rid.building + " " + rid.floor + "." + rid.number;
+        opt.floor = rid.floor;
+        opt.building = rid.building;
+        opt.number = rid.number;
+        $("#room-floor").append(opt);
+    });
+}
 $(document).ready(function(){
     // Fill day+start-slot combinations
+    $.getJSON("/api/room/list", function(data){
+        fill_room_list(data.rooms.map(function(r){return r.id;}));
+    });
     $("#course-activities").change(function(){
         $("#day-hour").empty();
         var activity = this.options[this.selectedIndex];
@@ -109,11 +121,11 @@ $(document).ready(function(){
         var days = (day) ? [day, day] : [1, 6];
         if (activity && start_week && repeat && duration)
             get_schedule_block_suggestions(
-                {weeks: [start_week, start_week + repeat],
+                {weeks: [start_week, start_week + repeat - 1],
                  days: days,
                  slots: [1, 26]},
                 duration,
-                activity.activity_id,
+                activity.value,
                 current_proposal(),
                 fill_schedule_block_suggestions);
     });
@@ -122,9 +134,9 @@ $(document).ready(function(){
         var date = date_to_VUB_time(date_shown_on_calendar());
         $("#start-week").val(date[0]);
         $("#day").val(date[1]);
-        var activity_list = document.getElementById("course-activities");
-        fill_activity_list(activity_list);
+        fill_activity_list();
         update_current_vub_week();
         $("#schedule-activity-event").modal('show');
     });
+    $("#add-schedule-block-btn").click(create_event);
 });
