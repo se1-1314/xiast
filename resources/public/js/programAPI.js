@@ -9,7 +9,7 @@ concerning programs
 
  *****************************************/
 //global variable for use in other functions
-var selected_program ="";
+var selected_program;
 /*****************************************
 Name:                   process_JSON_program
 Creation Date:  02/04/2014
@@ -60,6 +60,10 @@ function process_JSON_program(divID, key){
 
     $.each(programs, function(index, value) {
         $("#program-list").append(value);
+    });
+    $(".program-item").click(function(){
+    //Eventhandler to show the course description of a selected course.
+      selected_program = this.id;
     });
   }
 }

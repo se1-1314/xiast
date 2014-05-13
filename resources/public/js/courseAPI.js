@@ -15,42 +15,47 @@ function print_courses(divID){
 
         $("#course-list").append("<h2>Mandatory</h2>");
         $.each(data.mandatory, function(val, key){
-            $("#course-list").append("<li id='" + key + "' class='list-item btn course-item'>" + key + "</li>");
+            course_name = getCourseNameByCourseCode(key);
+            $("#course-list").append("<li id='" + key + "' class='list-item btn course-item'>" + course_name + "</li>");
         });
 
 
         $("#course-list").append("<h2>Optional</h2>");
         $.each(data.optional, function(val, key){
-            $("#course-list").append("<li id='" + key + "' class='list-item btn course-item'>" + key + "</li>");
+            course_name = getCourseNameByCourseCode(key);
+            $("#course-list").append("<li id='" + key + "' class='list-item btn course-item'>" + course_name + "</li>");
         });
 
     }
 }
 
-function print_course_info(divID){
+// written by Anders
+function print_course_info(divID,course){
 
     return function(data){
         $(divID).empty();
         $(divID).append("<ul id='course-info-ul' class='listing'></ul>");
         $("#course-info-ul").append("<h2>" + data.title + "</h2>");
+        $("#course-info-ul").append("<p>" + data.description + "</p>");
     }
 
 }
 
 // Returns an Object containing program details of
 // program with program_id  (lavholsb)
-function sync_get_program_details(program_id){
-    var program_detail;
-    var url = apiprogram('get').concat("/" + program_id);
 
-    $.ajax({
-        url: url,
-        success: function(data){ program_detail  = data},
-        dataType: 'json',
-        async: false });
-    return program_detail;
+// function sync_get_program_details(program_id){
+//     var program_detail;
+//     var url = apiprogram('get').concat("/" + program_id);
 
-}
+//     $.ajax({
+//         url: url,
+//         success: function(data){ program_detail  = data},
+//         dataType: 'json',
+//         async: false });
+//     return program_detail;
+// }
+
 // Given a program_detail object, returns an array of
 // all courses of that program (mandatory & optional)
 function list_all_courses_by_program(program_detail) {
@@ -113,7 +118,7 @@ function get_course_info(divID, course){
             type: "GET",
             url: url,
             //success: process_JSON_program(divID),
-            success: print_course_info(divID),
+            success: print_course_info(divID,course),
             dataType: "JSON"
         });
 
@@ -199,15 +204,36 @@ function create_course(){
     course.grade = grade;
 
     data = JSON.stringify(course);
+
     url = apicourse("add");
 
+
+    // cascade of ajax calls to ensure the sequence of execution
+    // the first ajax call adds the course to the db
+    // second ajax call adds the course to the selected program
     $.ajax({
         type : "POST",
         url : url,
         data : data,
         processData: false,
         contentType: "application/json",
-        success : function(data) {console.log(data); form.reset();},
+        success : function(data) {  // written by Anders Deliens
+            url = form.mandatory.checked ? "/api/program-manager/program/mandatory" : "/api/program-manager/program/optional";
+            temp = new Object();
+            temp.program = parseInt(selected_program); //to ensure selected_program is an int, otherwise this will result in invalid JSON
+            temp.course = CourseCode; 
+            data = JSON.stringify(temp);
+            form.reset();
+
+            $.ajax({
+                type : "POST",
+                url : url,
+                data : data,
+                processData: false,
+                contentType: "application/json",
+                dataType: "JSON"
+            })
+        },
         dataType: "JSON"
     })
 
