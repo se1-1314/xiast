@@ -21,9 +21,8 @@
         coercer (coerce/coercer schema coerce/json-coercion-matcher)
         res (coercer json)]
     (if (schema.utils/error? res)
-      #_(do (println res)
-            (throw+ {:type :coercion-error}))
-      (throw+ {:type :coercion-error})
+      (throw+ {:type :coercion-error
+               :error (schema.utils/error-val res)})
       res)))
 
 (defn read-json
@@ -421,6 +420,8 @@
    {:schedule (query/student-schedule (:user *session*) timespan)}
    (some #{:program-manager} (:user-functions *session*))
    {:schedule (query/program-manager-schedule (:user *session*) timespan)}
+   (some #{:titular} (:user-functions *session*))
+   {:shedule (query/titular-schedule (:user *session*) timespan)}
    :else
    {:schedule []}))
 
