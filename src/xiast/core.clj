@@ -82,8 +82,7 @@
                          nil)
   [:li#program-edit] (if (contains? (set (:user-functions *session*)) :program-manager)
                        identity
-                       nil)
-
+                       nil) 
   [:div#page-content] (content body)
   [:li#login-out] (html-content (if-let [user (:user *session*)]
                                   (logged-in-link user)
@@ -243,9 +242,9 @@
                :else nil)
               (t/translate-nodes)))))
 
-(defsnippet my-schedule-program-manager-body "templates/my-schedule.html" [:.my-schedule-program-manager] [])
-(defsnippet my-schedule-titular-body "templates/my-schedule.html" [:.my-schedule-titular] [])
-(defsnippet my-schedule-student-body "templates/my-schedule.html" [:.my-schedule-student] [])
+(defsnippet my-schedule-program-manager-body "templates/my-schedule.html" [:.program-manager] [])
+(defsnippet my-schedule-titular-body "templates/my-schedule.html" [:.titular] [])
+(defsnippet my-schedule-student-body "templates/my-schedule.html" [:.my-student] [])
 
 (defroutes my-schedule-routes
   (GET "/my-schedule" []

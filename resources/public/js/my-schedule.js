@@ -22,9 +22,6 @@ function update_current_vub_week() {
 function course_activity_string(course_title, activity_name) {
     return course_title + ": " + activity_name;
 }
-function flatten(list){
-    return [].concat.apply([],list);
-}
 function course_activities(c){
     return c.activities.map(function(a) {
         return {
@@ -37,7 +34,8 @@ function course_activities(c){
 function fill_activity_list(activity_list){
     // <select> list
     var activity_list = $("#course-activities");
-    var activities = flatten(users_schedulable_courses().map(course_activities));
+    var activities = _.flatten(users_schedulable_courses().map(course_activities),
+                               true);
     activities.map(function(a){
         option = document.createElement("option");
         option.innerHTML = a.course_title + ": " + a.activity_name;
@@ -105,6 +103,25 @@ function fill_room_list(room_ids){
         $("#room-floor").append(opt);
     });
 }
+function load_schedule_check_result(res){
+    unmark_erratic_blocks();
+    mark_erratic_blocks(res.concerning);
+    calendar_go_to_block(res.concerning[0]);
+}
+function load_schedule_check_results(results){
+    var error_log = $("#error-log");
+    // Populate error log
+    // Remove all rows except header row
+    error_log.find("tr:gt(0)").remove();
+    // Add new rows
+    results.forEach(function(r){
+        var row = $('<tr class="danger"><td>'+r.type+'</td></tr>');
+        row.click(function(){
+            load_schedule_check_result(r);});
+        error_log.append(row);
+    });
+}
+
 $(document).ready(function(){
     // Fill day+start-slot combinations
     $.getJSON("/api/room/list", function(data){
