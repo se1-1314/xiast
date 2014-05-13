@@ -106,6 +106,7 @@ function fill_room_list(room_ids){
     });
 }
 function load_schedule_check_result(res){
+    mark_erratic_blocks(res.concerning);
     calendar_go_to_block(res.concerning[0]);
 }
 $(document).ready(function(){
