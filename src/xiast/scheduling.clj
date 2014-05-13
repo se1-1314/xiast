@@ -196,7 +196,8 @@
                :first-slot s
                :last-slot (+ s block-length -1)
                :item item
-               ;; :room room
+               ;; Hack, but should work to keep check-proposal happy
+               :room {:number 0 :building "" :floor 0}
                ::available true}))))
 
 (s/defn available-blocks-in-timespan :- [ScheduleBlock]

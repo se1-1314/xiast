@@ -11,24 +11,24 @@
 (def b1 {:id 1
          :week 1 :day 1 :first-slot 1 :last-slot 2
          :room {:building "E" :floor 1 :number 1}
-         :item {:type :HOC
+         :item {;;:type :HOC
                 :course-activity 0
                 :course-id "c1"}})
 (def b2 {:id 2
          :week 1 :day 1 :first-slot 2 :last-slot 3
          :room {:building "E" :floor 1 :number 1}
-         :item {:type :HOC
+         :item {;;:type :HOC
                 :course-activity 0
                 :course-id "c2"}})
 (def b3 {:id 3
          :week 1 :day 1 :first-slot 3 :last-slot 4
          :room {:building "E" :floor 1 :number 1}
-         :item {:type :WPO
+         :item {;;:type :WPO
                 :course-activity 0
                 :course-id "c3"}})
 (def pb4 {:week 2 :day 2 :first-slot 3 :last-slot 4
           :room {:building "E" :floor 1 :number 1}
-          :item {:type :HOC
+          :item {;;:type :HOC
                  :course-activity 0
                  :course-id "c3"}})
 
