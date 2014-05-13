@@ -30,7 +30,7 @@ function course_activities(c){
         return {
             course_code: c["course-code"],
             course_title: c.title,
-            activity_id: a.id,
+            activity_id: +a.id,
             activity_name: a.name};});
 }
 
@@ -42,7 +42,7 @@ function fill_activity_list(activity_list){
         option = document.createElement("option");
         option.innerHTML = a.course_title + ": " + a.activity_name;
         option.course_code = a.course_code;
-        option.value = a.activity_id;
+        option.value = +a.activity_id;
         activity_list.append(option);
     });
 }
@@ -92,7 +92,6 @@ function create_event(){
              building: room.building,
              floor: +room.floor,
              number: +room.number}};
-    skewer.log(schedule_block);
     // FIXME
     add_new_schedule_block($("#schedule-content"), c, schedule_block);
 }
@@ -125,7 +124,7 @@ $(document).ready(function(){
                  days: days,
                  slots: [1, 26]},
                 duration,
-                activity.value,
+                +activity.value,
                 current_proposal(),
                 fill_schedule_block_suggestions);
     });
