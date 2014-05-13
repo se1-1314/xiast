@@ -14,7 +14,7 @@
   (->> course
     :activities
     (map (fn [course-activity]
-           {:type (:type course-activity)
+           {;;:type (:type course-activity)
             :course-id (:course-code course)
             ;; FIXME: (or don't fix me; whatever) course-activity should be the
             ;; real database ID of an activity, but you can only know the id
