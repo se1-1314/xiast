@@ -4,8 +4,7 @@
 
   (:require [schema.core :as s]))
 
-(def RoomID {(s/optional-key :id) s/Int
-             :building s/Str
+(def RoomID {:building s/Str
              :floor s/Int
              :number s/Int})
 (def RoomFacility (s/enum :beamer :overhead-projector))  ;; TODO: adding PANOPTO?
@@ -64,7 +63,7 @@
 (def ScheduleSlot (s/named s/Int "Half-hour time slots from 07:00 through 23:30"))
 
 (def ScheduledCourseActivity
-  {(s/optional-key :title) (s/named s/Str "Course title")
+  {(s/optional-key :title) (s/named s/Str "Course activity title")
    :course-activity s/Int
    :course-id CourseCode})
 (def ScheduleBlockID s/Int)

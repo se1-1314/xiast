@@ -96,7 +96,7 @@
 
 (defn room->sRoom
   [room]
-  {:id (select-keys room [:id :building :floor :number])
+  {:id (select-keys room [:building :floor :number])
    :capacity (:capacity room)
    :facilities (set (map #(get room-facilities (:facility %))
                          (select room-facility
@@ -109,6 +109,7 @@
                 (first (select course-activity
                                (where {:id (:course-activity block)})))]
             {:type (get course-activity-types (:type activity))
+             :title (:name activity)
              :course-activity (:id activity)
              :course-code (:course-code activity)})
     :room (first (select room
@@ -130,6 +131,13 @@
      (map room->sRoom (select room
                               (where {:building building
                                       :floor floor})))))
+
+(s/defn room-building-list :- [s/Str]
+  []
+  (map :building
+       (select room
+               (fields :building)
+               (modifier "DISTINCT"))))
 
 (s/defn room-add! :- s/Any
   [new-room :- xs/Room]
@@ -415,6 +423,26 @@
                 (where {:course-code course-code}))
         true)))
 
+(s/defn program-manager-course-list :- [xs/Course]
+  [manager :- xs/PersonID]
+  (map course->sCourse
+       (union
+        (queries
+         (subselect course
+                    (join program-mandatory-course
+                          (= :course-code :program-mandatory-course.course-code))
+                    (join program
+                          (= :program.id :program-mandatory-course.program))
+                    (where {:program.manager manager})
+                    (modifier "DISTINCT"))
+         (subselect course
+                    (join program-choice-course
+                          (= :course-code :program-choice-course.course-code))
+                    (join program
+                          (= :program.id :program-choice-course.program))
+                    (where {:program.manager manager})
+                    (modifier "DISTINCT"))))))
+
 (s/defn titular-course-list :- [xs/Course]
   [titular :- xs/PersonID]
   "Returns a list off all courses for which the user is a titular."
@@ -566,20 +594,16 @@
   ([timespan]
      (schedule-blocks-in-timespan timespan {}))
   ([timespan constraints]
-     (let [b1
+     (let [blocks
            (select schedule-block
-                   (where (merge constraints
-                                 {:week [>= (first (:weeks timespan))]
-                                  :day [>= (first (:days timespan))]
-                                  :first-slot [>= (first (:slots timespan))]})))
-           b2
-           (select schedule-block
-                   (where (merge constraints
-                                 {:week [<= (second (:weeks timespan))]
-                                  :day [<= (second (:days timespan))]
-                                  :last-slot [<= (second (:slots timespan))]})))]
-       ;; We need to perform the 2 queries as MySQL has no intersect...
-       (cset/intersection (set b1) (set b2)))))
+                   (where (and (merge constraints
+                                      {:week [>= (first (:weeks timespan))]
+                                       :day [>= (first (:days timespan))]
+                                       :first-slot [>= (first (:slots timespan))]}
+                                      {:week [<= (second (:weeks timespan))]
+                                       :day [<= (second (:days timespan))]
+                                       :last-slot [<= (second (:slots timespan))]}))))]
+       blocks)))
 
 (s/defn schedule-block-add! :- xs/ScheduleBlockID
   [block :- xs/ScheduleBlock]
@@ -630,7 +654,7 @@
   "Returns the schedule for a certain room in the provided timespan."
   (let [room-id (:id (first (select room (where room-id))))
         blocks (schedule-blocks-in-timespan timespan {:room room-id})]
-    blocks))
+    (map schedule-block->sScheduleBlock blocks)))
 
 (s/defn room-schedules :- xs/Schedule
   [room-ids :- [xs/RoomID]
@@ -650,18 +674,53 @@
                              (select program-mandatory-course
                                      (where {:program program-id}))))
         schedules (map #(course-schedule % timespan) courses)]
-    (mapcat identity schedules)))
+    (set (mapcat identity schedules))))
 
 (s/defn instructor-schedule :- xs/Schedule
   [instructor-id :- xs/PersonID
    timespan :- xs/TimeSpan]
-  (let [activities (map :course-activity
-                        (select course-instructor
-                                (where {:netid instructor-id})
-                                (fields :course-activity)))
-        blocks (map #(schedule-blocks-in-timespan timespan {:course-activity %})
-                    activities)]
-    (mapcat identity blocks)))
+  (let [blocks
+        (select schedule-block
+                (join course-activity
+                      (= :course-activity :course-activity.id))
+                (join course-instructor
+                      (= :course-activity.id :course-instructor.course-activity))
+                (where (and {:course-instructor.netid instructor-id}
+                            {:week [>= (first (:weeks timespan))]
+                             :day [>= (first (:days timespan))]
+                             :first-slot [>= (first (:slots timespan))]}
+                            {:week [<= (second (:weeks timespan))]
+                             :day [<= (second (:days timespan))]
+                             :last-slot [<= (second (:slots timespan))]})))]
+    (set (map schedule-block->sScheduleBlock blocks))))
+
+(s/defn program-manager-schedule :- xs/Schedule
+  [manager :- xs/PersonID
+   timespan :- xs/TimeSpan]
+  (let [activities
+        (union
+         (queries
+          (subselect course-activity
+                     (fields :id)
+                     (join program-mandatory-course
+                           (= :course-code :program-mandatory-course.course-code))
+                     (join program
+                           (= :program.id :program-mandatory-course.program))
+                     (where {:program.manager manager})
+                     (modifier "DISTINCT"))
+          (subselect course-activity
+                     (fields :id)
+                     (join program-choice-course
+                           (= :course-code :program-choice-course.course-code))
+                     (join program
+                           (= :program.id :program-choice-course.program))
+                     (where {:program.manager manager})
+                     (modifier "DISTINCT"))))
+        schedule-blocks
+        (map #(schedule-blocks-in-timespan timespan {:course-activity (:id %)})
+             activities)]
+    (map schedule-block->sScheduleBlock
+         (mapcat identity schedule-blocks))))
 
 ;; TODO: Put this in schedule and refactor
 (s/defn schedule-proposal-apply! :- s/Any
@@ -796,3 +855,54 @@
                    (set-fields {:status (:rejected (map-invert message-status))})
                    (where {:id id})))))
 
+(s/defn free-rooms-in-timespan :- [xs/Room]
+  [timespan :- xs/TimeSpan]
+  (let [slots (:slots timespan)]
+    (map room->sRoom
+         (select
+          room
+          (where
+           {:id [not-in
+                 (subselect schedule-block
+                            (fields [:room :id])
+                            (where
+                             (and {:week [between (:weeks timespan)]
+                                   :day [between (:days timespan)]}
+                                  (or {:first-slot [<= (first slots)]
+                                       :last-slot [>= (last slots)]}
+                                      {:first-slot [between [(first slots)
+                                                             (last slots)]]}
+                                      {:last-slot [between [(first slots)
+                                                            (last slots)]]})))
+                            (modifier "DISTINCT"))]})))))
+
+(s/defn free-rooms-for-block :- [xs/Room]
+  [block :- xs/ScheduleBlock
+   proposal :- xs/ScheduleProposal]
+  (let [week (:week block)
+        day (:day block)
+        slots [(:first-slot block)
+               (:last-slot block)]
+        ignored (set (concat (:deleted proposal)
+                             (map :id (:moved proposal))))]
+    (map room->sRoom
+         (eval
+          `(select
+            room
+            (where
+             {:id [~'not-in
+                   (subselect schedule-block
+                              (fields [:room :id])
+                              (where
+                               (~'and
+                                {:week [~'= ~week]
+                                 :day [~'= ~day]}
+                                (~'or {:first-slot [~'<= ~(first slots)]
+                                       :last-slot [~'>= ~(last slots)]}
+                                      {:first-slot [~'between [~(first slots)
+                                                               ~(last slots)]]}
+                                      {:last-slot [~'between [~(first slots)
+                                                              ~(last slots)]]})
+                                ~@(map (fn [id]
+                                         `{:id [~'not= ~id]})
+                                       ignored))))]}))))))

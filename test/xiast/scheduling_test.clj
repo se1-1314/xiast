@@ -3,7 +3,7 @@
         xiast.schema
         clojure.set)
   (:require [xiast.scheduling :as sched]
-            [xiast.query :as q]
+            [xiast.query.core :as q]
             [schema.core :as s]
             [xiast.mockschedules :as mocksched]
             [xiast.mockprograms :as mockprog]))
