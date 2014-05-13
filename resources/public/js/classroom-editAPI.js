@@ -90,4 +90,4 @@ function rooms_callback() {
 // Function calls:
 
 $("select").select2({width: "200"});
-populate_select(document.getElementById("buildings_select"), buildings_list(), buildings_callback); 
+populate_select(document.getElementById("buildings_select"), buildings_list(), buildings_callback);

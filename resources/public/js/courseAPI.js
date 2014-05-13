@@ -57,6 +57,17 @@ function list_all_courses_by_program(program_detail) {
     return program_detail.mandatory.concat(program_detail.optional);
 }
 
+function users_schedulable_courses(){
+    var courses;
+    var url = apititular('courses')
+    $.ajax({
+        url: url,
+        success: function(data){ courses  = data.courses},
+        dataType: 'json',
+        async: false });
+    return courses;
+}
+
 function list_courses_by_program(divID, program){
 
     try {
