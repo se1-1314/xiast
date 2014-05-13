@@ -7,6 +7,9 @@ var header = { left: 'prev,next today',
 var c;    // Represents the calendar view. Initialized by calendar_onload()
 var current_user = "program-manager";
 
+var event_default_color = "#3a87ad";
+var event_selection_color = "#5bc0de";
+
 // MISC FUNCTIONS
 //------------------------------------------------------------------------------
 function remove_from_array(events, event){
@@ -81,7 +84,8 @@ function render_calendar(obj, calendar){
             editable: calendar.editable,
             events: calendar.events,
             eventDrop: event_dropped(calendar),
-            eventClick: calendar_event_click_event(obj, calendar)
+            eventClick: calendar_event_clicked(obj, calendar)
+            // eventClick: calendar_event_click_event(obj, calendar)
         });
     } catch(error){
         console.log(error);
@@ -163,21 +167,16 @@ function add_new_schedule_block(jqobj, calendar, b){
 // DELETE
 //................................................
 
-// ONCLICK CALLBACK
-// Callback function: when an event has been clicked it will be highlighted in
-// red and a delete button will appear. When this button has been clicked,
-// the selected event will be deleted
-// TODO: split this function: onclick part, delete button part (vb.
-// stel dat ik later nog iets anders wil doen als een event wordt aangeklikt)
-function calendar_event_click_event(jqobj, calendar){
+// Old function of kwpardon: DEPRECATED
+/*function calendar_event_click_event(jqobj, calendar){
     return function(calendar_event, js_event, view){
         var button = "<button id=\"delete_button\"type=\"button\" class=\"btn btn-lg btn-danger\">Delete </br>" + calendar_event.title + "</button>";
         if (typeof calendar.previous_clicked !== 'undefined'){
-            calendar.previous_clicked.color = "#3a87ad";
+            calendar.previous_clicked.color = event_default_color;
             $(jqobj).fullCalendar("updateEvent", calendar.previous_clicked);
         }
         calendar.previous_clicked = calendar_event;
-        calendar_event.color = "#FF0000";
+        calendar_event.color = event_selection_color;
         $("#schedule-buttons").empty().append(button);
         $(jqobj).fullCalendar("updateEvent", calendar_event);
         $("#delete_button").click(
@@ -186,8 +185,43 @@ function calendar_event_click_event(jqobj, calendar){
                 delete_event(jqobj, calendar, calendar_event);});
     }
 }
+*/
 
-// Deletes an event (if exists) from a calendar and its event-lists
+// ONCLICK CALLBACK
+// Callback function: when an event has been clicked it will be highlighted
+function calendar_event_clicked(jqobj, calendar){
+    return function(calendar_event, js_event, view){
+        // Deselect if an event has already been selected
+        if (typeof calendar.clicked !== 'undefined'){
+            calendar.clicked.color = event_default_color;
+            $(jqobj).fullCalendar("updateEvent", calendar.clicked);
+        }
+        if (calendar.clicked == calendar_event){
+            calendar.clicked = 'undefined';
+        }
+        else {
+            calendar_event.color = event_selection_color;
+            calendar.clicked = calendar_event;
+            $(jqobj).fullCalendar("updateEvent", calendar_event);
+        }
+        // TODO: highlight the deletebutton (id = "delete-activity") when
+        // an event has been clicked
+    }
+}
+
+// Callback for delete button when clicked:
+// Deletes an event if one selected, else an alert will appear
+// TODO: create a Bootstrap alert instead of a standard js alert
+function delete_button_onclick (){
+    if(typeof c.clicked !== 'undefined' && c.clicked != 'undefined'){
+        delete_event($("#schedule-content") , c, c.clicked);
+        c.clicked = 'undefined';
+    }
+    else
+        alert("Please select an activity to delete");
+}
+
+    // Deletes an event (if exists) from a calendar and its event-lists
 function delete_event(jqobj, calendar, e){
     if ('schedule_block_id' in e) {
         calendar.deleted_block_ids.push(e.schedule_block_id);
@@ -214,8 +248,8 @@ function event_dropped(calendar){
 }
 // RESET
 //................................................
-function calendar_reset(calendar){
-
+function calendar_reset(){
+location.reload();
 }
 
 
@@ -244,8 +278,8 @@ function generate_schedule_proposal(calendar){
         deleted: calendar.deleted_block_ids
     };
 }
-// SEND
 
+// SEND
 // Generates a proposal, sends the proposal, and refreshes the
 // calendarview to reset the internal events (lavholsb)
 function send_proposal() {
@@ -303,15 +337,6 @@ function calendar_onload(){
     render_calendar($("#schedule-content"), c);
 }
 
-// testing
-
-//var c = create_modifiable_calendar();
-
-// TODO: work this out (lavholsb)
-//var schedule = get_current_user_schedule();
-
-//schedule.forEach(function(sb) {
-//    add_schedule_block(c, sb); });
 
 function send_proposal() {
     alert("send_proposal");
@@ -361,3 +386,38 @@ $(document).ready(function(){
 function date_shown_on_calendar(){
     return $('#schedule-content').fullCalendar('getDate');
 }
+
+// For testing (lavholsb)
+// TODO: remove me
+
+
+ function create_test_event(){
+
+     // fetch the form by id
+
+     var form = $("#event-creation")[0];
+
+
+
+     var sb = new Object();
+     sb.room = new Object();
+    sb.item = new Object();
+
+
+    sb.week = +form.week.value;
+     sb.day = +form.day.value;
+     sb['first-slot'] = +form.first_slot.value;
+     sb['last-slot'] = +form.last_slot.value;
+     sb.item["course-activity"] = +form.course_activity.value;
+     sb.item["course-code"] = form.course_code.value;
+     sb.room.building = form.building.value;
+     sb.room.floor = +form.floor.value;
+    sb.room.number = +form.number.value;
+     if (true){
+       add_new_schedule_block($("#schedule-content"), c ,sb);
+         //form.reset();
+     }
+    else {
+        alert("Invalid form");
+    }
+ }
