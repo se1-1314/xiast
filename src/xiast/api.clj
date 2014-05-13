@@ -21,9 +21,8 @@
         coercer (coerce/coercer schema coerce/json-coercion-matcher)
         res (coercer json)]
     (if (schema.utils/error? res)
-      #_(do (println res)
-            (throw+ {:type :coercion-error}))
-      (throw+ {:type :coercion-error})
+      (throw+ {:type :coercion-error
+               :error (schema.utils/error-val res)})
       res)))
 
 (defn read-json
