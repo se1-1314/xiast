@@ -284,11 +284,13 @@ function get_users_schedule() {
 	var schedule_blocks;
 	var url = "/api/schedule/1/52/1/7/1/24";
 	$.ajax({
+		type : "GET",
 		url : url,
+		contentType : "application/json",
+		dataType : 'JSON',
 		success : function(data) {
-			schedule_blocks = data.schedule;
+			schedule_blocks = data.shedule; //nils moet dat fixen asap: shedule -> schedule.
 		},
-		dataType : 'json',
 		async : false
 	});
 	return schedule_blocks;
