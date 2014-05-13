@@ -37,7 +37,7 @@
                                         " "
                                         type
                                         " "
-                                        (+ count 1))))))))
+                                        (+ activity-count 1))))))))
   ([course-code :- xs/CourseCode
     activity :- xs/CourseActivity
     name :- s/Str]
