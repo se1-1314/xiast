@@ -32,8 +32,8 @@ function process_JSON_program(divID, key){
      // We check if we have the expected key
      if ((key === 'programs') || (key === 'result')){
        // variable creation
-       var id = -1
-       var title = -1
+       var id ;
+       var title ;
 
        // because strange JSON constructions makes for multiple loops
        $.each(val, function(key, val){
@@ -61,24 +61,20 @@ function process_JSON_program(divID, key){
     $.each(programs, function(index, value) {
         $("#program-list").append(value);
     });
-    $(".program-item").click(function(){
-    //Eventhandler to show the course description of a selected course.
-      selected_program = this.id;
-    });
   }
 }
 
-// Returns an array of programs from back-end (lavholsb)
-function sync_list_programs(){
-    var programs;
-    var url = apiprogram('list');
-    $.ajax({
-        url: url,
-        success: function(data){ programs  = data.programs; },
-        dataType: 'json',
-        async: false });
-    return programs;
-}
+// // Returns an array of programs from back-end (lavholsb)
+// function sync_list_programs(){
+//     var programs;
+//     var url = apiprogram('list');
+//     $.ajax({
+//         url: url,
+//         success: function(data){ programs  = data.programs; },
+//         dataType: 'json',
+//         async: false });
+//     return programs;
+// }
 
 /*
   Name: list_programs
@@ -213,6 +209,11 @@ function delete_program(program_id){
     })
 }
 
+// update information globally refreshes the page
+$('#refreshcontent').click(function() {
+    location.reload(true);
+});
+
 $("#programs").on("mousedown", ".program-item", function (){
     $('.program-item').removeClass('active');
     $(this).addClass('active');
@@ -222,6 +223,7 @@ $("#programs").on("mousedown", ".program-item", function (){
 $("#PE-program-list").on("mousedown", ".program-item", function (){
     $('.program-item').removeClass('active');
     $(this).addClass('active');
+    selected_program = this.id;
     $('#delete_program_button').empty()
     $('#delete_program_button').append("<button class=\"btn btn-danger btn-lg\" onclick=\"delete_program(\'" + this.id + "\')\">Delete Program</button>")
     list_courses_by_program("#PE-course-list", this.id);
