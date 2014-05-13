@@ -22,7 +22,9 @@ function get_requests() {
 function requests_list() {
 	var json_data = get_requests();
 	return $.map(json_data, function(value) {
-		var row = $("<tr><td> message: " + value.message + " sender: " + value.sender + "</td></tr>");
+		var message = value.message;
+		var sender = value.sender;
+		var row = $("<tr><td message=" + message + " sender=" + sender + " class='request-event'> Request from: " + sender + "</td></tr>");
 		return row;
 	});
 }
@@ -43,4 +45,9 @@ function populate_table(table_id, table_data) {
 $(document).ready(function() {
 	// show requests list
 	populate_table("requests-list", requests_list());
+	$(".request-event").click(function(){
+		var description = $(this).attr('message');
+		$("#request-description").empty();
+		$("#request-description").append(description);
+	});
 });
