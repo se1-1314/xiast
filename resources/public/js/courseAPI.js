@@ -240,34 +240,30 @@ function create_course(){
     return false;
 }
 
-function delete_course(){
-
-    var form = $("#delete_course_form")[0];
-
-    var course_code = form.course_code.value;
+// written by Anders
+function delete_course(course_code){
 
     url = apicourse("del").concat("/" + course_code);
 
     $.ajax({
-        type : "DELETE",
-        url : url,
-        success : function(data) {console.info(data)}
+        type: "DELETE",
+        url: url,
+        success: function (data) {console.info(data)}
     })
-
-    return false;
 }
 
 
 $("#courses").on("mousedown", ".course-item", function (){
     $('.course-item').removeClass('active');
     $(this).addClass('active');
-    get_course_info("#course-info", this.id);
 })
 
 $("#PE-course-list").on("mousedown", ".course-item", function (){
     $('.course-item').removeClass('active');
     $(this).addClass('active');
+    get_course_info("#course-info", this.id);
     //  $('#remove_course_button').empty()
     //  $('#remove_course_button').append("<button class=\"btn btn-danger btn-lg\" onclick=\"remove_course_from_program(\'" + this.id + "\')\">Remove course</button>")
-    get_course_info("#course-info", this.id);
+    $('#delete_course_button').empty()
+    $('#delete_course_button').append("<button class=\"btn btn-danger btn-lg\" onclick=\"delete_course(\'" + this.id + "\')\">Delete Course</button>")
 })

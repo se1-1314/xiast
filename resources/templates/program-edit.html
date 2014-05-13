@@ -43,7 +43,7 @@
 			</div>
 			<!-- <button type="button" class="btn btn-primary">Add/Remove Course</button> -->
 			<div class="col-md-5" id="create_course_button">
-				<a data-toggle="modal" href="#NewCourse" class="btn btn-success btn-lg" id="AddCourse">Create </br> hihi</a>
+				<a data-toggle="modal" href="#NewCourse" class="btn btn-success btn-lg" id="AddCourse">Add Course</a>
 			</div>
 			<div  class="col-md-5" id="delete_course_button"></div>
 
@@ -89,8 +89,7 @@
 		</div>
 	</div>
 
-	<!-- modal form courses creation
-		 TODO: add course to current selected program -->
+	<!-- modal form courses creation -->
 
 	<div class="modal fade" id="NewCourse" tabindex="-1" role="dialog" aria-labelledby="create_course_form" aria-hidden="true">
 
@@ -98,16 +97,9 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<ul class="nav nav-tabs">
-						<li class="active"><a href="#create" data-toggle="tab">Create</a></li>
-						<li><a href="#delete" data-toggle="tab">Delete</a></li>
-					</ul>
+					<h4 class="modal-title" id="myModalLabel">Create course</h4>
 				</div>
 				<div class="modal-body">
-					<div class="tab-content">
-						<div class="tab-pane active" id="create">
-
-
 					<form class="form" id="create_course_form" onsubmit="return create_course()">
 						<div class="form-group">
 							<label class="control-label" for="CourseCode">Course Code</label>
@@ -155,17 +147,6 @@
 						</div>
 						<button type="button" id="CreateCourse" class="btn btn-primary">Create course</button>
 					</form>
-				</div>
-				<div class="tab-pane" id="delete">
-					<form class="form" id="delete_course_form" onsubmit="return delete_course()">
-						<div class="form-group">
-							<label class="control-label" for="course_code">Departement</label>
-							<input id="course_code" name="course_code" type="text" class="form-control" placeholder="course_code" required>
-						</div>
-						<button type="button" id="DeleteCourse" class="btn btn-primary" onclick="delete_course()">Delete</button>
-					</form>
-				</div>
-				</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
