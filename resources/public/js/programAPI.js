@@ -84,6 +84,8 @@ function process_JSON_program(divID, key){
   Author: Kwinten Pardon
   Date: 01/04/2014
 */
+// TODO !! list en find moeten uit elkaar gehaald worden, na het "zoeken" naar programma's worden geen 
+// vakken meer gedisplayed noch descriptions
 function list_programs(divID, keyword){
 
     try {
