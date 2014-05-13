@@ -34,20 +34,26 @@ function requests_list() {
 function populate_table(table_id, table_data) {
 	// Delete all rows except header
 	$("#" + table_id + " tbody").empty();
-	// Poulate table with requests
+	// Populate table with requests
 	table_data.forEach(function(row) {
 		$("#" + table_id + " tbody").append(row);
 	});
 	//select_element.onchange = callback_function;
 }
 
+function show_request_description(description) {
+	$("#request-description").empty();
+	$("#request-description").append("<table><tr><th>Request description:</th></tr><tr><td>" + description + "</td></tr></table> <br />");
+	$("#request-description").show();
+}
+
 
 $(document).ready(function() {
+	$("#request-description").hide();
 	// show requests list
 	populate_table("requests-list", requests_list());
-	$(".request-event").click(function(){
+	$(".request-event").click(function() {
 		var description = $(this).attr('message');
-		$("#request-description").empty();
-		$("#request-description").append(description);
+		show_request_description(description);
 	});
 });
