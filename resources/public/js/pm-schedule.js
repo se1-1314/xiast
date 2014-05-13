@@ -40,8 +40,6 @@ function populate_table(table_id, table_data) {
 	});
 	//select_element.onchange = callback_function;
 }
-
-
 $(document).ready(function() {
 	// show requests list
 	populate_table("requests-list", requests_list());
