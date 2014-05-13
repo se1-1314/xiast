@@ -52,6 +52,7 @@ function create_calendar(){
     return { new_events: [],
              moved_events: [],
              deleted_block_ids: [],
+             erratic_events: [],
 
              AspectRatio: AspectRatio,
              defaultView: defaultView,
@@ -221,7 +222,7 @@ function delete_button_onclick (){
         alert("Please select an activity to delete");
 }
 
-    // Deletes an event (if exists) from a calendar and its event-lists
+// Deletes an event (if exists) from a calendar and its event-lists
 function delete_event(jqobj, calendar, e){
     if ('schedule_block_id' in e) {
         calendar.deleted_block_ids.push(e.schedule_block_id);
@@ -380,44 +381,40 @@ function current_proposal() {
     return generate_schedule_proposal(c);
 }
 
-$(document).ready(function(){
-    calendar_onload();
-});
 function date_shown_on_calendar(){
     return $('#schedule-content').fullCalendar('getDate');
 }
 
-// For testing (lavholsb)
-// TODO: remove me
+function calendar_go_to_block(sb){
+    $("#schedule-content").fullCalendar(
+        "gotoDate",
+        VUB_time_to_date(sb.week, sb.day, sb["first-slot"]));
+}
+var error_color = "red";
 
+function mark_erratic_blocks(err_blocks) {
+    // Map over existing events in calendar and change color of each
+    // one, then rerender
+    c.events.forEach(function(e){
+        var sb = event_to_schedule_block(e);
+        err_blocks.forEach(function(err_sb){
+            if (_.isEqual(sb, err_sb)) {
+                e.color = error_color;
+                c.erratic_events.push(e);
+                $("#schedule-content").fullCalendar("rerenderEvents")
+            }
+        });
+    });
+}
 
- function create_test_event(){
+function unmark_erratic_blocks() {
+    c.erratic_events.forEach(function(e){
+        delete e.color;
+        $("#schedule-content").fullCalendar("rerenderEvents")
+    });
+    c.erratic_events = [];
+}
 
-     // fetch the form by id
-
-     var form = $("#event-creation")[0];
-
-
-
-     var sb = new Object();
-     sb.room = new Object();
-    sb.item = new Object();
-
-
-    sb.week = +form.week.value;
-     sb.day = +form.day.value;
-     sb['first-slot'] = +form.first_slot.value;
-     sb['last-slot'] = +form.last_slot.value;
-     sb.item["course-activity"] = +form.course_activity.value;
-     sb.item["course-code"] = form.course_code.value;
-     sb.room.building = form.building.value;
-     sb.room.floor = +form.floor.value;
-    sb.room.number = +form.number.value;
-     if (true){
-       add_new_schedule_block($("#schedule-content"), c ,sb);
-         //form.reset();
-     }
-    else {
-        alert("Invalid form");
-    }
- }
+$(document).ready(function(){
+    calendar_onload();
+});
