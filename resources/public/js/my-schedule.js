@@ -104,9 +104,24 @@ function fill_room_list(room_ids){
     });
 }
 function load_schedule_check_result(res){
+    unmark_erratic_blocks();
     mark_erratic_blocks(res.concerning);
     calendar_go_to_block(res.concerning[0]);
 }
+function load_schedule_check_results(results){
+    var error_log = $("#error-log");
+    // Populate error log
+    // Remove all rows except header row
+    error_log.find("tr:gt(0)").remove();
+    // Add new rows
+    results.forEach(function(r){
+        var row = $('<tr class="danger"><td>'+r.type+'</td></tr>');
+        row.click(function(){
+            load_schedule_check_result(r);});
+        error_log.append(row);
+    });
+}
+
 $(document).ready(function(){
     // Fill day+start-slot combinations
     $.getJSON("/api/room/list", function(data){
