@@ -221,9 +221,9 @@
 
 (s/defn schedule-proposal-message-list :- [xs/ScheduleProposalMessage]
   ([manager :- xs/PersonID]
-     (schedule-proposal-message-list manager false))
+     (schedule-proposal-message-list manager nil))
   ([manager :- xs/PersonID
-    status :- xs/ScheduleProposalMessageStatus]
+    status :- (s/maybe xs/ScheduleProposalMessageStatus)]
      (let [programs
            (set (map :id (select program
                                  (where {:manager manager})
