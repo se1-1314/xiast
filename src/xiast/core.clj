@@ -238,7 +238,7 @@
 
 (defsnippet my-schedule-program-manager-body "templates/my-schedule.html" [:.program-manager] [])
 (defsnippet my-schedule-titular-body "templates/my-schedule.html" [:.titular] [])
-(defsnippet my-schedule-student-body "templates/my-schedule.html" [:.my-student] [])
+(defsnippet my-schedule-student-body "templates/my-schedule.html" [:.student] [])
 
 (defroutes my-schedule-routes
   (GET "/my-schedule" []
