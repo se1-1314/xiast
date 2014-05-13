@@ -105,6 +105,9 @@ function fill_room_list(room_ids){
         $("#room-floor").append(opt);
     });
 }
+function load_schedule_check_result(res){
+    calendar_go_to_block(res.concerning[0]);
+}
 $(document).ready(function(){
     // Fill day+start-slot combinations
     $.getJSON("/api/room/list", function(data){
