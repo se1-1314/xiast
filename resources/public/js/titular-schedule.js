@@ -11,14 +11,16 @@ function send_proposal_with_message(snd, prop, msg) {
 }
 
 $(document).ready(function(){
+	// show modal
     $("#send-proposal").click(function(){
         $("#send-proposal-event").modal("show");
     });
-    $("#send").click(function(){
-        console.log("ajax twice");
+    // send proposal 
+    $("#send-activity").click(function(){
         var proposal = generate_schedule_proposal(c);
         var titular = "titular";
         var message = $("#message").val();
         send_proposal_with_message(titular, proposal, message);
     });
+    
 });
