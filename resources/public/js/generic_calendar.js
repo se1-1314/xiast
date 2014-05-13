@@ -49,6 +49,7 @@ function create_calendar(){
     return { new_events: [],
              moved_events: [],
              deleted_block_ids: [],
+             erratic_events: [],
 
              AspectRatio: AspectRatio,
              defaultView: defaultView,
@@ -355,9 +356,40 @@ function current_proposal() {
     return generate_schedule_proposal(c);
 }
 
-$(document).ready(function(){
-    calendar_onload();
-});
 function date_shown_on_calendar(){
     return $('#schedule-content').fullCalendar('getDate');
 }
+
+function calendar_go_to_block(sb){
+    $("#schedule-content").fullCalendar(
+        "gotoDate",
+        VUB_time_to_date(sb.week, sb.day, sb["first-slot"]));
+}
+var error_color = "red";
+
+function mark_erratic_blocks(err_blocks) {
+    // Map over existing events in calendar and change color of each
+    // one, then rerender
+    c.events.forEach(function(e){
+        var sb = event_to_schedule_block(e);
+        err_blocks.forEach(function(err_sb){
+            if (_.isEqual(sb, err_sb)) {
+                e.color = error_color;
+                c.erratic_events.push(e);
+                $("#schedule-content").fullCalendar("rerenderEvents")
+            }
+        });
+    });
+}
+
+function unmark_erratic_blocks() {
+    c.erratic_events.forEach(function(e){
+        delete e.color;
+        $("#schedule-content").fullCalendar("rerenderEvents")
+    });
+    c.erratic_events = [];
+}
+
+$(document).ready(function(){
+    calendar_onload();
+});

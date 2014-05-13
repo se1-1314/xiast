@@ -148,6 +148,24 @@
     (map schedule-block->sScheduleBlock
          (mapcat identity schedule-blocks))))
 
+(s/defn titular-schedule :- xs/Schedule
+  [titular :- xs/PersonID
+   timespan :- xs/TimeSpan]
+  (let [blocks (select schedule-block
+                       (join course-activity
+                             (= :course-activity :course-activity.id))
+                       (join course
+                             (= :course-activity.course-code
+                                :course.course-code))
+                       (where (and {:week [>= (first (:weeks timespan))]
+                                    :day [>= (first (:days timespan))]
+                                    :first-slot [>= (first (:slots timespan))]}
+                                   {:week [<= (second (:weeks timespan))]
+                                    :day [<= (second (:days timespan))]
+                                    :last-slot [<= (second (:slots timespan))]}
+                                   {:course.titular-id titular})))]
+    (map schedule-block->sScheduleBlock blocks)))
+
 ;; TODO: Put this in schedule and refactor
 (s/defn schedule-proposal-apply! :- s/Any
   [proposal :- xs/ScheduleProposal]
