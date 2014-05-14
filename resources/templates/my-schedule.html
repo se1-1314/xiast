@@ -4,13 +4,13 @@
 			<div id="schedule-content" class="program-manager titular student col-md-9"></div>
 			<div class="program-manager">
 				<div id="requests" class="col-md-3">
-					<table id="requests-list" class="table table-striped table-responsive table-condensed table-hover">
+					<table id="requests-list" class="table table-striped table-responsive table-condensed table-hover table-bordered">
 						<thead>
 							<tr>
 								<th>Requests</th>
 							</tr>
 						</thead>
-						<tbody>
+						<tbody id="requests-list-body">
 							<tr>
 								<td>Request 1</td>
 							</tr>
@@ -25,14 +25,13 @@
 				</div>
 			</div>
 
-			<div class="program-manager row">
+			<div class="program-manager">
 				<div id="request-description" class="col-md-3"></div>
 			</div>
 
 			<div class="titular program-manager row">
-				<div class="col-md-3">
-					<table id="error-log"
-                 class="table table-striped table-responsive table-condensed table-hover">
+				<div id="error-log" class="col-md-3">
+					<table class="table table-striped table-responsive table-condensed table-hover table-bordered">
 						<tr class="danger">
 							<th>Error log</th>
 						</tr>
@@ -49,7 +48,7 @@
 						<button type="button" class="btn btn-primary">
 							Edit
 						</button>
-						<button type="button" class="btn btn-primary">
+						<button id="delete_button" type="button" class="btn btn-primary">
 							Delete
 						</button>
 						<button type="button" class="btn btn-primary">
@@ -194,4 +193,5 @@
 			</div>
 
 		</div>
+	</div>
 </html>
