@@ -15,9 +15,6 @@ var evt_prop = {
 var erratic_events = [];
 var selected_event = null;
 
-var event_default_color = "#3a87ad";
-var event_selection_color = "#5bc0de";
-
 // MISC FUNCTIONS
 //------------------------------------------------------------------------------
 function remove_from_array(events, event) {
