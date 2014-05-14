@@ -421,7 +421,7 @@
    (some #{:program-manager} (:user-functions *session*))
    {:schedule (query/program-manager-schedule (:user *session*) timespan)}
    (some #{:titular} (:user-functions *session*))
-   {:shedule (query/titular-schedule (:user *session*) timespan)}
+   {:schedule (query/titular-schedule (:user *session*) timespan)}
    :else
    {:schedule []}))
 
