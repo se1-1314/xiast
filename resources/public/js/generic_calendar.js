@@ -265,7 +265,8 @@ function unmark_erratic_blocks() {
     erratic_events = [];
 }
 
-
+// PAGE-BUTTON INVOKES
+//------------------------------------------------------------------------------
 $(document).ready(function() {
     calendar = $("#schedule-content");
     // Renders a calendar variable to a calendar view and displays it on the screen
@@ -288,7 +289,12 @@ $(document).ready(function() {
         hiddenDays: [0],
         eventDurationEditable: false
     });
+
     $("#delete_button").click(function() {
         delete_event(selected_event);
     });
+
+    $("#reset_button").click(function(){
+    calendar_reset();
+        });
 });
