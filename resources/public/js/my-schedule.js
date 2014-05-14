@@ -31,7 +31,7 @@ function course_activities(c){
             activity_name: a.name};});
 }
 
-function fill_activity_list(activity_list){
+function fill_activity_list(){
     // <select> list
     var activity_list = $("#course-activities");
     var activities = _.flatten(users_schedulable_courses().map(course_activities),
@@ -91,7 +91,7 @@ function create_event(){
              floor: +room.floor,
              number: +room.number}};
     // FIXME
-    add_new_schedule_block($("#schedule-content"), c, schedule_block);
+    add_new_schedule_block(schedule_block);
 }
 function fill_room_list(room_ids){
     room_ids.map(function(rid){
@@ -141,7 +141,7 @@ $(document).ready(function(){
                  days: days,
                  slots: [1, 26]},
                 duration,
-                +activity.value,
+                    +activity.value,
                 current_proposal(),
                 fill_schedule_block_suggestions);
     });

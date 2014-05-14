@@ -17,7 +17,7 @@ $(document).ready(function(){
     });
     // send proposal 
     $("#send-activity").click(function(){
-        var proposal = generate_schedule_proposal(c);
+        var proposal = generate_schedule_proposal();
         var titular = "titular";
         var message = $("#message").val();
         send_proposal_with_message(titular, proposal, message);
