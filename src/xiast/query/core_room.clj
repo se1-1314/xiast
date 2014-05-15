@@ -56,6 +56,24 @@
               (values {:room key
                        :facility facility})))))
 
+(s/defn room-edit! :- s/Any
+  [sroom :- xs/Room]
+  (println sroom)
+  (if-let [room-id ((comp :id first)
+                    (select room
+                            (where (:id sroom))))]
+    (do (delete room-facility
+                (where {:room room-id}))
+        (update room
+                (where {:id room-id})
+                (set-fields {:capacity (:capacity sroom)}))
+        (doseq [facility (map #(% (map-invert room-facilities))
+                              (:facilities sroom))]
+          (insert room-facility
+                  (values {:room room-id
+                           :facility facility}))))
+    (throw+ {:error "Room does not exist"})))
+
 (s/defn room-delete! :- s/Any
   [room-id :- xs/RoomID]
   "Delete a room from the database."

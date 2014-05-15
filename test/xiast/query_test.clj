@@ -9,6 +9,7 @@
   (:use [korma.db]
         [korma.core]
         [xiast.config :only [config]]
+        [clojure.set :only [map-invert]]
         [xiast.database]))
 
 (defdb test-db
@@ -30,7 +31,8 @@
   '(room room-facility course course-activity course-activity-facility
          course-enrollment course-instructor department program person
          program-choice-course program-mandatory-course room room-facility
-         subscription session schedule-block schedule-proposal-message))
+         subscription session schedule-block schedule-proposal-message
+         schedule-proposal-message-programs))
 
 (defn wrap-with-test-database
   [f]
@@ -83,9 +85,6 @@
 (def test-schedules
   (list xms/ba_cw1_schedule
         xms/ba_cw3_schedule))
-
-(def test-schedule-blocks
-  (mapcat identity test-schedules))
 
 ;; TESTS
 
@@ -153,38 +152,28 @@
         (doseq [test-program test-programs]
           (query/program-add! test-program)(flush)) => irrelevant))
 
-(defn schedule-test []
+(defn schedule-test [test-schedule-blocks]
   (fact "schedule-block-add!"
         (is (thrown? Exception (query/schedule-block-add! {:test 1}))) => irrelevant
         (doseq [schedule-block test-schedule-blocks]
           (query/schedule-block-add! schedule-block)) => irrelevant))
 
-(def test-proposal
-  {:new #{{:week 1
-           :day 1
-           :first-slot 0
-           :last-slot 1
-           :item {:type :HOC :course-activity 0 :course-id "nil"}
-           :room {:building "F" :floor 1 :number 1}}}})
-
-(def test-message
-  {:titular "testuser"
-   :proposal test-proposal})
-
 (defn schedule-proposal-message-test
-  []
-  (let [program-id (rand-nth (map :id (query/program-list)))]
+  [test-proposal
+   test-message]
+  (let [program-id (rand-nth (map :id (query/program-list)))
+        manager ((comp :manager first)
+                 (select program
+                         (where {:id program-id})))]
     (fact "schedule-proposal-message-add!"
-         (is (thrown? Exception
-                      (query/schedule-proposal-message-add! 0 0 0)))
-         => irrelevant
-         (is (thrown? Exception
-                      (query/schedule-proposal-message-add! "test" 0 {:test 1})))
-         => irrelevant
-         (query/schedule-proposal-message-add! "testuser" program-id test-proposal)
-         => irrelevant
-         (map #(dissoc % :id) (query/schedule-proposal-message-get program-id))
-         => (list (assoc test-message :program program-id)))))
+          (is (thrown? Exception
+                       (query/schedule-proposal-message-add! 0)))
+          => irrelevant
+          (query/schedule-proposal-message-add! test-message)
+          => irrelevant
+          (map #(dissoc % :id)
+               (query/schedule-proposal-message-list manager))
+          => (list (assoc test-message :status :inprogress)))))
 
 (s/deftest query-tests
   (room-test)
@@ -192,5 +181,32 @@
   (department-test)
   (course-test)
   (program-test)
-  (schedule-test)
-  (schedule-proposal-message-test))
+  (schedule-test
+   (map (fn [sb]
+          (let [cc (:course-id (:item sb))
+                type ((:type (:item sb)) (map-invert xs/course-activity-types))
+                id ((comp :id first)
+                    (select course-activity
+                            (fields :id)
+                            (where {:course-code cc
+                                    :type type})))]
+            (assoc (dissoc sb :item)
+              :item {:course-id cc
+                     :course-activity id})))
+        (mapcat identity test-schedules)))
+  (let [ca
+        (first (select course-activity))
+        test-proposal
+        {:new #{{:week 1
+                 :day 1
+                 :first-slot 0
+                 :last-slot 1
+                 :item {:course-activity (:id ca)
+                        :course-id (:course-code ca)}
+                 :room {:building "F" :floor 1 :number 1}}}}
+        test-message
+        {:sender "testuser"
+         :proposal test-proposal
+         :message "Hey you"}]
+    (schedule-proposal-message-test test-proposal
+                                    test-message)))

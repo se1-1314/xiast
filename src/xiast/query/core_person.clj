@@ -72,3 +72,10 @@
                   :last-name ""
                   :locale "en"}))
   netid)
+
+(s/defn person-locale! :- s/Any
+  [netid :- xs/PersonID
+   locale :- s/Str]
+  (update person
+          (set-fields {:locale locale})
+          (where {:netid netid})))
