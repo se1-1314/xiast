@@ -63,6 +63,7 @@
 (deftemplate base "templates/layout.html"
   [body & {:keys [title alert]}]
   [:html :> :head :> :title] (content title)
+  [:div#menu] #(t/translate-nodes %)
   [:li#my-schedule] (cond
                      (contains? (set (:user-functions *session*)) :program-manager) identity
                      (contains? (set (:user-functions *session*)) :student) identity
