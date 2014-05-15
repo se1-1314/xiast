@@ -63,7 +63,12 @@
 (deftemplate base "templates/layout.html"
   [body & {:keys [title alert]}]
   [:html :> :head :> :title] (content title)
-  [:div#menu] #(t/translate-nodes %)
+  [:.guest] (cond
+            (contains? (set (:user-functions *session*)) :program-manager) nil
+            (contains? (set (:user-functions *session*)) :student) nil
+            (contains? (set (:user-functions *session*)) :titular) nil
+            :else identity)
+  ;;[:div#menu] #(t/translate-nodes %)
   [:.non-guest] (cond
                  (contains? (set (:user-functions *session*)) :program-manager) identity
                  (contains? (set (:user-functions *session*)) :student) identity
@@ -129,6 +134,14 @@
   (GET "/about" []
        (base (-> (about-body)
                  (t/translate-nodes)))))
+
+(defsnippet schedules-body "templates/schedules.html" [:div#page-content] [] identity)
+
+(defroutes schedules-routes
+  (GET "/schedules" []
+       (base (->
+              (schedules-body)
+              (t/translate-nodes)))))
 
 (defsnippet my-schedule-program-manager-body "templates/my-schedule.html" [:.program-manager] [])
 (defsnippet my-schedule-titular-body "templates/my-schedule.html" [:.titular] [])
@@ -230,6 +243,7 @@
   (context "/api" [] api-routes)
   index-routes
   about-routes
+  schedules-routes
   my-schedule-routes
   curriculum-info-routes
   program-edit-routes
