@@ -68,7 +68,7 @@
             (contains? (set (:user-functions *session*)) :student) nil
             (contains? (set (:user-functions *session*)) :titular) nil
             :else identity)
-  [:div#menu] #(t/translate-nodes %)
+  ;;[:div#menu] #(t/translate-nodes %)
   [:.non-guest] (cond
                  (contains? (set (:user-functions *session*)) :program-manager) identity
                  (contains? (set (:user-functions *session*)) :student) identity
