@@ -64,26 +64,20 @@
   [body & {:keys [title alert]}]
   [:html :> :head :> :title] (content title)
   [:div#menu] #(t/translate-nodes %)
-  [:li#my-schedule] (cond
-                     (contains? (set (:user-functions *session*)) :program-manager) identity
-                     (contains? (set (:user-functions *session*)) :student) identity
-                     (contains? (set (:user-functions *session*)) :titular) identity
-                     :else nil)
-  [:li#curriculum-info] (if (contains? (set (:user-functions *session*)) :student)
-                          identity
-                          nil)
-  [:li#semi-scheduling] (if (contains? (set (:user-functions *session*)) :titular)
-                          identity
-                          nil)
-  [:li#schedule-nav] (if (contains? (set (:user-functions *session*)) :program-manager)
-                       identity
-                       nil)
-  [:li#classroom-edit] (if (contains? (set (:user-functions *session*)) :program-manager)
-                         identity
-                         nil)
-  [:li#program-edit] (if (contains? (set (:user-functions *session*)) :program-manager)
-                       identity
-                       nil)
+  [:.non-guest] (cond
+                 (contains? (set (:user-functions *session*)) :program-manager) identity
+                 (contains? (set (:user-functions *session*)) :student) identity
+                 (contains? (set (:user-functions *session*)) :titular) identity
+                 :else nil)
+  [:.student] (if (contains? (set (:user-functions *session*)) :student)
+           identity
+           nil)
+  [:.titular] (if (contains? (set (:user-functions *session*)) :titular)
+            identity
+            nil)
+  [:.program-manager] (if (contains? (set (:user-functions *session*)) :program-manager)
+          identity
+          nil)
   [:div#page-content] (content body)
   [:li#login-out] (html-content (if-let [user (:user *session*)]
                                   (logged-in-link user)
@@ -136,6 +130,20 @@
        (base (-> (about-body)
                  (t/translate-nodes)))))
 
+(defsnippet my-schedule-program-manager-body "templates/my-schedule.html" [:.program-manager] [])
+(defsnippet my-schedule-titular-body "templates/my-schedule.html" [:.titular] [])
+(defsnippet my-schedule-student-body "templates/my-schedule.html" [:.student] [])
+
+(defroutes my-schedule-routes
+  (GET "/my-schedule" []
+       (base (->
+              (cond
+               (contains? (set (:user-functions *session*)) :program-manager) (my-schedule-program-manager-body)
+               (contains? (set (:user-functions *session*)) :student) (my-schedule-student-body)
+               (contains? (set (:user-functions *session*)) :titular) (my-schedule-titular-body)
+               :else nil)
+              (t/translate-nodes)))))
+
 (defsnippet curriculum-info-body "templates/curriculum-info.html" [:div#page-content]
   []
   identity)
@@ -143,15 +151,6 @@
 (defroutes curriculum-info-routes
   (GET "/curriculum-info" []
        (base (-> (curriculum-info-body)
-                 (t/translate-nodes)))))
-
-(defsnippet semi-scheduling-body "templates/semi-scheduling.html" [:div#page-content]
-  []
-  identity)
-
-(defroutes semi-scheduling-routes
-  (GET "/semi-scheduling" []
-       (base (-> (semi-scheduling-body)
                  (t/translate-nodes)))))
 
 (defsnippet program-edit-body "templates/program-edit.html" [:div#page-content]
@@ -171,6 +170,27 @@
   (GET "/classroom-edit" []
        (base (-> (classroom-edit-body)
                  (t/translate-nodes)))))
+
+(defn- block-time->time-str [t]
+  (str (+ 7 (quot (- t 1) 2))
+       ":"
+       (if (= 0 (mod (- t 1) 2))
+         "00"
+         "30")))
+
+(defsnippet profile-student-body "templates/profile-student.html" [:div#page-content] [] identity)
+(defsnippet profile-titular-body "templates/profile-titular.html" [:div#page-content] [] identity)
+(defsnippet profile-program-manager-body "templates/profile-program-manager.html" [:div#page-content] [] identity)
+
+(defroutes profile-routes
+  (GET "/profile" []
+       (base (->
+              (cond
+               (contains? (set (:user-functions *session*)) :student) (profile-student-body)
+               (contains? (set (:user-functions *session*)) :titular) (profile-titular-body)
+               (contains? (set (:user-functions *session*)) :program-manager) (profile-program-manager-body)
+               :else nil)
+              (t/translate-nodes)))))
 
 (defsnippet login-body "templates/login.html" [:div#page-content]
   []
@@ -198,65 +218,6 @@
          (assoc (resp/redirect "/") :session (auth/logout *session*))
          (assoc (resp/redirect "/")))))
 
-(defn- block-time->time-str [t]
-  (str (+ 7 (quot (- t 1) 2))
-       ":"
-       (if (= 0 (mod (- t 1) 2))
-         "00"
-         "30")))
-
-(defsnippet schedule-body "templates/schedule.html" [:div#page-content] []
-  identity
-  )
-
-;; FIXME, hack?
-(defn- schedule-page [schedule-blocks]
-  (base (-> (schedule-body schedule-blocks)
-            (t/translate-nodes))))
-
-(defroutes schedule-routes
-  (GET "/timetables" []
-       (base (-> (schedule-body)
-                 (t/translate-nodes))))
-  (GET "/schedule" []
-       (base (-> (schedule-body)
-                 (t/translate-nodes)))))
-
-
-(defsnippet profile-student-body "templates/profile-student.html" [:div#page-content]
-  []
-  identity)
-(defsnippet profile-titular-body "templates/profile-titular.html" [:div#page-content]
-  []
-  identity)
-(defsnippet profile-program-manager-body "templates/profile-program-manager.html" [:div#page-content]
-  []
-  identity)
-
-(defroutes profile-routes
-  (GET "/profile" []
-       (base (->
-              (cond
-               (contains? (set (:user-functions *session*)) :student) (profile-student-body)
-               (contains? (set (:user-functions *session*)) :titular) (profile-titular-body)
-               (contains? (set (:user-functions *session*)) :program-manager) (profile-program-manager-body)
-               :else nil)
-              (t/translate-nodes)))))
-
-(defsnippet my-schedule-program-manager-body "templates/my-schedule.html" [:.program-manager] [])
-(defsnippet my-schedule-titular-body "templates/my-schedule.html" [:.titular] [])
-(defsnippet my-schedule-student-body "templates/my-schedule.html" [:.student] [])
-
-(defroutes my-schedule-routes
-  (GET "/my-schedule" []
-       (base (->
-              (cond
-               (contains? (set (:user-functions *session*)) :program-manager) (my-schedule-program-manager-body)
-               (contains? (set (:user-functions *session*)) :student) (my-schedule-student-body)
-               (contains? (set (:user-functions *session*)) :titular) (my-schedule-titular-body)
-               :else nil)
-              (t/translate-nodes)))))
-
 (defroutes language-routes
   (GET "/lang/:locale" [locale]
        (if (:user *session*)
@@ -269,15 +230,13 @@
   (context "/api" [] api-routes)
   index-routes
   about-routes
-  login-routes
-  schedule-routes
-  language-routes
+  my-schedule-routes
   curriculum-info-routes
-  semi-scheduling-routes
   program-edit-routes
   classroom-edit-routes
   profile-routes
-  my-schedule-routes
+  login-routes
+  language-routes
   (route/not-found "Not found!"))
 
 
