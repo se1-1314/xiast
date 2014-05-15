@@ -446,17 +446,16 @@
 
 (defn schedule-get
   [timespan]
-  (cond
-   (some #{:instructor} (:user-functions *session*))
-   {:schedule (query/instructor-schedule (:user *session*) timespan)}
-   (some #{:student} (:user-functions *session*))
-   {:schedule (query/student-schedule (:user *session*) timespan)}
-   (some #{:program-manager} (:user-functions *session*))
-   {:schedule (query/program-manager-schedule (:user *session*) timespan)}
-   (some #{:titular} (:user-functions *session*))
-   {:schedule (query/titular-schedule (:user *session*) timespan)}
-   :else
-   {:schedule []}))
+  ()
+  {:schedule
+   (concat (if (some #{:instructor} (:user-functions *session*))
+             (query/instructor-schedule (:user *session*) timespan))
+           (if (some #{:student} (:user-functions *session*))
+             (query/student-schedule (:user *session*) timespan))
+           (if (some #{:program-manager} (:user-functions *session*))
+             (query/program-manager-schedule (:user *session*) timespan))
+           (if (some #{:titular} (:user-functions *session*))
+             (query/titular-schedule (:user *session*) timespan)))})
 
 (defn schedule-student-get
   [timespan]
