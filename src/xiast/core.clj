@@ -82,7 +82,7 @@
                          nil)
   [:li#program-edit] (if (contains? (set (:user-functions *session*)) :program-manager)
                        identity
-                       nil) 
+                       nil)
   [:div#page-content] (content body)
   [:li#login-out] (html-content (if-let [user (:user *session*)]
                                   (logged-in-link user)
@@ -258,6 +258,8 @@
 
 (defroutes language-routes
   (GET "/lang/:locale" [locale]
+       (if (:user *session*)
+         (query/person-locale! (:user *session*) locale))
        (assoc (resp/redirect "/")
          :session (assoc *session* :locale locale))))
 
