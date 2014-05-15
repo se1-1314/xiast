@@ -177,7 +177,7 @@ function calendar_remove_event(e){
 function calendar_reset(){
     calendar.fullCalendar('removeEvents');
     current_proposal = the_empty_proposal;
-    calendar.fullCalendar('refetchEvens');
+    calendar.fullCalendar('refetchEvents');
 }
 
 // PROPOSALS
@@ -209,13 +209,13 @@ function calendar_replace_proposal(p){
 // SEND
 // Generates a proposal, sends the proposal, and refreshes the
 // calendarview to reset the internal events (lavholsb)
-function send_proposal() {
-    send_schedule_proposal(current_proposal);
-    // destroy_calendar($("#schedule-content"), c);
+function send_apply_request() {
+    skewer.log("send proposal");
+    apply_schedule_proposal(current_proposal);
 }
 
 // Sends a compatible proposal to the back-end scheduler
-function send_schedule_proposal(prop) {
+function apply_schedule_proposal(prop) {
     $.ajax({
         type: 'POST',
         url: '/api/schedule/proposal/apply',
@@ -228,12 +228,6 @@ function send_schedule_proposal(prop) {
         data: JSON.stringify(prop),
         dataType: 'JSON'
     });
-}
-
-
-function send_proposal() {
-    alert("send_proposal");
-    send_schedule_proposal(generate_schedule_proposal());
 }
 
 // Converts array of raw programs to an array of strings:
@@ -316,12 +310,23 @@ $(document).ready(function() {
         hiddenDays: [0],
         eventDurationEditable: false
     });
+    $("#edit_button").click(function() {
+        alert("edit button not yet defined");
+    });
 
     $("#delete_button").click(function() {
         delete_event(selected_event);
     });
 
     $("#reset_button").click(function(){
-    calendar_reset();
-        });
+        calendar_reset();
+    });
+
+    $("#check_button").click(function() {
+        alert("check button not yet defined");
+    });
+
+    $("#apply_button").click(function() {
+        send_apply_proposal();
+    });
 });
