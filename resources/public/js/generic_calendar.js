@@ -1,103 +1,26 @@
 // Global variables
-var AspectRatio = 2;
-var defaultView = 'agendaWeek';
-var header = { left: 'prev,next today',
-               center: 'title',
-               right: 'agendaMonth,agendaWeek,agendaDay'};
-var c;    // Represents the calendar view. Initialized by calendar_onload()
-var current_user = "program-manager";
+// JQuery FullCalendar object
+var calendar;
 
-var event_default_color = "#3a87ad";
-var event_selection_color = "#5bc0de";
+var current_user = "program-manager";
+var error_color = "red";
+var selected_color = "green";
+
+// Proposal management
+var evt_prop = {
+    new_events: [],
+    moved_events: [],
+    deleted_events: [],
+};
+var erratic_events = [];
+var selected_event = null;
 
 // MISC FUNCTIONS
 //------------------------------------------------------------------------------
-function remove_from_array(events, event){
+function remove_from_array(events, event) {
     var idx = events.indexOf(event);
-    if (idx != -1){
+    if (idx != -1) {
         events.splice(idx, 1);
-    }
-}
-
-function is_valid(obj){
-    var result = true;
-    $.each(obj, function(key, value){
-        if (result == false)  {
-            return result;
-        }
-        else if (typeof value == "object"){
-            console.log("object");
-            result = is_valid(value);
-        }
-        else if (typeof value == "undefined"){
-            console.log("undefined");
-            result = false;
-        }
-        else if (value == ""){
-            console.log("empty string");
-            result = false;
-        }
-        else {
-            console.log(typeof value);
-        }
-    });
-    console.log(result);
-    return result;
-}
-
-// CREATE CALENDAR
-//------------------------------------------------------------------------------
-// Returns a Calendar object with drag&drop disabled by default
-function create_calendar(){
-    return { new_events: [],
-             moved_events: [],
-             deleted_block_ids: [],
-             erratic_events: [],
-
-             AspectRatio: AspectRatio,
-             defaultView: defaultView,
-             header: header,
-             events: [],
-             editable: false,
-             allDaySlot: false,
-             snapMinutes: 30,
-             firstHour: 8,
-             minTime: 7,
-             weekends: true,
-             hiddenDays: [7],
-             eventDurationEditable: false };
-}
-
-// Returns a Calendar object with drag&drop enabled
-function create_modifiable_calendar(){
-    var calendar = create_calendar();
-    calendar.editable = true;
-    return calendar;
-}
-
-// Renders a calendar variable to a calendar view and displays it on the screen
-function render_calendar(obj, calendar){
-    try{
-        obj.fullCalendar({
-            aspectRatio: calendar.aspectRatio,
-            defaultView: calendar.defaultView,
-            header: calendar.header,
-            editable: calendar.editable,
-            events: calendar.events,
-            eventDrop: event_dropped(calendar),
-            eventClick: calendar_event_clicked(obj, calendar)
-            // eventClick: calendar_event_click_event(obj, calendar)
-        });
-    } catch(error){
-        console.log(error);
-    }
-}
-
-function destroy_calendar(jqobj, calendar){
-    try{
-        jqobj.fullCalendar('destroy');
-    } catch(error){
-        console.log(error);
     }
 }
 
@@ -106,19 +29,22 @@ function destroy_calendar(jqobj, calendar){
 // Scheduleblocks: for back-end scheduler
 // Events: for front-end full_calendar view
 // Scheduleblock -> Event and Event -> Scheduleblock
-function schedule_block_to_event(b){
+function schedule_block_to_event(b) {
     var e = {
         title: b.item["course-code"],
         start: VUB_time_to_date(b.week, b.day, b["first-slot"]),
         end: VUB_time_to_date(b.week, b.day, b["last-slot"]),
         allDay: false,
         room: b.room,
-        item: b.item };
+        item: b.item,
+        orig: $.extend(true, {}, b)
+    };
     if ('id' in b)
         e.schedule_block_id = b.id;
     return e;
 }
-function event_to_schedule_block(e){
+
+function event_to_schedule_block(e) {
     var start = date_to_VUB_time(e.start);
     var end = date_to_VUB_time(e.end);
     var sb = {
@@ -139,120 +65,69 @@ function event_to_schedule_block(e){
 //------------------------------------------------------------------------------
 // ADD
 //................................................
-// Adds a schedule_block to a given calendar
-// Should only be used ONLOAD()
-function add_schedule_block(calendar, block){
-    return calendar.events.push(schedule_block_to_event(block));
-}
 // Adds a newly created (p.e. from a form) schedule block to the
 // calendar & new_events
-function add_new_schedule_block(jqobj, calendar, b){
+function add_new_schedule_block(b) {
     var e = schedule_block_to_event(b);
-    calendar.new_events.push(e);
-    jqobj.fullCalendar('renderEvent', e, true);
+    evt_prop.new_events.push(e);
+    calendar.fullCalendar('renderEvent', e, true);
 }
-
-// TODO: make a function (in autocomplete.js) which returns a String[] of
-// ?day-slot? suggestions (check with adeliens & aleijnse) to plan an activity
-
-
-// TODO: create a repeat function/variable to keep track
-// of how many weeks a specific activity should be repeated(lavholsb)
-// or fetch this from the form <<<
-
-// TODO: make a function (in autocomplete.js) which returns a String[]
-// roomsuggestions (lavholsb <-> aleijnse)
-
-
 
 // DELETE
 //................................................
 
-// Old function of kwpardon: DEPRECATED
-/*function calendar_event_click_event(jqobj, calendar){
-    return function(calendar_event, js_event, view){
-        var button = "<button id=\"delete_button\"type=\"button\" class=\"btn btn-lg btn-danger\">Delete </br>" + calendar_event.title + "</button>";
-        if (typeof calendar.previous_clicked !== 'undefined'){
-            calendar.previous_clicked.color = event_default_color;
-            $(jqobj).fullCalendar("updateEvent", calendar.previous_clicked);
-        }
-        calendar.previous_clicked = calendar_event;
-        calendar_event.color = event_selection_color;
-        $("#schedule-buttons").empty().append(button);
-        $(jqobj).fullCalendar("updateEvent", calendar_event);
-        $("#delete_button").click(
-            function (){
-                console.info("clicked");
-                delete_event(jqobj, calendar, calendar_event);});
-    }
-}
-*/
-
 // ONCLICK CALLBACK
 // Callback function: when an event has been clicked it will be highlighted
-function calendar_event_clicked(jqobj, calendar){
-    return function(calendar_event, js_event, view){
-        // Deselect if an event has already been selected
-        if (typeof calendar.clicked !== 'undefined'){
-            calendar.clicked.color = event_default_color;
-            $(jqobj).fullCalendar("updateEvent", calendar.clicked);
-        }
-        if (calendar.clicked == calendar_event){
-            calendar.clicked = 'undefined';
-        }
-        else {
-            calendar_event.color = event_selection_color;
-            calendar.clicked = calendar_event;
-            $(jqobj).fullCalendar("updateEvent", calendar_event);
-        }
-        // TODO: highlight the deletebutton (id = "delete-activity") when
-        // an event has been clicked
-    }
-}
-
-// Callback for delete button when clicked:
-// Deletes an event if one selected, else an alert will appear
-// TODO: create a Bootstrap alert instead of a standard js alert
-function delete_button_onclick (){
-    if(typeof c.clicked !== 'undefined' && c.clicked != 'undefined'){
-        delete_event($("#schedule-content") , c, c.clicked);
-        c.clicked = 'undefined';
-    }
-    else
-        alert("Please select an activity to delete");
+function calendar_event_click_event(calendar_event, js_event, view) {
+    if (selected_event != null) delete selected_event.color;
+    calendar_event.color = selected_color;
+    selected_event = calendar_event;
+    calendar.fullCalendar("rerenderEvents");
 }
 
 // Deletes an event (if exists) from a calendar and its event-lists
-function delete_event(jqobj, calendar, e){
+function delete_event(e) {
     if ('schedule_block_id' in e) {
-        calendar.deleted_block_ids.push(e.schedule_block_id);
-        remove_from_array(calendar.moved_events, e);
+        evt_prop.deleted_events.push(e);
+        remove_from_array(evt_prop.moved_events, e);
     } else {
-        remove_from_array(calendar.new_events, e);
+        remove_from_array(evt_prop.new_events, e);
     }
-    jqobj.fullCalendar('removeEvents', function(e1) {return e === e1;});
+    calendar_remove_event(e);
 }
-
 
 // MOVE
 //................................................
-function event_dropped(calendar){
-    // Events without schedule_block_ids are newly created
-    // and are already in the new_events list.
-    var moved_events = calendar.moved_events;
-    return function(event,dayDelta,minuteDelta,allDay,revertFunc){
-        if ('schedule_block_id' in event
-            && !moved_events.some(function(e){
-                return (e.schedule_block_id == event.schedule_block_id);})) {
-            calendar.moved_events.push(event);
-        }};
-}
-// RESET
-//................................................
-function calendar_reset(){
-location.reload();
+function event_dropped(event, dayDelta, minuteDelta, allDay, revertFunc) {
+    // Not a new event and not already in calendar.moved_events
+    if ('schedule_block_id' in event && !evt_prop.moved_events.some(function(e) {
+        return (e.schedule_block_id == event.schedule_block_id);}))
+    {
+        evt_prop.moved_events.push(event);
+    }
 }
 
+// RESET
+//................................................
+function calendar_remove_event(e){
+    calendar.fullCalendar('removeEvents', function(e1) {
+        return e === e1;
+    });
+}
+function calendar_remove_event_add_orig(e){
+    calendar_remove_event(e);
+    calendar.fullCalendar("renderEvent", schedule_block_to_event(e.orig), true);
+}
+function calendar_reset(){
+    // Delete new and moved events
+    evt_prop.new_events.forEach(calendar_remove_event);
+    evt_prop.new_events = [];
+    evt_prop.moved_events.forEach(calendar_remove_event_add_orig);
+    evt_prop.moved_events = [];
+    evt_prop.deleted_events.forEach(calendar_remove_event_add_orig);
+    evt_prop.deleted_events = [];
+    unmark_erratic_blocks();
+}
 
 // PROPOSALS
 //------------------------------------------------------------------------------
@@ -269,102 +144,77 @@ function hack_around_backend_bug(schedule_block) {
 }
 
 // GENERATE
-// Generates a back-end scheduler compatible proposal from a given calendar
-function generate_schedule_proposal(calendar){
+// Generates a back-end scheduler compatible proposal
+function generate_schedule_proposal() {
     return {
-        new: calendar.new_events.map(event_to_schedule_block)
+        new: evt_prop.new_events.map(event_to_schedule_block)
             .map(hack_around_backend_bug),
-        moved: calendar.moved_events.map(event_to_schedule_block)
+        moved: evt_prop.moved_events.map(event_to_schedule_block)
             .map(hack_around_backend_bug),
-        deleted: calendar.deleted_block_ids
+        deleted: evt_prop.deleted_events.map(function(e){
+            return e.schedule_block_id; })
     };
+}
+
+function calendar_replace_proposal(p){
+    calendar_reset();
+    // TODO
 }
 
 // SEND
 // Generates a proposal, sends the proposal, and refreshes the
 // calendarview to reset the internal events (lavholsb)
 function send_proposal() {
-    send_schedule_proposal(generate_schedule_proposal(c));
+    send_schedule_proposal(generate_schedule_proposal());
     // destroy_calendar($("#schedule-content"), c);
-   // calendar_onload();
 }
 
-
-
 // Sends a compatible proposal to the back-end scheduler
-function send_schedule_proposal(prop){
+function send_schedule_proposal(prop) {
     $.ajax({
         type: 'POST',
         url: '/api/schedule/proposal/apply',
 
         // reload the page to clear new/moved/deleted events in fullcalendar
-        success: function() {location.reload();},
+        success: function() {
+            location.reload();
+        },
         contentType: "application/json",
         data: JSON.stringify(prop),
-        dataType: 'JSON'});
+        dataType: 'JSON'
+    });
 }
-
-// ONLOAD
-//------------------------------------------------------------------------------
-// Loads the schedule of the user currently logged in into the calendar
 
 // Returns an array of scheduleblocks, representing
 // the personal schedule of the logged in user
-function get_users_schedule(){
+function get_users_schedule() {
+    var url = "/api/schedule/1/52/1/7/1/24";
     var schedule_blocks;
-    var url ="/api/schedule/1/52/1/7/1/24";
     $.ajax({
+        type: "GET",
         url: url,
+        dataType: 'JSON',
         success: function(data){
-            schedule_blocks  = data.schedule},
-        dataType: 'json',
-        async: false });
+            schedule_blocks = data.schedule;},
+        async: false});
     return schedule_blocks;
 }
-function load_current_user_schedule(c){
-    var scheduleblocks = get_users_schedule();
-    scheduleblocks.forEach(function (sb) {
-        add_schedule_block(c, sb);
-    });
-}
-function calendar_onload(){
-    if(current_user == "guest" || current_user == "student"){
-        c = create_calendar();}
-    else if(current_user == "titular" || current_user == "program-manager"){
-        c = create_modifiable_calendar();}
-
-    load_current_user_schedule(c);
-
-    render_calendar($("#schedule-content"), c);
-}
-
 
 function send_proposal() {
     alert("send_proposal");
-    send_schedule_proposal(generate_schedule_proposal(c));
+    send_schedule_proposal(generate_schedule_proposal());
 }
-
-//$("#apply_button").onclick = send_proposal;
-
-// add_new_schedule_block($("#schedule-content"), c, sb2);
-// add_new_schedule_block($("#schedule-content"), c, sb3);
 
 // Converts array of raw programs to an array of strings:
 // ["program_title -- program_id", ...].
 // To be used in auto-complete list when looking for
 // schedule of a specific program
-function get_program_titles_ids(raw_programs){
-    var titles_ids = new Array();
-    for(var i = 0; i < raw_programs.length; i++){
-        titles_ids[i] = raw_programs[i].title + " -- " + raw_programs[i].id;
-    }
-    return titles_ids;
-}
-
-
-// TODO: Create function which returns a String[] containing
-// courses with their activities(lavholsb)
-function get_courses_courseactivities(){
+function get_program_titles_ids(raw_programs) {
+	var titles_ids = new Array();
+	for (var i = 0; i < raw_programs.length; i++) {
+		titles_ids[i] = raw_programs[i].title + " -- " + raw_programs[i].id;
+	}
+	return titles_ids;
 }
 
 function postJSON(url, data, succes) {
@@ -374,47 +224,77 @@ function postJSON(url, data, succes) {
         data: JSON.stringify(data),
         contentType: "application/json",
         success: succes,
-        dataType: "JSON"});
+        dataType: "JSON"
+    });
 }
 
 function current_proposal() {
-    return generate_schedule_proposal(c);
+	return generate_schedule_proposal();
 }
 
-function date_shown_on_calendar(){
-    return $('#schedule-content').fullCalendar('getDate');
+function date_shown_on_calendar() {
+	return calendar.fullCalendar('getDate');
 }
 
-function calendar_go_to_block(sb){
-    $("#schedule-content").fullCalendar(
-        "gotoDate",
-        VUB_time_to_date(sb.week, sb.day, sb["first-slot"]));
+function calendar_go_to_block(sb) {
+    calendar.fullCalendar(
+        "gotoDate", VUB_time_to_date(sb.week, sb.day, sb["first-slot"]));
 }
-var error_color = "red";
+
 
 function mark_erratic_blocks(err_blocks) {
     // Map over existing events in calendar and change color of each
     // one, then rerender
-    c.events.forEach(function(e){
+    evt_prop.events.forEach(function(e) {
         var sb = event_to_schedule_block(e);
-        err_blocks.forEach(function(err_sb){
+        err_blocks.forEach(function(err_sb) {
             if (_.isEqual(sb, err_sb)) {
                 e.color = error_color;
-                c.erratic_events.push(e);
-                $("#schedule-content").fullCalendar("rerenderEvents")
+                erratic_events.push(e);
+                calendar.fullCalendar("rerenderEvents");
             }
         });
     });
 }
 
 function unmark_erratic_blocks() {
-    c.erratic_events.forEach(function(e){
+    erratic_events.forEach(function(e) {
         delete e.color;
-        $("#schedule-content").fullCalendar("rerenderEvents")
+        calendar.fullCalendar("rerenderEvents");
     });
-    c.erratic_events = [];
+    erratic_events = [];
 }
 
-$(document).ready(function(){
-    calendar_onload();
+// PAGE-BUTTON INVOKES
+//------------------------------------------------------------------------------
+$(document).ready(function() {
+    calendar = $("#schedule-content");
+    // Renders a calendar variable to a calendar view and displays it on the screen
+    calendar.fullCalendar({
+        aspectRatio: 1.6,
+        defaultView: 'agendaWeek',
+        header: { left: 'prev,next today',
+                  center: 'title',
+                  right: 'agendaMonth,agendaWeek,agendaDay' },
+        editable: (current_user == "titular"|| current_user == "program-manager")
+            ? true : false,
+        events: get_users_schedule().map(schedule_block_to_event),
+        eventDrop: event_dropped,
+        eventClick: calendar_event_click_event,
+        allDaySlot: false,
+        snapMinutes: 30,
+        firstHour: 8,
+        minTime: 7,
+        weekends: true,
+        hiddenDays: [0],
+        eventDurationEditable: false
+    });
+
+    $("#delete_button").click(function() {
+        delete_event(selected_event);
+    });
+
+    $("#reset_button").click(function(){
+    calendar_reset();
+        });
 });
