@@ -22,6 +22,15 @@
 					<div>
 						<h2>Description</h2>
 						<div id="room_description"></div>
+						<div id="facilities_description" class="form-group">
+							<label class="control-label" for="room_facilities">Facilities</label>
+							<br />
+							<input id="beamer" type="checkbox" name="beamer" value="beamer">
+							Beamer
+							<br />
+							<input id="overhead-projector" type="checkbox" name="overhead-projector" value="overhead-projector">
+							Overhead-projector
+						</div>
 					</div>
 				</div>
 			</div>
@@ -54,15 +63,15 @@
 						<form role="form">
 							<div class="form-group">
 								<label class="control-label" for="room_number">Number</label>
-								<input id="room_number" class="form-control" type="number" placeholder="1">
+								<input id="room_number" class="form-control" type="number" placeholder="0">
 							</div>
 							<div class="form-group">
 								<label class="control-label" for="room_floor">Floor</label>
-								<input id="room_floor" class="form-control" type="number" placeholder="4">
+								<input id="room_floor" class="form-control" type="number" placeholder="0">
 							</div>
 							<div class="form-group">
 								<label class="control-label" for="room_capacity">Capacity</label>
-								<input id="room_capacity" class="form-control" type="number" placeholder="4">
+								<input id="room_capacity" class="form-control" type="number" placeholder="0">
 							</div>
 							<div class="form-group">
 								<label class="control-label" for="room_facilities">Facilities</label>
@@ -98,7 +107,7 @@
 						<form role="form">
 							<div class="form-group">
 								<label class="control-label" for="room_capacity">Capacity</label>
-								<input id="room_capacity" class="form-control" type="number" placeholder="4">
+								<input id="room_capacity" class="form-control" type="number" placeholder="0">
 							</div>
 							<div class="form-group">
 								<label class="control-label" for="room_facilities">Facilities</label>
