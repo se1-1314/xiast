@@ -109,9 +109,7 @@ function list_programs(divID){
 
 //     return false;
 // }
-// $('#reset_search_button').click(function() {
-//     list_programs("#PE-program-list");
-// });
+
 
 $('#keyword').bind("change keyup", function() {
   searchWord = $(this).val();
