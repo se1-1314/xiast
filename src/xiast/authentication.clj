@@ -42,6 +42,9 @@
     "student" (assoc (query/person-get "student")
                 :user "student"
                 :user-functions #{:student})
+    "wdemeuter" (assoc (query/person-get "wdemeuter")
+                  :user "wdemeuter"
+                  :user-functions #{:titular :instructor})
     (login-production netid password)))
 
 (def login
