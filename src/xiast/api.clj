@@ -307,6 +307,18 @@
         (catch Exception e
           {:result (str "Unexpected error: " (.getMessage e))})))
 
+(defn room-delete!
+  [body]
+  (try+ (if (some #{:program-manager} (:user-functions *session*))
+          (let [room-id (coerce-as xs/RoomID body)]
+            (query/room-delete! room-id)
+            {:result "OK"})
+          {:result "Not authorized"})
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result (str "Unexpected error: " (.getMessage e))})))
+
 (defroutes room-routes
   (GET "/" []
        "Invalid request")
@@ -314,6 +326,8 @@
         ((wrap-api-function room-add!) (slurp body)))
   (PUT "/" {body :body}
        ((wrap-api-function room-edit!) (slurp body)))
+  (DELETE "/" {body :body}
+          ((wrap-api-function room-delete!) (slurp body)))
   ;; /list -> lists all rooms in a specific building on a specific floor in the database
   (GET "/list/:building/:floor" [building floor]
        ((wrap-api-function room-list) building floor))
