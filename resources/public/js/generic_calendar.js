@@ -165,8 +165,8 @@ function calendar_replace_proposal(p){
 // Generates a proposal, sends the proposal, and refreshes the
 // calendarview to reset the internal events (lavholsb)
 function send_proposal() {
+    alert("Sending your proposal");
     send_schedule_proposal(generate_schedule_proposal());
-    // destroy_calendar($("#schedule-content"), c);
 }
 
 // Sends a compatible proposal to the back-end scheduler
@@ -198,11 +198,6 @@ function get_users_schedule() {
             schedule_blocks = data.schedule;},
         async: false});
     return schedule_blocks;
-}
-
-function send_proposal() {
-    alert("send_proposal");
-    send_schedule_proposal(generate_schedule_proposal());
 }
 
 // Converts array of raw programs to an array of strings:
@@ -295,6 +290,11 @@ $(document).ready(function() {
     });
 
     $("#reset_button").click(function(){
-    calendar_reset();
-        });
+        calendar_reset();
+    });
+
+    $("#apply_button").click(function(){
+        alert("invoke");
+        send_proposal();
+    });
 });
