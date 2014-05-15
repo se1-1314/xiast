@@ -38,8 +38,10 @@ function proposal_new_and_moved(p){
 // Scheduleblocks: for back-end scheduler
 // Events: for front-end full_calendar view
 // Scheduleblock -> Event and Event -> Scheduleblock
+// TODO (lavholsb): add/subtract 30 minutes to fit events in calendar
 function schedule_block_to_event(b){
     var e = {
+        // TODO (lavholsb): edit event title
         title: b.item["course-code"],
         start: VUB_time_to_date(b.week, b.day, b["first-slot"]),
         end: VUB_time_to_date(b.week, b.day, b["last-slot"]),
@@ -56,6 +58,8 @@ function proposal_block_to_event(b) {
     e.block_in_proposal = b;
     return e;
 }
+
+// TODO (lavholsb): add/subtract 30 minutes to fit events in calendar
 function event_to_schedule_block(e) {
     var start = date_to_VUB_time(e.start);
     var end = date_to_VUB_time(e.end);
@@ -129,7 +133,7 @@ function calendar_render_proposal_block(b){
 // calendar & new_events
 function add_new_schedule_block(b) {
     current_proposal.new.push(b);
-    var e = schedule_block_to_event(b);   
+    var e = schedule_block_to_event(b);
     calendar.fullCalendar('renderEvent', e, true);
 }
 
