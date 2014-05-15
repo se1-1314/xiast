@@ -102,24 +102,54 @@ function add_new_room() {
 		return this.value;
 	}).get();
 	alert(facilities);
+	//nu schrijven naar de databank
+	$("#add_room_event").modal('hide');
+}
+
+function edit_selected_room() {
+
+	$("#edit_room_event").modal('hide');
+}
+
+function edit_room_description() {
+
+	$("#edit_room_description").modal('hide');
 }
 
 // Function calls:
 
 $(document).ready(function() {
+	// Initialize layout:
 	$(".modal").modal('hide');
-	$("select").select2({
+	$("#buildings_select").select2({
+		placeholder : "Select a building",
 		width : "200"
 	});
-	
-	
+	$("#rooms_select").select2({
+		placeholder : "Select a classroom",
+		width : "200"
+	});
+	// Populate select with buildings:
 	populate_select(document.getElementById("buildings_select"), buildings_list(), buildings_callback);
+	// Add new room to selected building:
 	$("#add_room").click(function() {
 		$("#add_room_event").modal('show');
 	});
 	$("#add_room_btn").click(function() {
 		add_new_room();
-		$("#add_room_event").modal('hide');
 	});
-
+	// Edit a selected room:
+	$("#edit_room").click(function() {
+		$("#edit_room_event").modal('show');
+	});
+	$("#edit_room_btn").click(function() {
+		edit_selected_room();
+	});
+	// Edit description of a selecetd room:
+	$("#edit_room_description").click(function() {
+		$("#edit_room_description_event").modal('show');
+	});
+	$("#edit_room_description_btn").click(function() {
+		edit_room_description();
+	});
 });

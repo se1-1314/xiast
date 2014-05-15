@@ -70,7 +70,7 @@ function program_callback() {
 			center : 'title',
 			right : 'agendaMonth,agendaWeek,agendaDay'
 		},
-		editable : (current_user == "titular" || current_user == "program-manager") ? true : false,
+		editable : false,
 		events : get_program_schedule_blocks(selected_program_id).map(schedule_block_to_event),
 		eventDrop : event_dropped,
 		eventClick : calendar_event_click_event,
