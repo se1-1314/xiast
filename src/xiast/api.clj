@@ -307,6 +307,18 @@
         (catch Exception e
           {:result (str "Unexpected error: " (.getMessage e))})))
 
+(defn room-delete!
+  [body]
+  (try+ (if (some #{:program-manager} (:user-functions *session*))
+          (let [room-id (coerce-as xs/RoomID body)]
+            (query/room-delete! room-id)
+            {:result "OK"})
+          {:result "Not authorized"})
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result (str "Unexpected error: " (.getMessage e))})))
+
 (defroutes room-routes
   (GET "/" []
        "Invalid request")
@@ -314,6 +326,8 @@
         ((wrap-api-function room-add!) (slurp body)))
   (PUT "/" {body :body}
        ((wrap-api-function room-edit!) (slurp body)))
+  (DELETE "/" {body :body}
+          ((wrap-api-function room-delete!) (slurp body)))
   ;; /list -> lists all rooms in a specific building on a specific floor in the database
   (GET "/list/:building/:floor" [building floor]
        ((wrap-api-function room-list) building floor))
@@ -446,17 +460,16 @@
 
 (defn schedule-get
   [timespan]
-  (cond
-   (some #{:instructor} (:user-functions *session*))
-   {:schedule (query/instructor-schedule (:user *session*) timespan)}
-   (some #{:student} (:user-functions *session*))
-   {:schedule (query/student-schedule (:user *session*) timespan)}
-   (some #{:program-manager} (:user-functions *session*))
-   {:schedule (query/program-manager-schedule (:user *session*) timespan)}
-   (some #{:titular} (:user-functions *session*))
-   {:schedule (query/titular-schedule (:user *session*) timespan)}
-   :else
-   {:schedule []}))
+  ()
+  {:schedule
+   (concat (if (some #{:instructor} (:user-functions *session*))
+             (query/instructor-schedule (:user *session*) timespan))
+           (if (some #{:student} (:user-functions *session*))
+             (query/student-schedule (:user *session*) timespan))
+           (if (some #{:program-manager} (:user-functions *session*))
+             (query/program-manager-schedule (:user *session*) timespan))
+           (if (some #{:titular} (:user-functions *session*))
+             (query/titular-schedule (:user *session*) timespan)))})
 
 (defn schedule-student-get
   [timespan]
