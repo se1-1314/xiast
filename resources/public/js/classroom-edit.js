@@ -62,6 +62,8 @@ function populate_select(select_element, options, callback_function) {
 // Callback functions:
 
 function buildings_callback() {
+	$("#edit_room").attr("disabled", "disabled");
+	$("#edit_room_description").attr("disabled", "disabled");
 	var room_id = document.getElementById("rooms_select");
 	var selected_building = $("#buildings_select option:selected").attr('building');
 	$("#add_room").removeAttr("disabled");
@@ -94,15 +96,25 @@ function rooms_callback() {
 }
 
 function add_new_room() {
-	var number = $("#add_room_event #room_number").val();
-	var floor = $("#add_room_event #room_floor").val();
-	var building = $("#add_room_event #room_building").val();
-	var capacity = $("#add_room_event #room_capacity").val();
-	var facilities = $("#add_room_event .room_facilities_check:checked").map(function() {
+	var nr = $("#add_room_event #room_number").val();
+	var fl = $("#add_room_event #room_floor").val();
+	var bl = $("#add_room_event #room_building").val();
+	var cp = $("#add_room_event #room_capacity").val();
+	var fc = $("#add_room_event .room_facilities_check:checked").map(function() {
 		return this.value;
 	}).get();
-	alert(facilities);
 	//nu schrijven naar de databank
+	var r_id = {
+		building : bl,
+		floor : fl,
+		number : nr
+	};
+	var room = {
+		id : r_id,
+		capacity : cp,
+		facilities : fc
+	};
+	alert(JSON.stringify(room));
 	$("#add_room_event").modal('hide');
 }
 
