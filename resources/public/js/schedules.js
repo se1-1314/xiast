@@ -21,6 +21,7 @@ function program_list() {
 	var json_data = get_programs();
 	return $.map(json_data.programs, function(program) {
 		var option = document.createElement("option");
+		option.setAttribute("program_id", program.id);
 		option.setAttribute("title", program.title);
 		option.innerHTML = program.title;
 		return option;
@@ -40,12 +41,14 @@ function populate_program_select(select_element, options, callback_function) {
 // Callback functions:
 
 function program_callback() {
-	alert('ok callback');
+	var selected_program_id = $("#programs_select option:selected").attr('program_id');
+	alert(selected_program_id);
+	get_program_schedule_blocks(selected_program_id); // TODO: inladen in calender.
 }
 
+// Function calls:
 
 $(document).ready(function() {
-
 	$("select").select2({
 		width : "200"
 	});

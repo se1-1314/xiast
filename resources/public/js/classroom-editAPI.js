@@ -56,7 +56,7 @@ function populate_select(select_element, options, callback_function) {
 		select_element.appendChild(opt);
 	});
 	select_element.onchange = callback_function;
-	$(select_element).select2("open"); 
+	$(select_element).select2("open");
 }
 
 // Callback functions:
@@ -64,6 +64,7 @@ function populate_select(select_element, options, callback_function) {
 function buildings_callback() {
 	var room_id = document.getElementById("rooms_select");
 	var selected_building = $("#buildings_select option:selected").attr('building');
+	$("#add_room").removeAttr("disabled"); // add button is now enabled.
 	populate_select(room_id, rooms_list(selected_building), rooms_callback);
 }
 
@@ -78,16 +79,22 @@ function show_room_description(building, floor, number) {
 		}
 	});
 	$("#room_description").append("<strong>Capacity:</strong> " + capacity);
+	$("#edit_room_description").removeAttr("disabled"); // edit button is now enabled.
 }
 
 function rooms_callback() {
 	var number = $("#rooms_select option:selected").attr('number');
 	var floor = $("#rooms_select option:selected").attr('floor');
 	var building = $("#rooms_select option:selected").attr('building');
+	$("#edit_room").removeAttr("disabled"); // edit button is now enabled.
 	show_room_description(building, floor, number);
 }
 
 // Function calls:
 
-$("select").select2({width: "200"});
-populate_select(document.getElementById("buildings_select"), buildings_list(), buildings_callback);
+$(document).ready(function() {
+	$("select").select2({
+		width : "200"
+	});
+	populate_select(document.getElementById("buildings_select"), buildings_list(), buildings_callback);
+}); 
