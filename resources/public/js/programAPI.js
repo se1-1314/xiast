@@ -64,17 +64,6 @@ function process_JSON_program(divID, key){
   }
 }
 
-// // Returns an array of programs from back-end (lavholsb)
-// function sync_list_programs(){
-//     var programs;
-//     var url = apiprogram('list');
-//     $.ajax({
-//         url: url,
-//         success: function(data){ programs  = data.programs; },
-//         dataType: 'json',
-//         async: false });
-//     return programs;
-// }
 
 /*
   Name: list_programs
@@ -230,3 +219,8 @@ $("#PE-program-list").on("mousedown", ".program-item", function (){
     $('#delete_program_button').append("<button class=\"btn btn-danger btn-lg\" onclick=\"delete_program(\'" + this.id + "\')\">Delete Program</button>")
     list_courses_by_program("#PE-course-list", this.id);
 })
+
+$(document).ready(function() {
+  list_programs("#PE-program-list");
+});
+  
