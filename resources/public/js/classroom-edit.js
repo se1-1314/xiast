@@ -114,13 +114,9 @@ function add_new_room() {
 		capacity : cp,
 		facilities : fc
 	};
-	alert(JSON.stringify(room));
+	alert(nr);
+	//postJSON('/api/room/', room);
 	$("#add_room_event").modal('hide');
-}
-
-function edit_selected_room() {
-
-	$("#edit_room_event").modal('hide');
 }
 
 function edit_room_description() {
@@ -149,13 +145,6 @@ $(document).ready(function() {
 	});
 	$("#add_room_btn").click(function() {
 		add_new_room();
-	});
-	// Edit a selected room:
-	$("#edit_room").click(function() {
-		$("#edit_room_event").modal('show');
-	});
-	$("#edit_room_btn").click(function() {
-		edit_selected_room();
 	});
 	// Edit description of a selecetd room:
 	$("#edit_room_description").click(function() {
