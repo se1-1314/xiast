@@ -29,6 +29,9 @@ function ids_in_proposal(p) {
     return p.moved.map(function(b){return b.id;})
         .concat(p.deleted);
 }
+function proposal_new_and_moved(p){
+    return p.new.concat(p.moved);
+}
 
 // CONVERT
 //------------------------------------------------------------------------------
@@ -42,7 +45,7 @@ function schedule_block_to_event(b){
         end: VUB_time_to_date(b.week, b.day, b["last-slot"]),
         allDay: false,
         room: b.room,
-        item: b.item,
+        item: b.item
     };
     if ('id' in b)
         e.schedule_block_id = b.id;
@@ -94,7 +97,8 @@ function get_users_schedule(start, end, success_callback) {
         success: function(data){ success_callback(data.schedule); },
         async: true});
 }
-function calendar_event_source(start, end, callback) {
+function calendar_schedule_source(start, end, callback) {
+    skewer.log("bli");
     // Get the relevant blocks from start to end for current user
     get_users_schedule(start, end, function(schedule) {
         // Remove the blocks in the current proposal, as other functions
@@ -108,14 +112,16 @@ function calendar_event_source(start, end, callback) {
         callback(relevant_events);
     });
 }
+function calendar_proposal_source(start, end, callback) {
+    skewer.log("bla");
+    callback(
+        proposal_new_and_moved(current_proposal)
+            .map(proposal_block_to_event));
+}
 function calendar_render_proposal_block(b){
     calendar.fullCalendar('renderEvent',
                           proposal_block_to_event(b),
                           true);
-}
-function calendar_render_proposal(p){
-    p.new.forEach(calendar_render_proposal_block);
-    p.moved.forEach(calendar_render_proposal_block);
 }
 // ADD
 //................................................
@@ -198,7 +204,7 @@ function hack_around_backend_bug(schedule_block) {
 // Generates a back-end scheduler compatible proposal
 function calendar_load_proposal(p){
     current_proposal = p;
-    calendar_render_proposal(p);
+    calendar.fullCalendar("rerenderEvents");
 }
 
 function calendar_replace_proposal(p){
@@ -305,7 +311,7 @@ $(document).ready(function() {
                   right: 'agendaMonth,agendaWeek,agendaDay' },
         editable: (current_user == "titular"|| current_user == "program-manager")
             ? true : false,
-        events: calendar_event_source,
+        eventSources: [calendar_schedule_source, calendar_proposal_source],
         eventDrop: event_dropped,
         eventClick: calendar_event_click_event,
         allDaySlot: false,
