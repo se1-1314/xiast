@@ -142,7 +142,7 @@ $(document).ready(function(){
                  slots: [1, 26]},
                 duration,
                     +activity.value,
-                current_proposal(),
+                current_proposal,
                 fill_schedule_block_suggestions);
     });
     $(".modal").modal('hide');

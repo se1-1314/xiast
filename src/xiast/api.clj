@@ -69,6 +69,11 @@
    :course-activity s/Int
    :proposal ScheduleProposal})
 
+(def Room
+  {:id xs/RoomID
+   :capacity s/Int
+   :facilities [xs/RoomFacility]})
+
 ;; Course API
 
 (defn course-list
@@ -278,9 +283,38 @@
         (catch Exception e
           {:result (str "Unexpected error: " (.getMessage e))})))
 
+(defn room-add!
+  [body]
+  (try+ (if (some #{:program-manager} (:user-functions *session*))
+          (let [room (coerce-as Room body)]
+            (query/room-add! (assoc (dissoc room :facilities)
+                               :facilities (set (:facilities room))))
+            {:result "OK"})
+          {:result "Not authorized"})
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result (str "Unexpected error: " (.getMessage e))})))
+
+(defn room-edit!
+  [body]
+  (try+ (if (some #{:program-manager} (:user-functions *session*))
+          (let [room (coerce-as Room body)]
+            (query/room-edit! room)
+            {:result "OK"})
+          {:result "Not authorized"})
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result (str "Unexpected error: " (.getMessage e))})))
+
 (defroutes room-routes
   (GET "/" []
        "Invalid request")
+  (POST "/" {body :body}
+        ((wrap-api-function room-add!) (slurp body)))
+  (PUT "/" {body :body}
+       ((wrap-api-function room-edit!) (slurp body)))
   ;; /list -> lists all rooms in a specific building on a specific floor in the database
   (GET "/list/:building/:floor" [building floor]
        ((wrap-api-function room-list) building floor))
