@@ -125,12 +125,11 @@ function calendar_render_proposal_block(b){
 }
 // ADD
 //................................................
-// Adds a newly created (e.g. from a form) schedule block to the
+// Adds a newly created (p.e. from a form) schedule block to the
 // calendar & new_events
 function add_new_schedule_block(b) {
     current_proposal.new.push(b);
-    var e = schedule_block_to_event(b);
-    e.block_in_proposal = b;
+    var e = schedule_block_to_event(b);   
     calendar.fullCalendar('renderEvent', e, true);
 }
 
@@ -183,7 +182,7 @@ function calendar_remove_event(e){
 function calendar_reset(){
     calendar.fullCalendar('removeEvents');
     current_proposal = the_empty_proposal;
-    calendar.fullCalendar('refetchEvents');
+    calendar.fullCalendar('refetchEvens');
 }
 
 // PROPOSALS
@@ -193,7 +192,7 @@ function calendar_reset(){
 // course-code -> course-id (for back end)
 function hack_around_backend_bug(schedule_block) {
     var sb = jQuery.extend({}, schedule_block);
-    sb.item = jQuery.extend({}, sb.item);
+    sb.item = $.extend({}, sb.item);
     var course_code = sb.item['course-code'];
     delete sb.item['course-code'];
     delete sb.item.title;
@@ -252,8 +251,6 @@ function check_schedule_proposal(prop) {
     postJSON('/api/schedule/proposal/check', prop, function(){
         alert("check done")});
 }
-
-
 
 // Converts array of raw programs to an array of strings:
 // ["program_title -- program_id", ...].

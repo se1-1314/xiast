@@ -69,7 +69,7 @@
   "Returns the schedules for courses a certain student is enrolled in the
    provided timespan."
   (let [courses
-        (map :course-code (enrollments-student student-id))
+        (map :course (enrollments-student student-id))
         schedules
         (map #(course-schedule % timespan) courses)]
     (mapcat identity schedules)))

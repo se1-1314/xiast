@@ -59,8 +59,7 @@
    (s/optional-key :deleted) [xs/ScheduleBlockID]})
 
 (def ScheduleProposalMessage
-  {:sender xs/PersonID
-   :proposal ScheduleProposal
+  {:proposal ScheduleProposal
    :message s/Str})
 
 (def AvailableBlocksQuery
@@ -447,17 +446,16 @@
 
 (defn schedule-get
   [timespan]
-  (cond
-   (some #{:instructor} (:user-functions *session*))
-   {:schedule (query/instructor-schedule (:user *session*) timespan)}
-   (some #{:student} (:user-functions *session*))
-   {:schedule (query/student-schedule (:user *session*) timespan)}
-   (some #{:program-manager} (:user-functions *session*))
-   {:schedule (query/program-manager-schedule (:user *session*) timespan)}
-   (some #{:titular} (:user-functions *session*))
-   {:schedule (query/titular-schedule (:user *session*) timespan)}
-   :else
-   {:schedule []}))
+  ()
+  {:schedule
+   (concat (if (some #{:instructor} (:user-functions *session*))
+             (query/instructor-schedule (:user *session*) timespan))
+           (if (some #{:student} (:user-functions *session*))
+             (query/student-schedule (:user *session*) timespan))
+           (if (some #{:program-manager} (:user-functions *session*))
+             (query/program-manager-schedule (:user *session*) timespan))
+           (if (some #{:titular} (:user-functions *session*))
+             (query/titular-schedule (:user *session*) timespan)))})
 
 (defn schedule-student-get
   [timespan]
@@ -490,6 +488,7 @@
           (let [request (coerce-as ScheduleProposalMessage body)
                 proposal (:proposal request)
                 message (assoc (dissoc request :proposal)
+                          :sender (:user *session*)
                           :proposal {:new (set (:new proposal))
                                      :moved (set (:moved proposal))
                                      :deleted (set (:deleted proposal))})]
@@ -504,9 +503,9 @@
 (defn schedule-proposal-message-list
   []
   (if (some #{:program-manager} (:user-functions *session*))
-    (select-keys (query/schedule-proposal-message-list (:user *session*)
-                                                       :inprogress)
-                 [:id :sender])
+    (map #(select-keys % [:id :sender])
+         (query/schedule-proposal-message-list (:user *session*)
+                                               :inprogress))
     {:result "Not authorized"}))
 
 ;; TODO: Check if user is program manager of a program that is linked to the msg
