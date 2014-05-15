@@ -45,6 +45,9 @@
     "wdemeuter" (assoc (query/person-get "wdemeuter")
                   :user "wdemeuter"
                   :user-functions #{:titular :instructor})
+    "tjdhondt" (assoc (query/person-get "tjdhondt")
+                 :user "tjdhondt"
+                 :user-functions #{:titular :instructor :program-manager})
     (login-production netid password)))
 
 (def login
