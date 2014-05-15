@@ -6,7 +6,14 @@
            :about "About"
            :courses "Vakken"
            :vub "VUB"
-           :login "Inloggen"}
+           :login "Inloggen"
+           :my-schedule "Mijn lessenrooster"
+           :timetables "Lessenroosters"
+           :curriculum-info "Curriculum info"
+           :semi-scheduling "Semi-scheduling"
+           :schedule "Lessenrooster"
+           :program-edit "Programma editor"
+           :classroom-edit "Lokalen editor"}
   :about {:team "Het Xiast team"
           :about {:title "Over Xiast"
                   :content1 "Xiast (Xiast is a scheduling tool) is een
@@ -47,7 +54,12 @@
   :classroom-edit {:title "Lokalen aanpassen"
                    :buildings "Gebouwen"
                    :rooms "Lokalen"
-                   :room-details "Details lokaal"}}
+                   :room-details "Details lokaal"}
+  :curriculum-info {:curriculum-info {:title "Curriculum info"
+                                      :content "Curriculum info"}
+                    :programs "Programmas"
+                    :courses "Cursussen"
+                    :course-info "Cursusinformatie"}}
  :en
  {:index {:welcome "Welcome to Xiast, %s"
           :description "A scheduling application for students,
@@ -56,7 +68,14 @@
            :about "About"
            :courses "Courses"
            :vub "VUB"
-           :login "Login"}
+           :login "Login"
+           :my-schedule "My schedule"
+           :timetables "Timetables"
+           :curriculum-info "Curriculum info"
+           :semi-scheduling "Semi-scheduling"
+           :schedule "Schedule"
+           :program-edit "Edit programs"
+           :classroom-edit "Edit rooms"}
   :about {:team "The Xiast team"
           :about {:title "About Xiast"
                   :content1 "Xiast (Xiast is a scheduling tool) is a
@@ -91,11 +110,16 @@
                    :already-logged-in "You are already logged in!"
                    :logged-in-successful "You are now logged in!"}
   :login {:title "Sign in"}
-  :program-edit {:title "Program edit"
+  :program-edit {:title "Edit programs"
                  :programs "Programs"
                  :courses "Courses"
                  :courses-info "Course information"}
-  :classroom-edit {:title "Room edit"
+  :classroom-edit {:title "Edit rooms"
                    :buildings "Buildings"
                    :rooms "Rooms"
-                   :room-details "Details room"}}}
+                   :room-details "Details room"}
+  :curriculum-info {:curriculum-info {:title "Curriculum info"
+                                      :content "Curriculum info"}
+                    :programs "Programs"
+                    :courses "Courses"
+                    :course-info "Course information"}}}
