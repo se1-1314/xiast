@@ -59,8 +59,7 @@
    (s/optional-key :deleted) [xs/ScheduleBlockID]})
 
 (def ScheduleProposalMessage
-  {:sender xs/PersonID
-   :proposal ScheduleProposal
+  {:proposal ScheduleProposal
    :message s/Str})
 
 (def AvailableBlocksQuery
@@ -490,6 +489,7 @@
           (let [request (coerce-as ScheduleProposalMessage body)
                 proposal (:proposal request)
                 message (assoc (dissoc request :proposal)
+                          :sender (:user *session*)
                           :proposal {:new (set (:new proposal))
                                      :moved (set (:moved proposal))
                                      :deleted (set (:deleted proposal))})]
