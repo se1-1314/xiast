@@ -6,12 +6,6 @@ var current_user = "program-manager";
 var error_color = "red";
 var selected_color = "green";
 
-// Proposal management
-var evt_prop = {
-    new_events: [],
-    moved_events: [],
-    deleted_events: [],
-};
 var the_empty_proposal = {
     new: [],
     moved: [],
@@ -87,10 +81,10 @@ function get_users_schedule(start, end, success_callback) {
     var end_VUB = date_to_VUB_time(end);
     var url = "/api/schedule/"
         + +start_VUB[0] + "/"
-        + 1 + "/"
-        + 1 + "/"
         + +end_VUB[0] + "/"
+        + 1 + "/"
         + 7 + "/"
+        + 1 + "/"
         + 30;
     skewer.log(url);
     $.ajax({
