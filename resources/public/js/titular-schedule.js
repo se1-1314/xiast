@@ -1,7 +1,6 @@
-function send_proposal_with_message(snd, prop, msg) {
+function send_proposal_with_message(prop, msg) {
     var url = "/api/schedule/message";
     var json_data = {
-        sender : snd,
         proposal : prop,
         message : msg
     };
@@ -18,9 +17,7 @@ $(document).ready(function(){
     // send proposal 
     $("#send-activity").click(function(){
         var proposal = generate_schedule_proposal();
-        var titular = "titular";
         var message = $("#message").val();
-        send_proposal_with_message(titular, proposal, message);
-    });
-    
+        send_proposal_with_message(proposal, message);
+    });  
 });

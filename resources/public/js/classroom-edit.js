@@ -79,9 +79,20 @@ function show_room_description(building, floor, number) {
 	json_data.rooms.forEach(function(room) {
 		if (room.id.number == number && room.id.floor == floor) {
 			capacity = room.capacity;
+			facilities = room.facilities;
 		}
 	});
-	$("#room_description").append("<strong>Capacity:</strong> " + capacity);
+	$("#facilities_description #beamer").prop('checked', false);
+			$("#facilities_description #overhead-projector").prop('checked', false);
+	facilities.forEach(function(f) {
+		if (f == "beamer") {
+			$("#facilities_description #beamer").prop('checked', true);
+		}
+		if (f == "overhead-projector") {
+			$("#facilities_description #overhead-projector").prop('checked', true);
+		}
+	});
+	$("#room_description").append("<strong>Capacity:</strong> " + capacity + " <br />");
 	$("#edit_room_description").removeAttr("disabled");
 	// edit button is now enabled.
 }
@@ -96,14 +107,13 @@ function rooms_callback() {
 }
 
 function add_new_room() {
-	var nr = $("#add_room_event #room_number").val();
-	var fl = $("#add_room_event #room_floor").val();
-	var bl = $("#add_room_event #room_building").val();
-	var cp = $("#add_room_event #room_capacity").val();
+	var nr = +$("#add_room_event #room_number").val();
+	var fl = +$("#add_room_event #room_floor").val();
+	var bl = $("#buildings_select option:selected").attr('building');
+	var cp = +$("#add_room_event #room_capacity").val();
 	var fc = $("#add_room_event .room_facilities_check:checked").map(function() {
 		return this.value;
 	}).get();
-	//nu schrijven naar de databank
 	var r_id = {
 		building : bl,
 		floor : fl,
@@ -114,17 +124,46 @@ function add_new_room() {
 		capacity : cp,
 		facilities : fc
 	};
-	alert(JSON.stringify(room));
+	$.ajax({
+		type : 'POST',
+		url : '/api/room/',
+		contentType : "application/json",
+		data : JSON.stringify(room),
+		async : false,
+		processData : false,
+		dataType : 'JSON'
+	});
 	$("#add_room_event").modal('hide');
 }
 
-function edit_selected_room() {
-
-	$("#edit_room_event").modal('hide');
-}
-
 function edit_room_description() {
+	var nr = +$("#rooms_select option:selected").attr('number');
+	var fl = +$("#rooms_select option:selected").attr('floor');
+	var bl = $("#rooms_select option:selected").attr('building');
+	var cp = +$("#edit_room_description_event #room_capacity").val();
+	var fc = $("#edit_room_description_event .room_facilities_check:checked").map(function() {
+		return this.value;
+	}).get();
 
+	var r_id = {
+		building : bl,
+		floor : fl,
+		number : nr
+	};
+	var room = {
+		id : r_id,
+		capacity : cp,
+		facilities : fc
+	};
+	$.ajax({
+		type : 'PUT',
+		url : '/api/room/',
+		contentType : "application/json",
+		data : JSON.stringify(room),
+		async : false,
+		processData : false,
+		dataType : 'JSON'
+	});
 	$("#edit_room_description").modal('hide');
 }
 
@@ -149,13 +188,6 @@ $(document).ready(function() {
 	});
 	$("#add_room_btn").click(function() {
 		add_new_room();
-	});
-	// Edit a selected room:
-	$("#edit_room").click(function() {
-		$("#edit_room_event").modal('show');
-	});
-	$("#edit_room_btn").click(function() {
-		edit_selected_room();
 	});
 	// Edit description of a selecetd room:
 	$("#edit_room_description").click(function() {
