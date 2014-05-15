@@ -190,6 +190,7 @@ function calendar_reset(){
 //------------------------------------------------------------------------------
 
 // FIXME (aleijnse)
+// course-code -> course-id (for back end)
 function hack_around_backend_bug(schedule_block) {
     var sb = jQuery.extend({}, schedule_block);
     sb.item = jQuery.extend({}, sb.item);
@@ -198,6 +199,15 @@ function hack_around_backend_bug(schedule_block) {
     delete sb.item.title;
     sb.item['course-id'] = course_code;
     return sb;
+}
+
+// hack to convert a complete schedule-proposal: course-code -> course-id
+function convert_to_proposal_id(proposal) {
+    return {
+        new: proposal.new.map(hack_around_backend_bug),
+        moved: proposal.moved.map(hack_around_backend_bug),
+        deleted: proposal.deleted
+    };
 }
 
 // GENERATE
@@ -212,29 +222,38 @@ function calendar_replace_proposal(p){
     calendar_load_proposal(p);
 }
 
-// SEND
-// Generates a proposal, sends the proposal, and refreshes the
+// APPLY
+// Sends current_proposal to apply/save it into the DB and refreshes the
 // calendarview to reset the internal events (lavholsb)
 function send_apply_request() {
     skewer.log("send proposal");
-    apply_schedule_proposal(current_proposal);
+    // FIXME: hack around back-end bug: convert_to_proposal_id
+    apply_schedule_proposal(convert_to_proposal_id(current_proposal));
 }
 
 // Sends a compatible proposal to the back-end scheduler
 function apply_schedule_proposal(prop) {
-    $.ajax({
-        type: 'POST',
-        url: '/api/schedule/proposal/apply',
-
-        // reload the page to clear new/moved/deleted events in fullcalendar
-        success: function() {
-            location.reload();
-        },
-        contentType: "application/json",
-        data: JSON.stringify(prop),
-        dataType: 'JSON'
-    });
+    postJSON('/api/schedule/proposal/apply', prop, function(data){
+        alert("send done");
+    })
 }
+
+// EDIT
+// Sends current_proposal to apply/save it into the DB and refreshes the
+// calendarview to reset the internal events (lavholsb)
+function send_check_request(){
+    skewer.log("check proposal");
+    // FIXME: hack around back-end bug: convert_to_proposal_id
+    check_schedule_proposal(convert_to_proposal_id(current_proposal));
+}
+
+// Sends a compatible proposal to the back-end scheduler
+function check_schedule_proposal(prop) {
+    postJSON('/api/schedule/proposal/check', prop, function(){
+        alert("check done")});
+}
+
+
 
 // Converts array of raw programs to an array of strings:
 // ["program_title -- program_id", ...].
@@ -329,10 +348,10 @@ $(document).ready(function() {
     });
 
     $("#check_button").click(function() {
-        alert("check button not yet defined");
+        send_check_request();
     });
 
     $("#apply_button").click(function() {
-        send_apply_proposal();
+        send_apply_request();
     });
 });
