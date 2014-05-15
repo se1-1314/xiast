@@ -63,6 +63,7 @@
 (deftemplate base "templates/layout.html"
   [body & {:keys [title alert]}]
   [:html :> :head :> :title] (content title)
+  [:div#menu] #(t/translate-nodes %)
   [:.non-guest] (cond
                  (contains? (set (:user-functions *session*)) :program-manager) identity
                  (contains? (set (:user-functions *session*)) :student) identity
@@ -219,6 +220,8 @@
 
 (defroutes language-routes
   (GET "/lang/:locale" [locale]
+       (if (:user *session*)
+         (query/person-locale! (:user *session*) locale))
        (assoc (resp/redirect "/")
          :session (assoc *session* :locale locale))))
 
