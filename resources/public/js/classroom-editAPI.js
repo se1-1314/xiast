@@ -93,8 +93,15 @@ function rooms_callback() {
 // Function calls:
 
 $(document).ready(function() {
+	$(".modal").modal('hide');
 	$("select").select2({
 		width : "200"
 	});
 	populate_select(document.getElementById("buildings_select"), buildings_list(), buildings_callback);
+	$("#add_room").click(function(){
+		$("#add_room_event").modal('show');
+	});
+	
+	
+	
 }); 
