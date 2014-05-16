@@ -47,9 +47,12 @@ function process_JSON_program(divID, key){
                                else if (key == 'id'){
                                    id = val;
                                }
+                               else if (key == 'program-id'){
+                               	id = val;
+                               }
                            })
                                // Store the information in the programs array
-                               programs.push("<li id='" + id + "' class='list-item btn program-item'>" + title + "</li>");
+                               programs.push("<li id='" + id + "' class='list-item btn-primary btn-lg program-item'>" + title + "</li>");
                        })
 
 

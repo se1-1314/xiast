@@ -149,8 +149,21 @@ function calendar_event_click_event(calendar_event, js_event, view) {
     calendar.fullCalendar("rerenderEvents");
 }
 
+
+function alert_screen(type, msg){
+    alert = '<div class="alert container alert-dismissable alert-' + type + '" id="alert"> \
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times</button> \
+    <div id="alert-body">' + msg + '</div> \
+    </div>';
+    $("#menu").after(alert);
+}
+
+
 // Deletes an event (if exists) from a calendar and its event-lists
 function delete_event(e) {
+    if (e === null){
+        alert_screen("info", "Please select the event you want to delete first");
+    }
     if ('schedule_block_id' in e) {
         current_proposal.deleted.push(e.schedule_block_id);
         remove_from_array(current_proposal.moved, event_to_schedule_block(e));
@@ -187,6 +200,7 @@ function calendar_reset(){
     calendar.fullCalendar('removeEvents');
     current_proposal = the_empty_proposal;
     calendar.fullCalendar('refetchEvens');
+    alert_screen("success", "Reset complete");
 }
 
 // PROPOSALS
@@ -232,6 +246,7 @@ function send_apply_request() {
     skewer.log("send proposal");
     // FIXME: hack around back-end bug: convert_to_proposal_id
     apply_schedule_proposal(convert_to_proposal_id(current_proposal));
+    alert_screen("success", "Changes are applied");
 }
 
 // Sends a compatible proposal to the back-end scheduler
