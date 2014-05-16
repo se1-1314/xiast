@@ -90,7 +90,6 @@ function get_users_schedule(start, end, success_callback) {
         + 7 + "/"
         + 1 + "/"
         + 30;
-    skewer.log(url);
     $.ajax({
         type: "GET",
         url: url,
@@ -100,7 +99,6 @@ function get_users_schedule(start, end, success_callback) {
         async: true});
 }
 function calendar_schedule_source(start, end, callback) {
-    skewer.log("bli");
     // Get the relevant blocks from start to end for current user
     get_users_schedule(start, end, function(schedule) {
         // Remove the blocks in the current proposal, as other functions
@@ -108,14 +106,12 @@ function calendar_schedule_source(start, end, callback) {
         var ids_in_current_proposal = ids_in_proposal(current_proposal);
         var relevant_blocks = _.reject(schedule, function(b){
             return _.contains(ids_in_current_proposal, b.id); });
-        // skewer.log(relevant_blocks.map(function(b) { return b.id}));
         var relevant_events = relevant_blocks.map(schedule_block_to_event);
         // The callback loads the events into the calendar
         callback(relevant_events);
     });
 }
 function calendar_proposal_source(start, end, callback) {
-    skewer.log("bla");
     callback(
         proposal_new_and_moved(current_proposal)
             .map(proposal_block_to_event));

@@ -23,7 +23,7 @@
 						<h2>Description</h2>
 						<div id="room_description"></div>
 						<div id="facilities_description" class="form-group">
-							<label class="control-label" for="room_facilities">Facilities</label>
+							<label class="control-label" for="room_facilities">Facilities:</label>
 							<br />
 							<input id="beamer" type="checkbox" name="beamer" value="beamer">
 							Beamer
@@ -40,9 +40,14 @@
 			<div class="col-md-12">
 				<div class="col-md-4"></div>
 				<div class="col-md-4">
-					<button id="add_room" type="button" class="btn btn-primary" disabled="disabled">
-						Add room
-					</button>
+					<div class="btn-group">
+						<button id="add_room" type="button" class="btn btn-success" disabled="disabled">
+							Add room
+						</button>
+						<button id="delete_room" type="button" class="btn btn-danger" disabled="disabled">
+							Delete room
+						</button>
+					</div>
 				</div>
 				<div class="col-md-4">
 					<button id="edit_room_description" type="button" class="btn btn-primary" disabled="disabled">
@@ -86,10 +91,10 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" data-dismiss="modal" class="btn btn-default">
-							cancel
+							Cancel
 						</button>
 						<button type="button" data-dismiss="modal" class="btn btn-success" id="add_room_btn">
-							add
+							Add
 						</button>
 					</div>
 				</div>
@@ -122,10 +127,34 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" data-dismiss="modal" class="btn btn-default">
-							cancel
+							Cancel
 						</button>
 						<button type="button" data-dismiss="modal" class="btn btn-success" id="edit_room_description_btn">
-							edit
+							Edit
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Pop-up form: delete_room_event -->
+		<div id="delete_room_event" class="modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<a class="close" data-dismiss="modal" href="#">x</a>
+						<h3>Delete room</h3>
+					</div>
+					<div class="modal-body">
+						<p>
+							Please confirm your choice
+						</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" data-dismiss="modal" class="btn btn-default">
+							Cancel
+						</button>
+						<button type="button" data-dismiss="modal" class="btn btn-danger" id="delete_room_btn">
+							Confirm
 						</button>
 					</div>
 				</div>
