@@ -5,19 +5,32 @@
 				<div class="col-md-4">
 					<div>
 						<h2 msg="classroom-edit/buildings">Buildings</h2>
-						<select id="buildings_select"><option></option></select>
+						<select id="buildings_select">
+							<option></option>
+						</select>
 					</div>
 				</div>
 				<div class="col-md-4">
 					<div>
 						<h2 msg="classroom-edit/rooms">Rooms</h2>
-						<select id="rooms_select"><option></option></select>
+						<select id="rooms_select">
+							<option></option>
+						</select>
 					</div>
 				</div>
 				<div class="col-md-4">
 					<div>
 						<h2>Description</h2>
 						<div id="room_description"></div>
+						<div id="facilities_description" class="form-group">
+							<label class="control-label" for="room_facilities">Facilities</label>
+							<br />
+							<input id="beamer" type="checkbox" name="beamer" value="beamer">
+							Beamer
+							<br />
+							<input id="overhead-projector" type="checkbox" name="overhead-projector" value="overhead-projector">
+							Overhead-projector
+						</div>
 					</div>
 				</div>
 			</div>
@@ -27,14 +40,9 @@
 			<div class="col-md-12">
 				<div class="col-md-4"></div>
 				<div class="col-md-4">
-					<div class="btn-group">
-						<button id="edit_room" type="button" class="btn btn-primary" disabled="disabled">
-							Edit room
-						</button>
-						<button id="add_room" type="button" class="btn btn-primary" disabled="disabled">
-							Add room
-						</button>
-					</div>
+					<button id="add_room" type="button" class="btn btn-primary" disabled="disabled">
+						Add room
+					</button>
 				</div>
 				<div class="col-md-4">
 					<button id="edit_room_description" type="button" class="btn btn-primary" disabled="disabled">
@@ -43,7 +51,6 @@
 				</div>
 			</div>
 		</div>
-
 		<!-- Pop-up form: add_room_event -->
 		<div id="add_room_event" class="modal fade">
 			<div class="modal-dialog">
@@ -56,19 +63,15 @@
 						<form role="form">
 							<div class="form-group">
 								<label class="control-label" for="room_number">Number</label>
-								<input id="room_number" class="form-control" type="number" placeholder="1">
+								<input id="room_number" class="form-control" type="number" placeholder="0">
 							</div>
 							<div class="form-group">
 								<label class="control-label" for="room_floor">Floor</label>
-								<input id="room_floor" class="form-control" type="number" placeholder="4">
-							</div>
-							<div class="form-group">
-								<label class="control-label" for="room_building">Building</label>
-								<input id="room_building" class="form-control" type="text" placeholder="4">
+								<input id="room_floor" class="form-control" type="number" placeholder="0">
 							</div>
 							<div class="form-group">
 								<label class="control-label" for="room_capacity">Capacity</label>
-								<input id="room_capacity" class="form-control" type="number" placeholder="4">
+								<input id="room_capacity" class="form-control" type="number" placeholder="0">
 							</div>
 							<div class="form-group">
 								<label class="control-label" for="room_facilities">Facilities</label>
@@ -92,69 +95,19 @@
 				</div>
 			</div>
 		</div>
-
-		<!-- Pop-up form: edit_room_event -->
-		<div id="edit_room_event" class="modal fade">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<a class="close" data-dismiss="modal" href="#">x</a>
-						<h3>Add room</h3>
-					</div>
-					<div class="modal-body">
-						<form role="form">
-							<div class="form-group">
-								<label class="control-label" for="room_number">Number</label>
-								<input id="room_number" class="form-control" type="number" placeholder="1">
-							</div>
-							<div class="form-group">
-								<label class="control-label" for="room_floor">Floor</label>
-								<input id="room_floor" class="form-control" type="number" placeholder="4">
-							</div>
-							<div class="form-group">
-								<label class="control-label" for="room_building">Building</label>
-								<input id="room_building" class="form-control" type="text" placeholder="4">
-							</div>
-							<div class="form-group">
-								<label class="control-label" for="room_capacity">Capacity</label>
-								<input id="room_capacity" class="form-control" type="number" placeholder="4">
-							</div>
-							<div class="form-group">
-								<label class="control-label" for="room_facilities">Facilities</label>
-								<br />
-								<input class="room_facilities_check" type="checkbox" name="beamer" value="beamer">
-								Beamer
-								<br />
-								<input class="room_facilities_check" type="checkbox" name="overhead-projector" value="overhead-projector">
-								Overhead-projector
-							</div>
-						</form>
-					</div>
-					<div class="modal-footer">
-						<button type="button" data-dismiss="modal" class="btn btn-default">
-							cancel
-						</button>
-						<button type="button" data-dismiss="modal" class="btn btn-success" id="edit_room_btn">
-							edit
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- Pop-up form: add_room_event -->
+		<!-- Pop-up form: edit_room_description_event -->
 		<div id="edit_room_description_event" class="modal fade">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
 						<a class="close" data-dismiss="modal" href="#">x</a>
-						<h3>Add room</h3>
+						<h3>Edit room description</h3>
 					</div>
 					<div class="modal-body">
 						<form role="form">
 							<div class="form-group">
 								<label class="control-label" for="room_capacity">Capacity</label>
-								<input id="room_capacity" class="form-control" type="number" placeholder="4">
+								<input id="room_capacity" class="form-control" type="number" placeholder="0">
 							</div>
 							<div class="form-group">
 								<label class="control-label" for="room_facilities">Facilities</label>

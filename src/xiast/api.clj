@@ -518,8 +518,8 @@
   []
   (if (some #{:program-manager} (:user-functions *session*))
     (map #(select-keys % [:id :sender])
-         (query/schedule-proposal-message-list (:user *session*)
-                                               :inprogress))
+    (query/schedule-proposal-message-list (:user *session*)
+                                                       :inprogress))
     {:result "Not authorized"}))
 
 ;; TODO: Check if user is program manager of a program that is linked to the msg
