@@ -174,6 +174,12 @@ $(document).ready(function(){
     });
     $("#check_button").click(function() {
         send_check_request(function(check_results){
+            if (check_results.length <= 0){
+                alert_screen("success", "Check passed");
+            }
+            else{
+                alert_screen("warning", "Check failed. Look at the error log for more details");
+            }
             load_schedule_check_results(check_results);
         });
     });
