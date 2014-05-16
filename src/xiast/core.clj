@@ -56,7 +56,6 @@
        "</a>"
        "<ul class=\"dropdown-menu\">"
        "<li><a href=\"/logout\">Logout</a></li>"
-       "<li><a href=\"/profile\">Profile</a></li>"
        "</ul>"
        "</li>"))
 
@@ -191,20 +190,6 @@
          "00"
          "30")))
 
-(defsnippet profile-student-body "templates/profile-student.html" [:div#page-content] [] identity)
-(defsnippet profile-titular-body "templates/profile-titular.html" [:div#page-content] [] identity)
-(defsnippet profile-program-manager-body "templates/profile-program-manager.html" [:div#page-content] [] identity)
-
-(defroutes profile-routes
-  (GET "/profile" []
-       (base (->
-              (cond
-               (contains? (set (:user-functions *session*)) :student) (profile-student-body)
-               (contains? (set (:user-functions *session*)) :titular) (profile-titular-body)
-               (contains? (set (:user-functions *session*)) :program-manager) (profile-program-manager-body)
-               :else nil)
-              (t/translate-nodes)))))
-
 (defsnippet login-body "templates/login.html" [:div#page-content]
   []
   identity)
@@ -248,7 +233,6 @@
   curriculum-info-routes
   program-edit-routes
   classroom-edit-routes
-  profile-routes
   login-routes
   language-routes
   (route/not-found "Not found!"))
