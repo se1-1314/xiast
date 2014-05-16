@@ -221,7 +221,6 @@ function calendar_reset(){
     calendar.fullCalendar('removeEvents');
     current_proposal = the_empty_proposal;
     calendar.fullCalendar('refetchEvens');
-    alert_screen("success", "Reset complete");
 }
 
 // PROPOSALS
@@ -252,7 +251,7 @@ function fix_proposal_wrt_backend_bugs(proposal) {
 // Generates a back-end scheduler compatible proposal
 function calendar_load_proposal(p){
     current_proposal = p;
-    calendar.fullCalendar("rerenderEvents");
+    calendar.fullCalendar("refetchEvents");
 }
 
 function calendar_replace_proposal(p){
