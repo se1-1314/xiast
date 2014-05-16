@@ -63,6 +63,7 @@ function populate_select(select_element, options, callback_function) {
 
 function buildings_callback() {
 	$("#edit_room").attr("disabled", "disabled");
+	$("#delete_room").attr("disabled", "disabled");
 	$("#edit_room_description").attr("disabled", "disabled");
 	var room_id = document.getElementById("rooms_select");
 	var selected_building = $("#buildings_select option:selected").attr('building');
@@ -83,7 +84,7 @@ function show_room_description(building, floor, number) {
 		}
 	});
 	$("#facilities_description #beamer").prop('checked', false);
-			$("#facilities_description #overhead-projector").prop('checked', false);
+	$("#facilities_description #overhead-projector").prop('checked', false);
 	facilities.forEach(function(f) {
 		if (f == "beamer") {
 			$("#facilities_description #beamer").prop('checked', true);
@@ -102,7 +103,7 @@ function rooms_callback() {
 	var floor = $("#rooms_select option:selected").attr('floor');
 	var building = $("#rooms_select option:selected").attr('building');
 	$("#edit_room").removeAttr("disabled");
-	// edit button is now enabled.
+	$("#delete_room").removeAttr("disabled");
 	show_room_description(building, floor, number);
 }
 
@@ -164,7 +165,28 @@ function edit_room_description() {
 		processData : false,
 		dataType : 'JSON'
 	});
-	$("#edit_room_description").modal('hide');
+	$("#edit_room_description_event").modal('hide');
+}
+
+function delete_room() {
+	var nr = +$("#rooms_select option:selected").attr('number');
+	var fl = +$("#rooms_select option:selected").attr('floor');
+	var bl = $("#rooms_select option:selected").attr('building');
+	var r_id = {
+		building : bl,
+		floor : fl,
+		number : nr
+	};
+	$.ajax({
+		type : 'DELETE',
+		url : '/api/room/',
+		contentType : "application/json",
+		data : JSON.stringify(r_id),
+		async : false,
+		processData : false,
+		dataType : 'JSON'
+	});
+	$("#delete_room_event").modal('hide');
 }
 
 // Function calls:
@@ -195,5 +217,12 @@ $(document).ready(function() {
 	});
 	$("#edit_room_description_btn").click(function() {
 		edit_room_description();
+	});
+	// Delete a selecetd room:
+	$("#delete_room").click(function() {
+		$("#delete_room_event").modal('show');
+	});
+	$("#delete_room_btn").click(function() {
+		delete_room();
 	});
 });
