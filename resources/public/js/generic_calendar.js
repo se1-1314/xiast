@@ -37,7 +37,6 @@ function proposal_new_and_moved(p){
 // Scheduleblocks: for back-end scheduler
 // Events: for front-end full_calendar view
 // Scheduleblock -> Event and Event -> Scheduleblock
-var cntrke = 0;
 function schedule_block_to_event(b){
     var e = {
         // TODO (lavholsb): edit event title
