@@ -60,10 +60,15 @@ function show_request_description() {
 	});
 }
 
-$("#request_description").show();
-
 $(document).ready(function() {
-	// show requests list
-	load_requests_list(get_requests());
+    $("#request_description").show();
+
+    // show requests list
+    load_requests_list(get_requests());
 	show_request_description();
+    $("#apply_button").click(function() {
+        send_apply_request(function(check_results){
+            load_schedule_check_results(check_results);
+        });
+    });
 });

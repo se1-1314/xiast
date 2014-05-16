@@ -155,4 +155,18 @@ $(document).ready(function(){
         $("#schedule-activity-event").modal('show');
     });
     $("#add-schedule-block-btn").click(create_event);
+        $("#edit_button").click(function() {
+        alert("edit button not yet defined");
+    });
+    $("#delete_button").click(function() {
+        delete_event(selected_event);
+    });
+    $("#reset_button").click(function(){
+        calendar_reset();
+    });
+    $("#check_button").click(function() {
+        send_check_request(function(check_results){
+            load_schedule_check_results(check_results);
+        });
+    });
 });

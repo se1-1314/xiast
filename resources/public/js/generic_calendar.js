@@ -14,7 +14,6 @@ var the_empty_proposal = {
 }
 var current_proposal = the_empty_proposal;
 
-var erratic_events = [];
 var selected_event = null;
 
 // MISC FUNCTIONS
@@ -99,6 +98,7 @@ function get_users_schedule(start, end, success_callback) {
         url: url,
         dataType: 'JSON',
         success: function(data){ success_callback(data.schedule); },
+        cache: true,
         async: true});
 }
 function calendar_schedule_source(start, end, callback) {
@@ -159,16 +159,21 @@ function create_delete_button(jqobj, calendar, calendar_event){
 
 // ONCLICK CALLBACK
 // Callback function: when an event has been clicked it will be highlighted
-function calendar_event_click_event(calendar_event, js_event, view) {
+function calendar_event_click_event(calendar_event, js_event, view){
 	if (current_user.toLowerCase() === 'student' || current_user.toLowerCase() === 'guest'){
         throw "Not authorized";
     }
-    if (selected_event != null) delete selected_event.color;
-    calendar_event.color = selected_color;
-    selected_event = calendar_event;
+    if (selected_event == calendar_event) {
+        delete selected_event.color;
+        selected_event = null;
+    } else {
+        if (selected_event != null)
+            delete selected_event.color;
+        calendar_event.color = selected_color;
+        selected_event = calendar_event;
+    }
     calendar.fullCalendar("rerenderEvents");
 }
-
 
 function alert_screen(type, msg){
     alert = '<div class="alert container alert-dismissable alert-' + type + '" id="alert"> \
@@ -177,7 +182,6 @@ function alert_screen(type, msg){
     </div>';
     $("#menu").after(alert);
 }
-
 
 // Deletes an event (if exists) from a calendar and its event-lists
 function delete_event(e) {
@@ -242,7 +246,7 @@ function hack_around_backend_bug(schedule_block) {
 }
 
 // hack to convert a complete schedule-proposal: course-code -> course-id
-function convert_to_proposal_id(proposal) {
+function fix_proposal_wrt_backend_bugs(proposal) {
     return {
         new: proposal.new.map(hack_around_backend_bug),
         moved: proposal.moved.map(hack_around_backend_bug),
@@ -265,33 +269,28 @@ function calendar_replace_proposal(p){
 // APPLY
 // Sends current_proposal to apply/save it into the DB and refreshes the
 // calendarview to reset the internal events (lavholsb)
-function send_apply_request() {
-    skewer.log("send proposal");
-    // FIXME: hack around back-end bug: convert_to_proposal_id
-    apply_schedule_proposal(convert_to_proposal_id(current_proposal));
-    alert_screen("success", "Changes are applied");
+function send_apply_request(success) {
+    apply_schedule_proposal(fix_proposal_wrt_backend_bugs(current_proposal),
+                            success);
 }
 
 // Sends a compatible proposal to the back-end scheduler
-function apply_schedule_proposal(prop) {
-    postJSON('/api/schedule/proposal/apply', prop, function(data){
-        alert("send done");
-    })
+function apply_schedule_proposal(prop, success) {
+    postJSON('/api/schedule/proposal/apply', prop, success);
 }
 
 // EDIT
 // Sends current_proposal to apply/save it into the DB and refreshes the
 // calendarview to reset the internal events (lavholsb)
-function send_check_request(){
-    skewer.log("check proposal");
+function send_check_request(success){
     // FIXME: hack around back-end bug: convert_to_proposal_id
-    check_schedule_proposal(convert_to_proposal_id(current_proposal));
+    check_schedule_proposal(fix_proposal_wrt_backend_bugs(current_proposal),
+                            success);
 }
 
 // Sends a compatible proposal to the back-end scheduler
-function check_schedule_proposal(prop) {
-    postJSON('/api/schedule/proposal/check', prop, function(){
-        alert("check done")});
+function check_schedule_proposal(prop, success) {
+    postJSON('/api/schedule/proposal/check', prop, success);
 }
 
 // Converts array of raw programs to an array of strings:
@@ -327,27 +326,25 @@ function calendar_go_to_block(sb) {
 }
 
 
-function mark_erratic_blocks(err_blocks) {
+function mark_erratic_blocks(err_blocks){
     // Map over existing events in calendar and change color of each
-    // one, then rerender
-    // evt_prop.events.forEach(function(e) {
-    //     var sb = event_to_schedule_block(e);
-    //     err_blocks.forEach(function(err_sb) {
-    //         if (_.isEqual(sb, err_sb)) {
-    //             e.color = error_color;
-    //             erratic_events.push(e);
-    //             calendar.fullCalendar("rerenderEvents");
-    //         }
-    //     });
-    // });
+    // erroneous one, then rerender
+    calendar.fullCalendar("clientEvents", function(e){
+        return _.some(err_blocks, function(err_b) {
+            return _.isEqual(err_b, event_to_schedule_block(e))});
+    }).forEach(function(e){
+        e.color = error_color;
+        e.erratic = true;
+    });
+    calendar.fullCalendar("rerenderEvents");
 }
-
 function unmark_erratic_blocks() {
-    // erratic_events.forEach(function(e) {
-    //     delete e.color;
-    //     calendar.fullCalendar("rerenderEvents");
-    // });
-    // erratic_events = [];
+    calendar.fullCalendar("clientEvents", function(e) {
+        return e.erratic;
+    }).forEach(function(e) {
+        delete e.color;
+    });
+    calendar.fullCalendar("rerenderEvents");
 }
 
 // PAGE-BUTTON INVOKES
@@ -373,24 +370,5 @@ $(document).ready(function() {
         weekends: true,
         hiddenDays: [0],
         eventDurationEditable: false
-    });
-    $("#edit_button").click(function() {
-        alert("edit button not yet defined");
-    });
-
-    $("#delete_button").click(function() {
-        delete_event(selected_event);
-    });
-
-    $("#reset_button").click(function(){
-        calendar_reset();
-    });
-
-    $("#check_button").click(function() {
-        send_check_request();
-    });
-
-    $("#apply_button").click(function() {
-        send_apply_request();
     });
 });
