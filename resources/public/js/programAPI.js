@@ -20,10 +20,6 @@ returns:                function to be used as a callback in the AJAX call
 
 *****************************************/
 function process_JSON_program(divID, key){
-  return function(data){
-    console.log(data);
-    // We are going to store the information in an array and in the end write the array to the given div
-    var programs = [];
 
     $.each(data, function(key, val)
    {
@@ -98,17 +94,6 @@ function list_programs(divID){
     }
 }
 
-
-// function find_programs(divID){
-
-//     var form = $("#program-search")[0];
-//     var keyword = form.keyword.value;
-//     form.keyword.value = "";
-
-//     list_programs(divID, keyword);
-
-//     return false;
-// }
 
 
 $('#keyword').bind("change keyup", function() {

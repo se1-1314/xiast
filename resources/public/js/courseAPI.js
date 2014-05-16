@@ -1,4 +1,4 @@
-/*
+*
   Name: courseAPI.js
   Creation Date: 21/03/2014
   Author: Kwinten Pardon
@@ -40,21 +40,6 @@ function print_course_info(divID,course){
     }
 
 }
-
-// Returns an Object containing program details of
-// program with program_id  (lavholsb)
-
-// function sync_get_program_details(program_id){
-//     var program_detail;
-//     var url = apiprogram('get').concat("/" + program_id);
-
-//     $.ajax({
-//         url: url,
-//         success: function(data){ program_detail  = data},
-//         dataType: 'json',
-//         async: false });
-//     return program_detail;
-// }
 
 // Given a program_detail object, returns an array of
 // all courses of that program (mandatory & optional)
@@ -256,6 +241,7 @@ function delete_course(course_code){
 $("#courses").on("mousedown", ".course-item", function (){
     $('.course-item').removeClass('active');
     $(this).addClass('active');
+    get_course_info("#course-info", this.id);
 })
 
 $("#PE-course-list").on("mousedown", ".course-item", function (){

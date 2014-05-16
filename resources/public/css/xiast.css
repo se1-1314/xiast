@@ -137,12 +137,12 @@ html, body, .wrapper {
 }
 
 .program-item.active{
-  background-color: #FFBF00;
+  background-color: #5bc0de;
   color: #101010;
 }
 
 .course-item.active{
-  background-color: #FFBF00;
+  background-color: #5bc0de;
   color: #101010;
 }
 

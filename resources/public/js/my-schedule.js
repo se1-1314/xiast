@@ -115,9 +115,17 @@ function load_schedule_check_results(results){
     error_log.find("tr:gt(0)").remove();
     // Add new rows
     results.forEach(function(r){
+        // FIXME backend sends items with course-id fields, but
+        // everything works with course-code here
+        r.concerning.forEach(function(block){
+            var course_id = block.item["course-id"];
+            block.item["course-code"] = course_id;
+            delete block.item["course-id"];
+        });
         var row = $('<tr class="danger"><td>'+r.type+'</td></tr>');
         row.click(function(){
-            load_schedule_check_result(r);});
+            load_schedule_check_result(r);
+        });
         error_log.append(row);
     });
 }
@@ -155,4 +163,18 @@ $(document).ready(function(){
         $("#schedule-activity-event").modal('show');
     });
     $("#add-schedule-block-btn").click(create_event);
+        $("#edit_button").click(function() {
+        alert("edit button not yet defined");
+    });
+    $("#delete_button").click(function() {
+        delete_event(selected_event);
+    });
+    $("#reset_button").click(function(){
+        calendar_reset();
+    });
+    $("#check_button").click(function() {
+        send_check_request(function(check_results){
+            load_schedule_check_results(check_results);
+        });
+    });
 });
