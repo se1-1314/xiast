@@ -38,4 +38,9 @@ function load_requests_list(requests){
 $(document).ready(function() {
     // show requests list
     load_requests_list(get_requests());
+    $("#apply_button").click(function() {
+        send_apply_request(function(check_results){
+            load_schedule_check_results(check_results);
+        });
+    });
 });
