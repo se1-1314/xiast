@@ -37,13 +37,12 @@ function proposal_new_and_moved(p){
 // Scheduleblocks: for back-end scheduler
 // Events: for front-end full_calendar view
 // Scheduleblock -> Event and Event -> Scheduleblock
-// TODO (lavholsb): add/subtract 30 minutes to fit events in calendar
 function schedule_block_to_event(b){
     var e = {
         // TODO (lavholsb): edit event title
-        title: b.item["course-code"],
+        title: b.item["course-code"] + "\n" + b.item["title"],
         start: VUB_time_to_date(b.week, b.day, b["first-slot"]),
-        end: VUB_time_to_date(b.week, b.day, b["last-slot"]),
+        end: VUB_time_to_date(b.week, b.day, b["last-slot"] + 1),
         allDay: false,
         room: b.room,
         item: b.item
@@ -58,7 +57,6 @@ function proposal_block_to_event(b) {
     return e;
 }
 
-// TODO (lavholsb): add/subtract 30 minutes to fit events in calendar
 function event_to_schedule_block(e) {
     var start = date_to_VUB_time(e.start);
     var end = date_to_VUB_time(e.end);
@@ -66,7 +64,7 @@ function event_to_schedule_block(e) {
         week: start[0],
         day: start[1],
         'first-slot': start[2],
-        'last-slot': end[2],
+        'last-slot': end[2] - 1,
         item: e.item,
         room: e.room
     };
