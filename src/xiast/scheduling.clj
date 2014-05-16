@@ -1,7 +1,7 @@
 (ns xiast.scheduling
   (:require [clojure.math.combinatorics :as comb]
             [schema.core :as s]
-            [xiast.query :as q])
+            [xiast.query.core :as q])
   (:use [clojure.set :only [union difference rename-keys]]
         [xiast.schema]))
 
@@ -163,7 +163,7 @@
        (apply concat)
        set))
 
-(defn proposal-checks
+(def proposal-checks
     [check-room-overlaps
      check-mandatory&optional
      ;; check-instructor-available
@@ -184,7 +184,8 @@
     [first-slot last-slot] :slots} :- TimeSpan
    block-length :- (s/named s/Int "Number of schedule slots needed")
    item :- ScheduledCourseActivity
-   room :- RoomID]
+   ;;room :- RoomID
+   ]
   (->> (comb/cartesian-product
         (range first-week (+ last-week 1))
         (range first-day (+ last-day 1))
@@ -195,22 +196,21 @@
                :first-slot s
                :last-slot (+ s block-length -1)
                :item item
-               :room room
+               ;; Hack, but should work to keep check-proposal happy
+               :room {:number 0 :building "" :floor 0}
                ::available true}))))
 
 (s/defn available-blocks-in-timespan :- [ScheduleBlock]
   [timespan :- TimeSpan
    block-length :- (s/named s/Int "Number of schedule slots needed")
    course-activity :- ScheduledCourseActivity
-   room :- RoomID
    proposal :- ScheduleProposal]
   "List the available blocks for a specific course-activity within a
   specific time span. The supplied schedule proposal will be applied
   before checking available blocks."
-  (let [blocks (set (map (blocks-in-timespan timespan
-                                             block-length
-                                             course-activity
-                                             room)))]
+  (let [blocks (set (blocks-in-timespan timespan
+                                        block-length
+                                        course-activity))]
     (->> (merge-with union proposal {:new blocks})
          (#(binding [*overlapping-schedule-blocks*
                      (fn [old prop]
@@ -223,15 +223,18 @@
          (difference blocks)
          (map #(dissoc % ::available)))))
 
-(defn filter-rooms-by-block&proposal
-  [rooms
-   block
-   proposal]
-  (->> (proposal-new&moved proposal)
-       (filter #(schedule-blocks-overlap? %1 block))
-       (map :room)
-       set
-       (difference (set rooms))))
+(s/defn filter-rooms-by-block&proposal :- [RoomID]
+  [rooms :- [Room]
+   block :- ScheduleBlock
+   proposal :- ScheduleProposal]
+  (let [relevant-rooms-in-proposal
+        (->> proposal
+             proposal-new&moved
+             (filter #(schedule-blocks-overlap? % block))
+             (map #(-> % :room))
+             set)]
+    (remove relevant-rooms-in-proposal
+            (map #(-> % :id) rooms))))
 
 (comment
   (defn check-instructor-availabilities :- #{ScheduleCheckResult}

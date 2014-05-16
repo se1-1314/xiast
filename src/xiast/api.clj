@@ -4,7 +4,7 @@
         [xiast.session :only [*session*]]
         [clojure.data.json :only [read-str write-str]]
         [slingshot.slingshot :only [throw+ try+]])
-  (:require [xiast.query :as query]
+  (:require [xiast.query.core :as query]
             [xiast.schema :as xs]
             [xiast.scheduling :as scheduling]
             [clojure.data.json :as json]
@@ -21,9 +21,8 @@
         coercer (coerce/coercer schema coerce/json-coercion-matcher)
         res (coercer json)]
     (if (schema.utils/error? res)
-      #_(do (println res)
-            (throw+ {:type :coercion-error}))
-      (throw+ {:type :coercion-error})
+      (throw+ {:type :coercion-error
+               :error (schema.utils/error-val res)})
       res)))
 
 (defn read-json
@@ -60,9 +59,19 @@
    (s/optional-key :deleted) [xs/ScheduleBlockID]})
 
 (def ScheduleProposalMessage
-  {:sender xs/PersonID
-   :proposal ScheduleProposal
+  {:proposal ScheduleProposal
    :message s/Str})
+
+(def AvailableBlocksQuery
+  {:timespan xs/TimeSpan
+   :block-length s/Int
+   :course-activity s/Int
+   :proposal ScheduleProposal})
+
+(def Room
+  {:id xs/RoomID
+   :capacity s/Int
+   :facilities [xs/RoomFacility]})
 
 ;; Course API
 
@@ -264,7 +273,47 @@
 (defn room-list-free-for-block
   [block body]
   (try+ (let [proposal (coerce-as ScheduleProposal body)]
-          (query/free-rooms-for-block block proposal))
+          (scheduling/filter-rooms-by-block&proposal
+           (query/free-rooms-for-block block proposal)
+           block
+           proposal))
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result (str "Unexpected error: " (.getMessage e))})))
+
+(defn room-add!
+  [body]
+  (try+ (if (some #{:program-manager} (:user-functions *session*))
+          (let [room (coerce-as Room body)]
+            (query/room-add! (assoc (dissoc room :facilities)
+                               :facilities (set (:facilities room))))
+            {:result "OK"})
+          {:result "Not authorized"})
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result (str "Unexpected error: " (.getMessage e))})))
+
+(defn room-edit!
+  [body]
+  (try+ (if (some #{:program-manager} (:user-functions *session*))
+          (let [room (coerce-as Room body)]
+            (query/room-edit! room)
+            {:result "OK"})
+          {:result "Not authorized"})
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result (str "Unexpected error: " (.getMessage e))})))
+
+(defn room-delete!
+  [body]
+  (try+ (if (some #{:program-manager} (:user-functions *session*))
+          (let [room-id (coerce-as xs/RoomID body)]
+            (query/room-delete! room-id)
+            {:result "OK"})
+          {:result "Not authorized"})
         (catch [:type :coercion-error] e
           {:result "Invalid JSON"})
         (catch Exception e
@@ -273,6 +322,12 @@
 (defroutes room-routes
   (GET "/" []
        "Invalid request")
+  (POST "/" {body :body}
+        ((wrap-api-function room-add!) (slurp body)))
+  (PUT "/" {body :body}
+       ((wrap-api-function room-edit!) (slurp body)))
+  (DELETE "/" {body :body}
+          ((wrap-api-function room-delete!) (slurp body)))
   ;; /list -> lists all rooms in a specific building on a specific floor in the database
   (GET "/list/:building/:floor" [building floor]
        ((wrap-api-function room-list) building floor))
@@ -287,19 +342,23 @@
        ((wrap-api-function room-get) building floor number))
   (GET "/building/list" []
        ((wrap-api-function room-building-list)))
-  (GET "/free/:w1/:w2/:d1/:d2/:s1/:s2"
+  (GET ["/free/:w1/:w2/:d1/:d2/:s1/:s2"
+        :w1 #"[0-9]+" :w2 #"[0-9]+" :d1 #"[0-9]+"
+        :d2 #"[0-9]+" :s1 #"[0-9]+" :s2 #"[0-9]+"]
        [w1 w2 d1 d2 s1 s2]
        ((wrap-api-function room-list-free)
         {:weeks [w1 w2]
          :days [d1 d2]
          :slots [s1 s2]}))
-  (POST "/free/:w/:d/:fs/:ls"
+  (POST ["/free/:w/:d/:fs/:ls"
+         :w #"[0-9]+" :d #"[0-9]+"
+         :fs #"[0-9]+" :ls #"[0-9]+"]
         [w d fs ls :as {body :body}]
         ((wrap-api-function room-list-free-for-block)
-         {:week w
-          :day d
-          :first-slot fs
-          :last-slot ls}
+         {:week (Integer. w)
+          :day (Integer. d)
+          :first-slot (Integer. fs)
+          :last-slot (Integer. ls)}
          (slurp body))))
 
 ;; Enrollment API
@@ -373,9 +432,13 @@
 
 (defn titular-courses
   []
-  (if (some #{:titular} (:user-functions *session*))
-    {:courses (query/titular-course-list (:user *session*))}
-    {:courses []}))
+  (cond
+   (some #{:titular} (:user-functions *session*))
+   {:courses (query/titular-course-list (:user *session*))}
+   (some #{:program-manager} (:user-functions *session*))
+   {:courses (query/program-manager-course-list (:user *session*))}
+   :else
+   {:courses []}))
 
 (defroutes titular-routes
   (GET "/" []
@@ -397,15 +460,16 @@
 
 (defn schedule-get
   [timespan]
-  (cond
-   (some #{:instructor} (:user-functions *session*))
-   {:schedule (query/instructor-schedule (:user *session*) timespan)}
-   (some #{:student} (:user-functions *session*))
-   {:schedule (query/student-schedule (:user *session*) timespan)}
-   (some #{:program-manager} (:user-functions *session*))
-   {:schedule (query/program-manager-schedule (:user *session*) timespan)}
-   :else
-   {:schedule []}))
+  ()
+  {:schedule
+   (concat (if (some #{:instructor} (:user-functions *session*))
+             (query/instructor-schedule (:user *session*) timespan))
+           (if (some #{:student} (:user-functions *session*))
+             (query/student-schedule (:user *session*) timespan))
+           (if (some #{:program-manager} (:user-functions *session*))
+             (query/program-manager-schedule (:user *session*) timespan))
+           (if (some #{:titular} (:user-functions *session*))
+             (query/titular-schedule (:user *session*) timespan)))})
 
 (defn schedule-student-get
   [timespan]
@@ -438,6 +502,7 @@
           (let [request (coerce-as ScheduleProposalMessage body)
                 proposal (:proposal request)
                 message (assoc (dissoc request :proposal)
+                          :sender (:user *session*)
                           :proposal {:new (set (:new proposal))
                                      :moved (set (:moved proposal))
                                      :deleted (set (:deleted proposal))})]
@@ -452,9 +517,9 @@
 (defn schedule-proposal-message-list
   []
   (if (some #{:program-manager} (:user-functions *session*))
-    (select-keys (query/schedule-proposal-message-list (:user *session*)
-                                                       :inprogress)
-                 [:id :sender])
+    (map #(select-keys % [:id :sender])
+    (query/schedule-proposal-message-list (:user *session*)
+                                                       :inprogress))
     {:result "Not authorized"}))
 
 ;; TODO: Check if user is program manager of a program that is linked to the msg
@@ -470,9 +535,9 @@
     (try+ (do (query/schedule-proposal-message-accept! id (:user *session*))
               {:result "OK"})
           (catch [:type :not-found] e
-              {:result "Message not found"})
+            {:result "Message not found"})
           (catch [:type :not-authorized] e
-              {:result "Not authorized"})
+            {:result "Not authorized"})
           (catch Exception e
             {:result (str "Unexpected error: " (.getMessage e))}))
     {:result "Not authorized"}))
@@ -483,9 +548,9 @@
     (try+ (do (query/schedule-proposal-message-reject! id (:user *session*))
               {:result "OK"})
           (catch [:type :not-found] e
-              {:result "Message not found"})
+            {:result "Message not found"})
           (catch [:type :not-authorized] e
-              {:result "Not authorized"})
+            {:result "Not authorized"})
           (catch Exception e
             {:result (str "Unexpected error: " (.getMessage e))}))
     {:result "Not authorized"}))
@@ -520,35 +585,62 @@
         (catch Exception e
           {:result (str "Unexpected error: " (.getMessage e))})))
 
+(defn schedule-available-blocks-in-timespan
+  [body]
+  (try+ (let [request (coerce-as AvailableBlocksQuery body)
+              request-proposal (:proposal request)
+              proposal {:new (set (:new request-proposal))
+                        :moved (set (:moved request-proposal))
+                        :deleted (set (:deleted request-proposal))}]
+          (scheduling/available-blocks-in-timespan (:timespan request)
+                                                   (:block-length request)
+                                                   (:course-activity request)
+                                                   proposal))
+        (catch [:type :coercion-error] e
+          {:result "Invalid JSON"})
+        (catch Exception e
+          {:result (str "Unexpected error: " (.getMessage e))})))
+
 (defroutes schedule-routes
   (GET "/" []
        "Invalid request")
-  (GET "/:w1/:w2/:d1/:d2/:s1/:s2"
+  (GET ["/:w1/:w2/:d1/:d2/:s1/:s2"
+        :w1 #"[0-9]+" :w2 #"[0-9]+" :d1 #"[0-9]+"
+        :d2 #"[0-9]+" :s1 #"[0-9]+" :s2 #"[0-9]+"]
        [w1 w2 d1 d2 s1 s2]
        ((wrap-api-function schedule-get)
         {:weeks [w1 w2]
          :days [d1 d2]
          :slots [s1 s2]}))
-  (GET "/student/:w1/:w2/:d1/:d2/:s1/:s2"
+  (GET ["/student/:w1/:w2/:d1/:d2/:s1/:s2"
+        :w1 #"[0-9]+" :w2 #"[0-9]+" :d1 #"[0-9]+"
+        :d2 #"[0-9]+" :s1 #"[0-9]+" :s2 #"[0-9]+"]
        [w1 w2 d1 d2 s1 s2]
        ((wrap-api-function schedule-student-get)
         {:weeks [w1 w2]
          :days [d1 d2]
          :slots [s1 s2]}))
-  (GET "/instructor/:w1/:w2/:d1/:d2/:s1/:s2"
+  (GET ["/instructor/:w1/:w2/:d1/:d2/:s1/:s2"
+        :w1 #"[0-9]+" :w2 #"[0-9]+" :d1 #"[0-9]+"
+        :d2 #"[0-9]+" :s1 #"[0-9]+" :s2 #"[0-9]+"]
        [w1 w2 d1 d2 s1 s2]
        ((wrap-api-function schedule-instructor-get)
         {:weeks [w1 w2]
          :days [d1 d2]
          :slots [s1 s2]}))
-  (GET "/course/:course-code/:w1/:w2/:d1/:d2/:s1/:s2"
+  (GET ["/course/:course-code/:w1/:w2/:d1/:d2/:s1/:s2"
+        :w1 #"[0-9]+" :w2 #"[0-9]+" :d1 #"[0-9]+"
+        :d2 #"[0-9]+" :s1 #"[0-9]+" :s2 #"[0-9]+"]
        [course-code w1 w2 d1 d2 s1 s2]
        ((wrap-api-function schedule-course-get)
         course-code
         {:weeks [w1 w2]
          :days [d1 d2]
          :slots [s1 s2]}))
-  (GET "/program/:id/:w1/:w2/:d1/:d2/:s1/:s2"
+  (GET ["/program/:id/:w1/:w2/:d1/:d2/:s1/:s2"
+        :id #"[0-9]+" :w1 #"[0-9]+" :w2 #"[0-9]+"
+        :d1 #"[0-9]+" :d2 #"[0-9]+" :s1 #"[0-9]+"
+        :s2 #"[0-9]+"]
        [id w1 w2 d1 d2 s1 s2]
        ((wrap-api-function schedule-program-get)
         id
@@ -556,19 +648,21 @@
          :days [d1 d2]
          :slots [s1 s2]}))
   (POST "/message" {body :body}
-        ((wrap-api-function schedule-proposal-message-add! (slurp body))))
+        ((wrap-api-function schedule-proposal-message-add!) (slurp body)))
   (GET "/message/list" []
        ((wrap-api-function schedule-proposal-message-list)))
   (GET "/message/:id" [id]
-       ((wrap-api-function schedule-proposal-message-get id)))
+       ((wrap-api-function schedule-proposal-message-get) id))
   (GET "/message/accept/:id" [id]
-       ((wrap-api-function schedule-proposal-message-accept! id)))
+       ((wrap-api-function schedule-proposal-message-accept!) id))
   (GET "/message/reject/:id" [id]
-       ((wrap-api-function schedule-proposal-message-reject! id)))
+       ((wrap-api-function schedule-proposal-message-reject!) id))
   (POST "/proposal/check" {body :body}
-        ((wrap-api-function schedule-proposal-check (slurp body))))
+        ((wrap-api-function schedule-proposal-check) (slurp body)))
   (POST "/proposal/apply" {body :body}
-        ((wrap-api-function schedule-proposal-apply! (slurp body)))))
+        ((wrap-api-function schedule-proposal-apply!) (slurp body)))
+  (POST "/proposal/available-blocks" {body :body}
+        ((wrap-api-function schedule-available-blocks-in-timespan) (slurp body))))
 
 (defn department-list
   []
@@ -591,5 +685,5 @@
   (context "/titular" [] titular-routes)
   (context "/instructor" [] instructor-routes)
   (context "/schedule" [] schedule-routes)
-   (context "/my-schedule" [] schedule-routes) ;nieuw?
+  (context "/my-schedule" [] schedule-routes) ;nieuw?
   (context "/department" [] department-routes))

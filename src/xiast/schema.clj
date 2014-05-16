@@ -4,8 +4,7 @@
 
   (:require [schema.core :as s]))
 
-(def RoomID {(s/optional-key :id) s/Int
-             :building s/Str
+(def RoomID {:building s/Str
              :floor s/Int
              :number s/Int})
 (def RoomFacility (s/enum :beamer :overhead-projector))  ;; TODO: adding PANOPTO?

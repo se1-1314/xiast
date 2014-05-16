@@ -15,13 +15,13 @@ function print_courses(divID){
 
         $("#course-list").append("<h2>Mandatory</h2>");
         $.each(data.mandatory, function(val, key){
-            $("#course-list").append("<li id='" + key + "' class='list-item btn course-item'>" + key + "</li>");
+            $("#course-list").append("<li id='" + key + "' class='list-item btn-primary btn-lg course-item'>" + key + "</li>");
         });
 
 
         $("#course-list").append("<h2>Optional</h2>");
         $.each(data.optional, function(val, key){
-            $("#course-list").append("<li id='" + key + "' class='list-item btn course-item'>" + key + "</li>");
+            $("#course-list").append("<li id='" + key + "' class='list-item btn-primary btn-lg course-item'>" + key + "</li>");
         });
 
     }
@@ -55,6 +55,17 @@ function sync_get_program_details(program_id){
 // all courses of that program (mandatory & optional)
 function list_all_courses_by_program(program_detail) {
     return program_detail.mandatory.concat(program_detail.optional);
+}
+
+function users_schedulable_courses(){
+    var courses;
+    var url = apititular('courses')
+    $.ajax({
+        url: url,
+        success: function(data){ courses  = data.courses},
+        dataType: 'json',
+        async: false });
+    return courses;
 }
 
 function list_courses_by_program(divID, program){

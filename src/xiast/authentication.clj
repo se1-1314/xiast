@@ -1,7 +1,7 @@
 (ns xiast.authentication
   (:use [xiast.config :only [config]])
   (:require [clj-http.client :as client]
-            [xiast.query :as query]))
+            [xiast.query.core :as query]))
 
 (defn- login-production
   [netid password]
@@ -42,6 +42,12 @@
     "student" (assoc (query/person-get "student")
                 :user "student"
                 :user-functions #{:student})
+    "wdemeuter" (assoc (query/person-get "wdemeuter")
+                  :user "wdemeuter"
+                  :user-functions #{:titular :instructor})
+    "tjdhondt" (assoc (query/person-get "tjdhondt")
+                 :user "tjdhondt"
+                 :user-functions #{:titular :instructor :program-manager})
     (login-production netid password)))
 
 (def login
