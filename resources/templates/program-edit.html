@@ -12,7 +12,6 @@
 					<div class="form-group">
 						<input id="keyword" name="keyword" type="text" class="form-control" placeholder="Search">
 					</div>
-					<button id="search_button" class="btn btn-success">Submit</button>
 				</form>
 			</div>
 			<div class="col-md-4">
@@ -30,7 +29,6 @@
 			<div id="PE-program-list">
 				<img src="/img/loading/loading.gif" class="img-responsive">
 			</div>
-			<!-- <button id="add-program" type="button" class="btn btn-primary">Add Program</button> -->
 			<div class="col-md-5" id="add_program_button">
 			<a data-toggle="modal" href="#NewProgram" class="btn btn-success btn-lg" id="AddProgram">Add Program</a>
 			</div>
@@ -43,7 +41,7 @@
 			</div>
 			<!-- <button type="button" class="btn btn-primary">Add/Remove Course</button> -->
 			<div class="col-md-5" id="create_course_button">
-				<a data-toggle="modal" href="#NewCourse" class="btn btn-success btn-lg" id="AddCourse">Create </br> Delete course</a>
+				<a data-toggle="modal" href="#NewCourse" class="btn btn-success btn-lg" id="AddCourse">Add Course</a>
 			</div>
 			<div  class="col-md-5" id="delete_course_button"></div>
 
@@ -51,7 +49,7 @@
 
 		<div class="col-md-4">
 			<div id="course-info"></div>
-			<button type="button" class="btn btn-success">Update information</button>
+			<button id="refreshcontent" type="button" class="btn btn-success">Update information</button>
 		</div>
 
 	</div>
@@ -89,8 +87,7 @@
 		</div>
 	</div>
 
-	<!-- modal form courses creation
-		 TODO: add course to current selected program -->
+	<!-- modal form courses creation -->
 
 	<div class="modal fade" id="NewCourse" tabindex="-1" role="dialog" aria-labelledby="create_course_form" aria-hidden="true">
 
@@ -98,16 +95,9 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<ul class="nav nav-tabs">
-						<li class="active"><a href="#create" data-toggle="tab">Create</a></li>
-						<li><a href="#delete" data-toggle="tab">Delete</a></li>
-					</ul>
+					<h4 class="modal-title" id="myModalLabel">Create course</h4>
 				</div>
 				<div class="modal-body">
-					<div class="tab-content">
-						<div class="tab-pane active" id="create">
-
-
 					<form class="form" id="create_course_form" onsubmit="return create_course()">
 						<div class="form-group">
 							<label class="control-label" for="CourseCode">Course Code</label>
@@ -141,19 +131,20 @@
   								</label>
 							</div>
 						</div>
+						<div class="form-group">
+							<div class="radio">
+  								<label>
+    								<input type="radio" name="ordinality" id="mandatory" value="mandatory" checked>Mandatory
+  								</label>
+							</div>
+							<div class="radio">
+  								<label>
+    								<input type="radio" name="ordinality" id="optional" value="optional">Optional
+  								</label>
+							</div>
+						</div>
 						<button type="button" id="CreateCourse" class="btn btn-primary">Create course</button>
 					</form>
-				</div>
-				<div class="tab-pane" id="delete">
-					<form class="form" id="delete_course_form" onsubmit="return delete_course()">
-						<div class="form-group">
-							<label class="control-label" for="course_code">Departement</label>
-							<input id="course_code" name="course_code" type="text" class="form-control" placeholder="course_code" required>
-						</div>
-						<button type="button" id="DeleteCourse" class="btn btn-primary" onclick="delete_course()">Delete</button>
-					</form>
-				</div>
-				</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -165,17 +156,5 @@
 
 	</div>
 
-
-	<script src="/js/jquery.js" type="text/javascript"></script>
-	<script src="/js/jquery-ui.js" type="text/javascript"></script>
-	<script src="/js/ServerLove.js" type="text/javascript"></script>
-	<script src="/js/courseAPI.js" type="text/javascript"></script>
-	<script src="/js/programAPI.js" type="text/javascript"></script>
-	<script src="/js/semi-schedulingAPI.js" type="text/javascript"></script>
-	<script src="/js/program-editAPI.js" type="text/javascript"></script>
-	<script src="/js/modalclick.js" type="text/javascript"></script>
-	<script type="text/javascript">
-	list_programs("#PE-program-list");
-	</script>
 </div>
 </html>
