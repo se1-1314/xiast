@@ -82,7 +82,7 @@ function create_event(){
          day: +form.day.value,
          // FIXME first-slot =/= start-hour
          "first-slot": +form["start-hour"].value,
-         "last-slot": +form["start-hour"].value + +form.duration.value,
+         "last-slot": +form["start-hour"].value + +form.duration.value - 1,
          item: {
              "course-activity": +activities.value,
              "course-code": activities[activities.selectedIndex].course_code},
@@ -96,7 +96,7 @@ function create_event(){
 function fill_room_list(room_ids){
     room_ids.map(function(rid){
         var opt = document.createElement("option");
-        opt.innerHTML = rid.building + " " + rid.floor + "." + rid.number;
+        opt.innerHTML = room_id_string(rid);
         opt.floor = rid.floor;
         opt.building = rid.building;
         opt.number = rid.number;
@@ -115,9 +115,17 @@ function load_schedule_check_results(results){
     error_log.find("tr:gt(0)").remove();
     // Add new rows
     results.forEach(function(r){
+        // FIXME backend sends items with course-id fields, but
+        // everything works with course-code here
+        r.concerning.forEach(function(block){
+            var course_id = block.item["course-id"];
+            block.item["course-code"] = course_id;
+            delete block.item["course-id"];
+        });
         var row = $('<tr class="danger"><td>'+r.type+'</td></tr>');
         row.click(function(){
-            load_schedule_check_result(r);});
+            load_schedule_check_result(r);
+        });
         error_log.append(row);
     });
 }
@@ -155,4 +163,25 @@ $(document).ready(function(){
         $("#schedule-activity-event").modal('show');
     });
     $("#add-schedule-block-btn").click(create_event);
+        $("#edit_button").click(function() {
+        alert("edit button not yet defined");
+    });
+    $("#delete_button").click(function() {
+        delete_event(selected_event);
+    });
+    $("#reset_button").click(function(){
+        calendar_reset();
+    });
+    $("#check_button").click(function() {
+        send_check_request(function(check_results){
+            skewer.log(check_results);
+            if (check_results.length == 0){
+                alert_screen("success", "Check passed");
+            }
+            else{
+                alert_screen("warning", "Check failed. Look at the error log for more details");
+            }
+            load_schedule_check_results(check_results);
+        });
+    });
 });
