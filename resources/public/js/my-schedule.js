@@ -145,9 +145,9 @@ function update_schedule_block_suggestions(){
     $("#day-hour").empty();
     var activities = $("#course-activities").get(0);
     var activity = activities.options[activities.selectedIndex];
-    var start_week = +$("#start-week").val();
     var repeat = +$("#repeat").val();
     var duration = +$("#duration").val();
+    var start_week = +$("#start-week").val();
     var day = +$("#day").val();
     var days = (day) ? [day, day] : [1, 6];
     if (activity && start_week && repeat && duration)
@@ -156,9 +156,24 @@ function update_schedule_block_suggestions(){
              days: days,
              slots: [1, 26]},
             duration,
-            +activity.value,
+                +activity.value,
             current_proposal,
             fill_schedule_block_suggestions);
+}
+function update_room_suggestions(){
+    $("#room-floor").empty();
+    var start_week = +$("#start-week").val();
+    var day = +$("#day").val();
+    var slot = +$("#start-hour").val();
+    var duration = +$("#duration").val();
+    if (start_week && day && slot && duration)
+        get_room_suggestions(
+            start_week,
+            day,
+            slot,
+            slot + duration - 1,
+            fix_proposal_wrt_backend_bugs(current_proposal),
+            fill_room_list);
 }
 $(document).ready(function(){
     // Fill day+start-slot combinations
@@ -173,7 +188,7 @@ $(document).ready(function(){
      "#repeat",
      "#duration"].forEach(function(id){
          $(id).change(_.debounce(update_schedule_block_suggestions, 1000));
-//         $(id).change(_.debounce(update_room_suggestions, 1000));
+         $(id).change(_.debounce(update_room_suggestions, 1000));
      });
     $(".modal").modal('hide');
     $("#day-hour").change(function(){
