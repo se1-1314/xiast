@@ -42,7 +42,7 @@ function blockEquals(b1, b2){
             && b2["last-slot"] == b2["last-slot"]);
 }
 function room_id_string(rid){
-    return rid.building + " " + rid.floor + "." + rid.number;
+    return rid.building + rid.floor + "." + rid.number;
 }
 
 // CONVERT
@@ -53,7 +53,7 @@ function room_id_string(rid){
 function schedule_block_to_event(b){
     var e = {
         // TODO (lavholsb): edit event title
-        title: b.item["course-code"]
+        title: b.item["course-title"]
             + "\n" + b.item["title"]
             + "\n" + room_id_string(b.room),
         start: VUB_time_to_date(b.week, b.day, b["first-slot"]),
