@@ -82,7 +82,7 @@ function create_event(){
          day: +form.day.value,
          // FIXME first-slot =/= start-hour
          "first-slot": +form["start-hour"].value,
-         "last-slot": +form["start-hour"].value + +form.duration.value,
+         "last-slot": +form["start-hour"].value + +form.duration.value - 1,
          item: {
              "course-activity": +activities.value,
              "course-code": activities[activities.selectedIndex].course_code},
@@ -96,7 +96,7 @@ function create_event(){
 function fill_room_list(room_ids){
     room_ids.map(function(rid){
         var opt = document.createElement("option");
-        opt.innerHTML = rid.building + " " + rid.floor + "." + rid.number;
+        opt.innerHTML = room_id_string(rid);
         opt.floor = rid.floor;
         opt.building = rid.building;
         opt.number = rid.number;
@@ -174,7 +174,8 @@ $(document).ready(function(){
     });
     $("#check_button").click(function() {
         send_check_request(function(check_results){
-            if (check_results.length <= 0){
+            skewer.log(check_results);
+            if (check_results.length == 0){
                 alert_screen("success", "Check passed");
             }
             else{

@@ -68,6 +68,7 @@ $(document).ready(function() {
 	show_request_description();
     $("#apply_button").click(function() {
         send_apply_request(function(check_results){
+            
             load_schedule_check_results(check_results);
         });
     });

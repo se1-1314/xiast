@@ -41,6 +41,10 @@ function blockEquals(b1, b2){
             && b1["first-slot"] == b2["first-slot"]
             && b2["last-slot"] == b2["last-slot"]);
 }
+function room_id_string(rid){
+    return rid.building + " " + rid.floor + "." + rid.number;
+}
+
 // CONVERT
 //------------------------------------------------------------------------------
 // Scheduleblocks: for back-end scheduler
@@ -49,7 +53,9 @@ function blockEquals(b1, b2){
 function schedule_block_to_event(b){
     var e = {
         // TODO (lavholsb): edit event title
-        title: b.item["course-code"] + "\n" + b.item["title"],
+        title: b.item["course-code"]
+            + "\n" + b.item["title"]
+            + "\n" + room_id_string(b.room),
         start: VUB_time_to_date(b.week, b.day, b["first-slot"]),
         end: VUB_time_to_date(b.week, b.day, b["last-slot"] + 1),
         allDay: false,
@@ -371,6 +377,11 @@ $(document).ready(function() {
         minTime: 7,
         weekends: true,
         hiddenDays: [0],
-        eventDurationEditable: false
+        eventDurationEditable: false,
+        eventRender: function(event, element) {
+            element.qtip({
+                content: {text: event.title}
+            });
+        }
     });
 });
