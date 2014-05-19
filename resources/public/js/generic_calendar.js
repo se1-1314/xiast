@@ -249,6 +249,7 @@ function hack_around_backend_bug(schedule_block) {
     var course_code = sb.item['course-code'];
     delete sb.item['course-code'];
     delete sb.item.title;
+    delete sb.item['course-title'];
     sb.item['course-id'] = course_code;
     return sb;
 }

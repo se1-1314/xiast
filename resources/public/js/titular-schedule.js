@@ -16,8 +16,7 @@ $(document).ready(function(){
     });
     // send proposal
     $("#send-activity").click(function(){
-        var proposal = current_proposal;
         var message = $("#message").val();
-        send_proposal_with_message(proposal, message);
+        send_proposal_with_message(current_proposal, message);
     });
 });
