@@ -56,14 +56,18 @@
        "</a>"
        "<ul class=\"dropdown-menu\">"
        "<li><a href=\"/logout\">Logout</a></li>"
-       "<li><a href=\"/profile\">Profile</a></li>"
        "</ul>"
        "</li>"))
 
 (deftemplate base "templates/layout.html"
   [body & {:keys [title alert]}]
   [:html :> :head :> :title] (content title)
-  [:div#menu] #(t/translate-nodes %)
+  [:.guest] (cond
+            (contains? (set (:user-functions *session*)) :program-manager) nil
+            (contains? (set (:user-functions *session*)) :student) nil
+            (contains? (set (:user-functions *session*)) :titular) nil
+            :else identity)
+  ;;[:div#menu] #(t/translate-nodes %)
   [:.non-guest] (cond
                  (contains? (set (:user-functions *session*)) :program-manager) identity
                  (contains? (set (:user-functions *session*)) :student) identity
@@ -130,6 +134,14 @@
        (base (-> (about-body)
                  (t/translate-nodes)))))
 
+(defsnippet schedules-body "templates/schedules.html" [:div#page-content] [] identity)
+
+(defroutes schedules-routes
+  (GET "/schedules" []
+       (base (->
+              (schedules-body)
+              (t/translate-nodes)))))
+
 (defsnippet my-schedule-program-manager-body "templates/my-schedule.html" [:.program-manager] [])
 (defsnippet my-schedule-titular-body "templates/my-schedule.html" [:.titular] [])
 (defsnippet my-schedule-student-body "templates/my-schedule.html" [:.student] [])
@@ -178,20 +190,6 @@
          "00"
          "30")))
 
-(defsnippet profile-student-body "templates/profile-student.html" [:div#page-content] [] identity)
-(defsnippet profile-titular-body "templates/profile-titular.html" [:div#page-content] [] identity)
-(defsnippet profile-program-manager-body "templates/profile-program-manager.html" [:div#page-content] [] identity)
-
-(defroutes profile-routes
-  (GET "/profile" []
-       (base (->
-              (cond
-               (contains? (set (:user-functions *session*)) :student) (profile-student-body)
-               (contains? (set (:user-functions *session*)) :titular) (profile-titular-body)
-               (contains? (set (:user-functions *session*)) :program-manager) (profile-program-manager-body)
-               :else nil)
-              (t/translate-nodes)))))
-
 (defsnippet login-body "templates/login.html" [:div#page-content]
   []
   identity)
@@ -230,11 +228,11 @@
   (context "/api" [] api-routes)
   index-routes
   about-routes
+  schedules-routes
   my-schedule-routes
   curriculum-info-routes
   program-edit-routes
   classroom-edit-routes
-  profile-routes
   login-routes
   language-routes
   (route/not-found "Not found!"))

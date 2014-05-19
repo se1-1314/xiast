@@ -42,6 +42,9 @@
 								<li>
 									<a href="http://vub.ac.be" msg="header/vub">VUB</a>
 								</li>
+								<li class="guest">
+									<a href="/schedules" msg="header/schedules">Schedules</a>
+								</li>
 								<li class="non-guest">
 									<a href="/my-schedule" msg="header/my-schedule">My Schedule</a>
 								</li>
@@ -79,6 +82,9 @@
 								</li>
 								<li>
 									<a href="http://vub.ac.be" msg="header/vub">VUB</a>
+								</li>
+								<li class="guest">
+									<a href="/schedules" msg="header/schedules">Schedules</a>
 								</li>
 								<li class="non-guest">
 									<a href="/my-schedule" msg="header/my-schedule">My Schedule</a>
@@ -125,9 +131,8 @@
 		<script src="/js/underscore-min.js" type="text/javascript"></script>
 		<script src="/js/date_conversion.js" type="text/javascript"></script>
 		<script src="/js/fullcalendar.min.js" type="text/javascript"></script>
-		<script src="/js/calendarviewer.js" type="text/javascript"></script>
 		<script src="/js/generic_calendar.js" type="text/javascript"></script>
-		<script src="http://localhost:8080/skewer" type="text/javascript"></script>
+		<!--<script src="http://localhost:8080/skewer" type="text/javascript"></script>-->
 		<script src="/js/ServerLove.js" type="text/javascript"></script>
 		<!-- js imports for all users/{guest}	-->
 		<script class="non-guest" src="/js/my-schedule.js" type="text/javascript"></script>
@@ -136,12 +141,13 @@
 		<!-- js imports for program manager	-->
 		<script class="program-manager" src="/js/pm-schedule.js" type="text/javascript"></script>
 		<script class="program-manager" src="/js/program-editAPI.js" type="text/javascript"></script>
-		<script class="program-manager" src="/js/classroom-editAPI.js" type="text/javascript"></script>
+		<script class="program-manager" src="/js/classroom-edit.js" type="text/javascript"></script>
 		<!-- js imports for titular	-->
 		<script class="titular" scr="/js/profile-titularAPI.js" type="text/javascript"></script>
 		<script class="titular" src="/js/titular-schedule.js" type="text/javascript"></script>
 		<!-- js imports for student	-->
 		<!-- js imports for guest	-->
+		<script class="guest" src="/js/schedules.js" type="text/javascript"></script>
 		<script type="text/javascript">
 			$("#toggle").on("click", function() {
 				$(".row-offcanvas").toggleClass("active");

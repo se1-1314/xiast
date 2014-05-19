@@ -15,15 +15,13 @@ function print_courses(divID){
 
         $("#course-list").append("<h2>Mandatory</h2>");
         $.each(data.mandatory, function(val, key){
-            course_name = getCourseNameByCourseCode(key);
-            $("#course-list").append("<li id='" + key + "' class='list-item btn course-item'>" + course_name + "</li>");
+            $("#course-list").append("<li id='" + key + "' class='list-item btn-primary btn-lg course-item'>" + key + "</li>");
         });
 
 
         $("#course-list").append("<h2>Optional</h2>");
         $.each(data.optional, function(val, key){
-            course_name = getCourseNameByCourseCode(key);
-            $("#course-list").append("<li id='" + key + "' class='list-item btn course-item'>" + course_name + "</li>");
+            $("#course-list").append("<li id='" + key + "' class='list-item btn-primary btn-lg course-item'>" + key + "</li>");
         });
 
     }
