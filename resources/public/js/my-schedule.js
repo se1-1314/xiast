@@ -64,12 +64,24 @@ function schedule_block_to_day_hour_option(b){
     var opt = document.createElement("option");
     opt.innerHTML = "W" + b.week + "D" + b.day + "S" +
         b["first-slot"] + "-" + b["last-slot"];
+    opt.week = b.week;
+    opt.day = b.day;
+    opt["first-slot"] = b["first-slot"];
     return opt;
 }
 function fill_schedule_block_suggestions(blocks){
     suggestions = $("#day-hour");
     suggestions.empty();
-    blocks.forEach(function(b){
+    var sorted = blocks.sort(function(a, b){
+        if (a.week < b.week) return -1;
+        if (a.week > b.week) return 1;
+        if (a.day < b.day) return -1;
+        if (a.day < b.day) return 1;
+        if (a["first-slot"] < b["first-slot"]) return -1;
+        if (a["first-slot"] > b["first-slot"]) return 1;
+        return 0;
+    });
+    sorted.forEach(function(b){
         suggestions.append(schedule_block_to_day_hour_option(b));});
 }
 function create_event(){
@@ -129,31 +141,48 @@ function load_schedule_check_results(results){
         error_log.append(row);
     });
 }
-
+function update_schedule_block_suggestions(){
+    $("#day-hour").empty();
+    var activities = $("#course-activities").get(0);
+    var activity = activities.options[activities.selectedIndex];
+    var start_week = +$("#start-week").val();
+    var repeat = +$("#repeat").val();
+    var duration = +$("#duration").val();
+    var day = +$("#day").val();
+    var days = (day) ? [day, day] : [1, 6];
+    if (activity && start_week && repeat && duration)
+        get_schedule_block_suggestions(
+            {weeks: [start_week, start_week],
+             days: days,
+             slots: [1, 26]},
+            duration,
+            +activity.value,
+            current_proposal,
+            fill_schedule_block_suggestions);
+}
 $(document).ready(function(){
     // Fill day+start-slot combinations
     $.getJSON("/api/room/list", function(data){
         fill_room_list(data.rooms.map(function(r){return r.id;}));
     });
-    $("#course-activities").change(function(){
-        $("#day-hour").empty();
-        var activity = this.options[this.selectedIndex];
-        var start_week = +$("#start-week").val();
-        var repeat = +$("#repeat").val();
-        var duration = +$("#duration").val();
-        var day = +$("#day").val();
-        var days = (day) ? [day, day] : [1, 6];
-        if (activity && start_week && repeat && duration)
-            get_schedule_block_suggestions(
-                {weeks: [start_week, start_week + repeat - 1],
-                 days: days,
-                 slots: [1, 26]},
-                duration,
-                    +activity.value,
-                current_proposal,
-                fill_schedule_block_suggestions);
-    });
+    // Add activity form
+    // Update schedule block suggestions on changes of the following:
+    ["#course-activities",
+     "#day",
+     "#start-week",
+     "#repeat",
+     "#duration"].forEach(function(id){
+         $(id).change(_.debounce(update_schedule_block_suggestions, 1000));
+//         $(id).change(_.debounce(update_room_suggestions, 1000));
+     });
     $(".modal").modal('hide');
+    $("#day-hour").change(function(){
+        var opt = this.options[this.selectedIndex];
+        $("#week").val(opt.week);
+        $("#day").val(opt.day);
+        $("#start-hour").val(opt["first-slot"]);
+    });
+    // Buttons
     $("#schedule-activity").click(function() {
         var date = date_to_VUB_time(date_shown_on_calendar());
         $("#start-week").val(date[0]);
