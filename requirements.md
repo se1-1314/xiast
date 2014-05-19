@@ -33,7 +33,7 @@ tr {
 |FRT1|View Profile + Courses|LOW|<font color='black'>Deprecated</font>|
 |FRT2|Last-minute Cancelling|LOW|<font color='purple'>Changed -- Done</font>|
 |FRT3|Edit Details of Course|LOW|<font color='black'>Deprecated</font>|
-|FRT4|Edit Preferences|MEDIUM|<font color='black'Deprecated</font>|
+|FRT4|Edit Preferences|MEDIUM|<font color='black'>Deprecated</font>|
 |FRT5|Semi-Scheduling|HIGH|<font color='purple'>Changed -- Done</font>|
 |FRT6|Manual Adjustments|MEDIUM|<font color='green'>Done</font>|
 |FRP1|View Programs + Courses|HIGH|<font color='green'>Done</font>|
