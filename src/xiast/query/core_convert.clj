@@ -107,6 +107,11 @@
             {:title (if-let [name (:name activity)]
                       name
                       "")
+             :course-title ((comp :title first)
+                            (select course
+                                    (fields :title)
+                                    (where {:course-code
+                                            (:course-code activity)})))
              :course-activity (:id activity)
              :course-code (:course-code activity)})
     :room (first (select room
