@@ -14,10 +14,10 @@ $(document).ready(function(){
     $("#send-proposal").click(function(){
         $("#send-proposal-event").modal("show");
     });
-    // send proposal 
+    // send proposal
     $("#send-activity").click(function(){
-        var proposal = generate_schedule_proposal();
+        var proposal = current_proposal;
         var message = $("#message").val();
         send_proposal_with_message(proposal, message);
-    });  
+    });
 });
