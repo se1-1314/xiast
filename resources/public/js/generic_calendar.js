@@ -18,10 +18,12 @@ var selected_event = null;
 
 // MISC FUNCTIONS
 //------------------------------------------------------------------------------
-function remove_from_array(events, event) {
-    var idx = events.indexOf(event);
-    if (idx != -1) {
-        events.splice(idx, 1);
+function remove_block_from_array(blocks, block) {
+    for (var i = 0; i < blocks.length; i++) {
+        if (blockEquals(blocks[i],block)) {
+            blocks.splice(i, 1);
+            break;
+        }
     }
 }
 function ids_in_proposal(p) {
@@ -31,7 +33,14 @@ function ids_in_proposal(p) {
 function proposal_new_and_moved(p){
     return p.new.concat(p.moved);
 }
-
+function blockEquals(b1, b2){
+    return (_.isEqual(b1.room, b2.room)
+            && b1.item["course-activity"] == b2.item["course-activity"]
+            && b1.week == b2.week
+            && b1.day == b2.day
+            && b1["first-slot"] == b2["first-slot"]
+            && b2["last-slot"] == b2["last-slot"]);
+}
 // CONVERT
 //------------------------------------------------------------------------------
 // Scheduleblocks: for back-end scheduler
@@ -172,26 +181,26 @@ function calendar_event_click_event(calendar_event, js_event, view){
 function alert_screen(type, msg){
     alert = '<div class="alert container alert-dismissable alert-' + type + '" id="alert"> \
     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times</button> \
-    <div id="alert-body">' + msg + '</div> \
-    </div>';
+<div id="alert-body">' + msg + '</div> \
+</div>';
     $("#menu").after(alert);
 }
 
 // Deletes an event (if exists) from a calendar and its event-lists
 function delete_event(e) {
-    if (current_user.toLowerCase() === 'student' || current_user.toLowerCase() === 'guest'){
-        throw "Not authorized";
-    }
     if (e === null){
         alert_screen("info", "Please select the event you want to delete first");
-    }
-    if ('schedule_block_id' in e) {
-        current_proposal.deleted.push(e.schedule_block_id);
-        remove_from_array(current_proposal.moved, event_to_schedule_block(e));
     } else {
-        remove_from_array(current_proposal.new, event_to_schedule_block(e));
+        if ('schedule_block_id' in e) {
+            current_proposal.deleted.push(e.schedule_block_id);
+            remove_block_from_array(
+                current_proposal.moved, event_to_schedule_block(e));
+        } else {
+            remove_block_from_array(
+                current_proposal.new, event_to_schedule_block(e));
+        }
+        calendar_remove_event(e);
     }
-    calendar_remove_event(e);
 }
 
 // MOVE
