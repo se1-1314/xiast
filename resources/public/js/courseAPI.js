@@ -62,7 +62,7 @@ function users_schedulable_courses(){
     var url = apititular('courses')
     $.ajax({
         url: url,
-        success: function(data){ courses  = data.courses},
+        success: function(data){courses = data.courses;},
         dataType: 'json',
         async: false });
     return courses;

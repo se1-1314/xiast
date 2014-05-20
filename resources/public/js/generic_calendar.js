@@ -235,7 +235,7 @@ function calendar_remove_event(e){
 function calendar_reset(){
     calendar.fullCalendar('removeEvents');
     current_proposal = the_empty_proposal;
-    calendar.fullCalendar('refetchEvens');
+    calendar.fullCalendar('refetchEvents');
 }
 
 // PROPOSALS

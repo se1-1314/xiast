@@ -36,10 +36,12 @@ function fill_activity_list(){
     var activity_list = $("#course-activities");
     var activities = _.flatten(users_schedulable_courses().map(course_activities),
                                true);
-    activities.map(function(a){
+    activities.forEach(function(a){
         option = document.createElement("option");
         option.innerHTML = a.course_title + ": " + a.activity_name;
         option.course_code = a.course_code;
+        option.course_title = a.course_title;
+        option.title = a.activity_name;
         option.value = +a.activity_id;
         activity_list.append(option);
     });
@@ -96,6 +98,8 @@ function create_event(){
          "first-slot": +form["start-hour"].value,
          "last-slot": +form["start-hour"].value + +form.duration.value - 1,
          item: {
+             "title": activities[activities.selectedIndex].title,
+             "course-title": activities[activities.selectedIndex].course_title,
              "course-activity": +activities.value,
              "course-code": activities[activities.selectedIndex].course_code},
          room: {
