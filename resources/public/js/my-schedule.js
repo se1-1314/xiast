@@ -181,11 +181,14 @@ function update_room_suggestions(){
             fix_proposal_wrt_backend_bugs(current_proposal),
             fill_room_list);
 }
-$(document).ready(function(){
-    // Fill day+start-slot combinations
+function initialise_room_list() {
     $.getJSON("/api/room/list", function(data){
         fill_room_list(data.rooms.map(function(r){return r.id;}));
     });
+}
+$(document).ready(function(){
+    initialise_room_list();
+    // Fill day+start-slot combinations
     // Add activity form
     // Update schedule block suggestions on changes of the following:
     ["#course-activities",
@@ -193,9 +196,10 @@ $(document).ready(function(){
      "#start-week",
      "#repeat",
      "#duration"].forEach(function(id){
-         $(id).change(_.debounce(update_schedule_block_suggestions, 1000));
-         $(id).change(_.debounce(update_room_suggestions, 1000));
+         $(id).change(_.debounce(update_schedule_block_suggestions, 500));
      });
+    $("#update-room-suggestions-btn").click(update_room_suggestions);
+    $("#clear-room-suggestions-btn").click(initialise_room_list);
     $(".modal").modal('hide');
     $("#day-hour").change(function(){
         var opt = this.options[this.selectedIndex];
@@ -233,6 +237,7 @@ $(document).ready(function(){
             load_schedule_check_results(check_results);
         });
     });
+    $("#course-activities").select2();
     $("#day-hour").select2();
     $("#room-floor").select2();
 });
