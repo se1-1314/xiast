@@ -34,6 +34,7 @@ function course_activities(c){
 function fill_activity_list(){
     // <select> list
     var activity_list = $("#course-activities");
+    activity_list.empty();
     var activities = _.flatten(users_schedulable_courses().map(course_activities),
                                true);
     activities.forEach(function(a){
@@ -223,7 +224,6 @@ $(document).ready(function(){
     });
     $("#check_button").click(function() {
         send_check_request(function(check_results){
-            skewer.log(check_results);
             if (check_results.length == 0){
                 alert_screen("success", "Check passed");
             }
