@@ -219,6 +219,28 @@
               (values {:message-id message-id
                        :program-id program})))))
 
+(defn- fix-schedule-proposal-message-proposal
+  [proposal]
+  (let [f (fn [block]
+            (let [activity (:course-activity (:item block))
+                  course-id (:course-id (:item block))
+                  a-title ((comp :name first)
+                           (select course-activity
+                                   (fields :name)
+                                   (where {:id activity})))
+                  c-title ((comp :title first)
+                           (select course
+                                   (fields :title)
+                                   (where {:course-code course-id})))]
+              (assoc (dissoc block :item)
+                :item (assoc (dissoc (:item block) :course-id)
+                        :course-code course-id
+                        :title a-title
+                        :course-title c-title))))]
+    (assoc (dissoc proposal :new :moved)
+      :new (map f (:new proposal))
+      :moved (map f (:moved proposal)))))
+
 (s/defn schedule-proposal-message-list :- [xs/ScheduleProposalMessage]
   ([manager :- xs/PersonID]
      (schedule-proposal-message-list manager nil))
@@ -247,7 +269,8 @@
                              `(~'or ~@or-terms))))
                        (modifier "DISTINCT"))))]
        (map #(assoc (dissoc % :proposal :status)
-               :proposal (edn/read-string (:proposal %))
+               :proposal (fix-schedule-proposal-message-proposal
+                          (edn/read-string (:proposal %)))
                :status (get message-status (:status %)))
             messages))))
 
@@ -260,7 +283,8 @@
     (if (empty? message)
       nil
       (#(assoc (dissoc % :proposal :status)
-          :proposal (edn/read-string (:proposal %))
+          :proposal (fix-schedule-proposal-message-proposal
+                     (edn/read-string (:proposal %)))
           :status (get message-status (:status %)))
        (first message)))))
 
