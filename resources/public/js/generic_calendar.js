@@ -6,13 +6,15 @@ var current_user = "program-manager";
 var error_color = "red";
 var selected_color = "green";
 
-var the_empty_proposal = {
-    new: [],
-    moved: [],
-    // ids of deleted blocks
-    deleted: []
+function reset_proposal(){
+    current_proposal =
+        {new: [],
+         moved: [],
+         // ids of deleted blocks
+         deleted: []};
 }
-var current_proposal = the_empty_proposal;
+var current_proposal = null;
+reset_proposal();
 
 var selected_event = null;
 
@@ -234,7 +236,7 @@ function calendar_remove_event(e){
 }
 function calendar_reset(){
     calendar.fullCalendar('removeEvents');
-    current_proposal = the_empty_proposal;
+    reset_proposal();
     calendar.fullCalendar('refetchEvents');
 }
 
