@@ -223,7 +223,7 @@
   [proposal]
   (let [f (fn [block]
             (let [activity (:course-activity (:item block))
-                  course (:course-code (:item block))
+                  course (:course-id (:item block))
                   a-title ((comp :name first)
                            (select course-activity
                                    (fields :name)
