@@ -91,23 +91,24 @@ function create_event(){
     var activities = form["course-activities"];
     var rooms = form["room-floor"];
     var room = rooms[rooms.selectedIndex];
-    var schedule_block =
-        {week: +form["start-week"].value,
-         day: +form.day.value,
-         // FIXME first-slot =/= start-hour
-         "first-slot": +form["start-hour"].value,
-         "last-slot": +form["start-hour"].value + +form.duration.value - 1,
-         item: {
-             "title": activities[activities.selectedIndex].title,
-             "course-title": activities[activities.selectedIndex].course_title,
-             "course-activity": +activities.value,
-             "course-code": activities[activities.selectedIndex].course_code},
-         room: {
-             building: room.building,
-             floor: +room.floor,
-             number: +room.number}};
-    // FIXME
-    add_new_schedule_block(schedule_block);
+    var repeat = +form["repeat"].value;
+    for (var i = 0; i < repeat; i++){
+        add_new_schedule_block(
+            {week: +form["start-week"].value + i,
+             day: +form.day.value,
+             // FIXME first-slot =/= start-hour
+             "first-slot": +form["start-hour"].value,
+             "last-slot": +form["start-hour"].value + +form.duration.value - 1,
+             item: {
+                 "title": activities[activities.selectedIndex].title,
+                 "course-title": activities[activities.selectedIndex].course_title,
+                 "course-activity": +activities.value,
+                 "course-code": activities[activities.selectedIndex].course_code},
+             room: {
+                 building: room.building,
+                 floor: +room.floor,
+                 number: +room.number}});
+    }
 }
 function fill_room_list(room_ids){
     room_ids.map(function(rid){
@@ -232,4 +233,6 @@ $(document).ready(function(){
             load_schedule_check_results(check_results);
         });
     });
+    $("#day-hour").select2();
+    $("#room-floor").select2();
 });
