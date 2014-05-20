@@ -223,7 +223,7 @@
   [proposal]
   (let [f (fn [block]
             (let [activity (:course-activity (:item block))
-                  course (:course-id (:item block))
+                  course-id (:course-id (:item block))
                   a-title ((comp :name first)
                            (select course-activity
                                    (fields :name)
@@ -231,7 +231,7 @@
                   c-title ((comp :title first)
                            (select course
                                    (fields :title)
-                                   (where {:course-code course})))]
+                                   (where {:course-code course-id})))]
               (assoc (dissoc block :item)
                 :item (assoc (:item block)
                         :title a-title
