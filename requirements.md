@@ -26,7 +26,7 @@ tr {
 |FRU2|Timetables|HIGH|<font color='green'>Done</font>|
 |FRU3|Viewing Personal Schedule|HIGH|<font color='green'>Done</font>|
 |FRU4|Set Default Language|LOW|<font color='green'>Done</font>|
-|FRS1|View Profile + Courses|HIGH|<font color='green'>Done</font>|
+|FRS1|View Profile + Courses|HIGH|<font color='black'>Deprecated</font>|
 |FRS2|Search for Course or Program|LOW|<font color='#FFD700'>Almost Done</font>|
 |FRS3|Registering for Course or Program|MEDIUM|<font color='#FFD700'>In development</font>|
 |FRS4|Unregistering for Course or Program|MEDIUM|<font color='#FFD700'>In development</font>|
