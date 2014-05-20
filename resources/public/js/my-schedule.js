@@ -227,6 +227,7 @@ $(document).ready(function(){
         calendar_reset();
     });
     $("#check_button").click(function() {
+        unmark_erratic_blocks();
         send_check_request(function(check_results){
             if (check_results.length == 0){
                 alert_screen("success", "Check passed");
