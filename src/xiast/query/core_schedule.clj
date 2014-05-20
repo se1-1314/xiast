@@ -233,7 +233,8 @@
                                    (fields :title)
                                    (where {:course-code course-id})))]
               (assoc (dissoc block :item)
-                :item (assoc (:item block)
+                :item (assoc (dissoc (:item block) :course-id)
+                        :course-code course-id
                         :title a-title
                         :course-title c-title))))]
     (assoc (dissoc proposal :new :moved)
