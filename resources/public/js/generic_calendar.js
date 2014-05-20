@@ -342,7 +342,7 @@ function mark_erratic_blocks(err_blocks){
     // erroneous one, then rerender
     calendar.fullCalendar("clientEvents", function(e){
         return _.some(err_blocks, function(err_b) {
-            return _.isEqual(err_b, event_to_schedule_block(e))});
+            return blockEquals(err_b, event_to_schedule_block(e))});
     }).forEach(function(e){
         e.color = error_color;
         e.erratic = true;
