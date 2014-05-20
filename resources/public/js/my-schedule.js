@@ -157,7 +157,7 @@ function update_schedule_block_suggestions(){
              slots: [1, 26]},
             duration,
                 +activity.value,
-            current_proposal,
+            fix_proposal_wrt_backend_bugs(current_proposal),
             fill_schedule_block_suggestions);
 }
 function update_room_suggestions(){
