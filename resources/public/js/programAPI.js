@@ -7,8 +7,9 @@ Author:                 Kwinten Pardon
 API calls and processing of resulting JSON
 concerning programs
 
-*****************************************/
-
+ *****************************************/
+//global variable for use in other functions
+var selected_program;
 /*****************************************
 Name:                   process_JSON_program
 Creation Date:  02/04/2014
@@ -19,7 +20,6 @@ returns:                function to be used as a callback in the AJAX call
 
 *****************************************/
 function process_JSON_program(divID, key){
-
     return function(data){
         console.log(data);
         // We are going to store the information in an array and in the end write the array to the given div
@@ -68,17 +68,6 @@ function process_JSON_program(divID, key){
     }
 }
 
-// Returns an array of programs from back-end (lavholsb)
-function sync_list_programs(){
-    var programs;
-    var url = apiprogram('list');
-    $.ajax({
-        url: url,
-        success: function(data){ programs  = data.programs; },
-        dataType: 'json',
-        async: false });
-    return programs;
-}
 
 /*
   Name: list_programs
@@ -88,77 +77,62 @@ function sync_list_programs(){
   Author: Kwinten Pardon
   Date: 01/04/2014
 */
-function list_programs(divID, keyword){
+// TODO !! list en find moeten uit elkaar gehaald worden, na het "zoeken" naar programma's worden geen 
+// vakken meer gedisplayed noch descriptions
+function list_programs(divID){
 
     try {
-        // If divID is empty (required parameter)
-        // We throw an error stating that divID is required
-        if (typeof divID === 'undefined') {
-            throw("Requires divID");
-        }
+      // If divID is empty (required parameter)
+      // We throw an error stating that divID is required
+      if (typeof divID === 'undefined') {
+          throw("Requires divID");
+      }
 
-        // Given a keyword: the command should be find.
-        // otherwise the command should be list (list every existing program)
-        var command = (typeof keyword === 'undefined') ? "list" : "find";
-        // Create API url ServerLove.js for more details
-        var url = apiprogram(command);
+      var url = '/api/program/list';
 
-        // The fun starts with the JSON call
-        // this is an AJAX call that executes the given function on the resulting data
-        if (command == 'list')
+      $.ajax(
         {
-            console.log(command);
-            console.log(url);
-            $.ajax(
-                {
-                    type: "GET",
-                    url: url,
-                    success: process_JSON_program(divID),
-                    dataType: "JSON"
-                });
-        }
-        else
-        {
-            console.log(command);
-            console.log(url);
-            console.log(keyword);
-
-            var data = new Object();
-            data.keywords = [keyword];
-            data = JSON.stringify(data);
-
-            console.log(data);
-            console.log("---------");
-            $.ajax(
-                {
-                    type: "POST",
-                    url: url,
-                    data: data,
-                    processData: false,
-                    contentType: "application/json",
-                    success: process_JSON_program(divID),
-                    dataType: "JSON",
-                });
-        }
-        // If an error was throw we display the error to the console of the user.
-        // He may then choose to laugh or warn us about it.
-        // He / She will Probably do both
+          type: "GET",
+          url: url,
+          success: process_JSON_program(divID),
+          dataType: "JSON"
+        });
     } catch(error) {
-        console.error(error);
+      console.error(error);
     }
 }
 
 
-function find_programs(divID){
+// function find_programs(divID){
 
-    var form = $("#program-search")[0];
-    var keyword = form.keyword.value;
-    form.keyword.value = "";
+//     var form = $("#program-search")[0];
+//     var keyword = form.keyword.value;
+//     form.keyword.value = "";
 
-    list_programs(divID, keyword);
+//     list_programs(divID, keyword);
 
-    return false;
-}
+//     return false;
+// }
+
+
+$('#keyword').bind("change keyup", function() {
+  searchWord = $(this).val();
+  if (searchWord.length >= 3) {
+    $('ul.listing li').each(function() {
+      text = $(this).text();
+      if (text.match(RegExp(searchWord, 'i'))) {
+        $(this).show();
+      }
+      else {
+        $(this).hide();
+      }
+    });
+  }
+  if (searchWord.length == 0){
+    list_programs("#PE-program-list");
+  }
+});
+
 
 function create_program_success(data){
     console.info(data);
@@ -213,6 +187,11 @@ function delete_program(program_id){
     })
 }
 
+// update information globally refreshes the page
+$('#refreshcontent').click(function() {
+    location.reload(true);
+});
+
 $("#programs").on("mousedown", ".program-item", function (){
     $('.program-item').removeClass('active');
     $(this).addClass('active');
@@ -222,7 +201,13 @@ $("#programs").on("mousedown", ".program-item", function (){
 $("#PE-program-list").on("mousedown", ".program-item", function (){
     $('.program-item').removeClass('active');
     $(this).addClass('active');
+    selected_program = this.id;
     $('#delete_program_button').empty()
     $('#delete_program_button').append("<button class=\"btn btn-danger btn-lg\" onclick=\"delete_program(\'" + this.id + "\')\">Delete Program</button>")
     list_courses_by_program("#PE-course-list", this.id);
 })
+
+$(document).ready(function() {
+  list_programs("#PE-program-list");
+});
+  
